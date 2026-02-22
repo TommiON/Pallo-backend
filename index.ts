@@ -5,7 +5,6 @@ import environment from "./config/environment";
 
 const app = express();
 
-
 app.use(express.json());
 app.use(cors());
 
