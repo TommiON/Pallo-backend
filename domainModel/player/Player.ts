@@ -2,6 +2,7 @@ import Footedness from "./Footedness";
 import { generatePlayerName, generatePlayerAge } from "./playerFactoryUtils";
 
 export default class Player {
+    id?: number;
     name: string;
     age: number;
 

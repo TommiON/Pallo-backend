@@ -6,10 +6,8 @@ export const generatePlayerName = (): string => {
 }
 
 export const generatePlayerAge = (): number => {
-    const ageRange = [PLAYER_MIN_AGE, PLAYER_MIN_AGE + 1, PLAYER_MIN_AGE +2];
-    return getRandomElement(ageRange);
+    return getRandomElement([PLAYER_MIN_AGE, PLAYER_MIN_AGE + 1, PLAYER_MIN_AGE + 2]);
 }
-
 
 const possibleFirstNames = ['Tommi', 'Hannu', 'Orlando', 'Peter', 'Pauli', 'Otso', 'Kauko', 'Kaspar', 'Juho', 'Jyrki',
     'Panu', 'Jarkko', 'Tuomas', 'Krister', 'Jaakko', 'Iivari', 'Lauri', 'Iivari', 'Otso', 'Jani', 'Jami',
