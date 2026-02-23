@@ -12,6 +12,9 @@ export const PlayerEntity = new EntitySchema<Player>({
         },
         age: { 
             type: "int" 
+        },
+        footedness: {
+            type: "varchar"
         }
     }
 

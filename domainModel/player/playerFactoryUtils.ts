@@ -1,5 +1,6 @@
 import { getRandomElement } from "../../utils/randomizer";
-import { PLAYER_MIN_AGE } from "../../domainProperties/domainProperties";
+import { PLAYER_MIN_AGE, PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH } from "../../domainProperties/domainProperties";
+import Footedness from "./Footedness";
 
 export const generatePlayerName = (): string => {
     return getRandomElement(possibleFirstNames) + ' ' + getRandomElement(possibleLastNames);
@@ -7,6 +8,10 @@ export const generatePlayerName = (): string => {
 
 export const generatePlayerAge = (): number => {
     return getRandomElement([PLAYER_MIN_AGE, PLAYER_MIN_AGE + 1, PLAYER_MIN_AGE + 2]);
+}
+
+export const generatePlayerFootedness = (): Footedness => {
+    return getRandomElement(['right', 'left', 'both'], PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH);
 }
 
 const possibleFirstNames = ['Tommi', 'Hannu', 'Orlando', 'Peter', 'Pauli', 'Otso', 'Kauko', 'Kaspar', 'Juho', 'Jyrki',

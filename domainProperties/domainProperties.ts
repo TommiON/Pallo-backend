@@ -1,2 +1,3 @@
 export const PLAYER_MIN_AGE = 16;
 export const PLAYER_MAX_AGE = 80;
+export const PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH = [70, 25, 5];
