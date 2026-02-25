@@ -1,5 +1,5 @@
 import Footedness from "./Footedness";
-import { generatePlayerName, generatePlayerAge } from "./playerFactoryUtils";
+import { generatePlayerName, generatePlayerAge, generatePlayerFootedness} from "./playerFactoryUtils";
 
 export default class Player {
     id?: number;
@@ -17,5 +17,6 @@ export default class Player {
     constructor() {
         this.name = generatePlayerName();
         this.age = generatePlayerAge();
+        this.footedness = generatePlayerFootedness();
     }
 }
