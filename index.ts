@@ -4,6 +4,7 @@ import cors from "cors";
 import environment from "./config/environment";
 import appDataSource from "./config/datasource";
 import healthCheckRouter from "./api/healthCheck/healthCheckRoutes";
+import playerRouter from "./api/player/playerRoutes";
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use(healthCheckRouter);
+app.use(playerRouter);
 
 const start = async () => {
     appDataSource.initialize()
