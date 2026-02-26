@@ -1,15 +1,10 @@
 import Player from "../../domainModel/player/Player";
 
-export type LargeResponse = Player & {
-    team: string;
-    position: string;
-    stats: {
-        stamina: number;
-        pace: number;
-        strength: number;
-    };
+type OwnPlayer = Player;
+
+type OthersPlayer = Player & {
+    restricted: true
 };
+// muista myös mahdollisuus Omit<Player, 'footedness'>;
 
-export type StrippedResponse = Omit<Player, 'footedness'>;
-
-export type PlayerListResponse = (LargeResponse | StrippedResponse)[];
+export type PlayerResponse = (OwnPlayer | OthersPlayer)[];
