@@ -1,7 +1,7 @@
 export interface ApiResponse<T> {
     success: boolean;
     data?: T;
-    error?: string;
+    errors?: string[];
 }
 
 export const sendSuccessResponse = <T>(data: T): ApiResponse<T> => {
@@ -11,9 +11,9 @@ export const sendSuccessResponse = <T>(data: T): ApiResponse<T> => {
     };
 }
 
-export const sendErrorResponse = (errorMessage: string): ApiResponse<never> => {
+export const sendErrorResponse = (errorMessages: string[]): ApiResponse<never> => {
     return {
         success: false,
-        error: errorMessage,
+        errors: errorMessages,
     };
 }
