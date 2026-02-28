@@ -1,15 +1,15 @@
 export type ValidationError =
     // general
+    'NOT_FOUND'                     |
     'MISSING_PARAMETERS'            |
     'MALFORMATTED_PARAMETERS'       |
     'NON_NUMERIC_IDS'               |
 
     // adding new user
-    'USERNAME_INSUFFICIENT'         |
-    'PASSWORD_INSUFFICIENT'         |
-    'USERNAME_ALREADY_TAKEN'        |
     'CLUBNAME_INSUFFICIENT'         |
+    'PASSWORD_INSUFFICIENT'         |
     'CLUBNAME_ALREADY_TAKEN'        |
+    'PASSWORDS_DO_NOT_MATCH'        |
     
     // logging in
     'USERNAME_NOT_FOUND'            |

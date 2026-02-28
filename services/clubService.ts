@@ -19,3 +19,17 @@ export const createClub = async(name: string, password: string): Promise<Club> =
 
     return savedClub;
 };
+
+export const findClubById = async (id: number): Promise<Club|null> => {
+    const club = await clubRepository.findOne({
+        where: { id },
+        relations: ["players"]
+    });
+
+    return club;
+}
+
+export const clubExistsForName = async (name: string): Promise<boolean> => {
+    const club = await clubRepository.findOneBy({ name });
+    return !!club;
+}
