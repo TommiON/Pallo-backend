@@ -6,6 +6,8 @@ import appDataSource from "./config/datasource";
 import healthCheckRouter from "./api/healthCheck/healthCheckRoutes";
 import playerRouter from "./api/player/playerRoutes";
 
+import { createClub } from "./services/clubService";
+
 const app = express();
 
 app.use(express.json());
@@ -21,7 +23,13 @@ const start = async () => {
             // tähän startScheduler() -tyyppinen kun ollaan siellä asti...
             app.listen(environment.port);
             console.log(`Sovellus käynnissä, kuuntelee porttia ${environment.port}.`);
+            //testaa()
         })
 };
 
 start();
+
+const testaa = async () => {
+    await createClub("FC Orvokki", "salasana");
+
+}
