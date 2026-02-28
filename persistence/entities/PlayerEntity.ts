@@ -15,7 +15,18 @@ export const PlayerEntity = new EntitySchema<Player>({
         },
         footedness: {
             type: "varchar"
+        },
+        clubId: {
+            name: "club_id",
+            type: "int",
+            nullable: true
+        }
+    },
+    relations: {
+        club: {
+            target: "club",
+            type: "many-to-one",
+            joinColumn: { name: "club_id" }
         }
     }
-
 })
