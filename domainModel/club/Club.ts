@@ -19,8 +19,6 @@ export default class Club {
         club.established = new Date();
         club.zombie = false;
 
-        // pelaajien luonti
-
         return club;
     }
 
@@ -31,11 +29,6 @@ export default class Club {
         club.established = new Date();
         club.zombie = true;
 
-        // pelaajien luonti
-
         return club;
     }
-
-    // tää itse asiasssa vittuun tästä
-    private generatePlayersForClub = () => {}
 }

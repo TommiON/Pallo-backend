@@ -1,7 +1,9 @@
+import { ValidationError } from "./ValidationError";
+
 export interface ApiResponse<T> {
     success: boolean;
     data?: T;
-    errors?: string[];
+    errors?: ValidationError[];
 }
 
 export const sendSuccessResponse = <T>(data: T): ApiResponse<T> => {
@@ -11,7 +13,7 @@ export const sendSuccessResponse = <T>(data: T): ApiResponse<T> => {
     };
 }
 
-export const sendErrorResponse = (errorMessages: string[]): ApiResponse<never> => {
+export const sendErrorResponse = (errorMessages: ValidationError[]): ApiResponse<never> => {
     return {
         success: false,
         errors: errorMessages,

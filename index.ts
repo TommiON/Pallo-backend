@@ -5,6 +5,7 @@ import environment from "./config/environment";
 import appDataSource from "./config/datasource";
 import healthCheckRouter from "./api/healthCheck/healthCheckRoutes";
 import playerRouter from "./api/player/playerRoutes";
+import clubRouter from "./api/club/clubRoutes";
 
 import { createClub } from "./services/clubService";
 
@@ -15,6 +16,7 @@ app.use(cors());
 
 app.use(healthCheckRouter);
 app.use(playerRouter);
+app.use(clubRouter);
 
 const start = async () => {
     appDataSource.initialize()

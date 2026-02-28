@@ -1,4 +1,4 @@
-import { RequestHandler, Response } from "express";
+import { RequestHandler } from "express";
 import { ValidationError } from "../ValidationError";
 import { sendErrorResponse } from "../ApiResponse";
 import { PlayersByIdsRequest } from "./PlayerRequestResponseTypes";
@@ -6,7 +6,7 @@ import { PlayersByIdsRequest } from "./PlayerRequestResponseTypes";
 export const getPlayersByIdsRequestValidator: RequestHandler<any, any, PlayersByIdsRequest> = (req, res, next) => {
     const errors: ValidationError[] = [];
 
-    if (!req || !req.body.ids) {
+    if (!req.body.ids) {
         errors.push('MISSING_PARAMETERS');
     } else if (!Array.isArray(req.body.ids)) {
         errors.push('MALFORMATTED_PARAMETERS');
