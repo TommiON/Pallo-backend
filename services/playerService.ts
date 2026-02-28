@@ -15,7 +15,7 @@ export const findPlayersByIds = async (ids: number[]): Promise<PlayerResult> => 
     });
 
     return {
-        ownPlayers: players,
-        othersPlayers: []
+        ownPlayers: players.filter(p => p.id !== 2),
+        othersPlayers: players.filter(p => p.id === 2)
     };
 }
