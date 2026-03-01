@@ -26,7 +26,7 @@ Additional properties:
 - `promotesTo: League`. Where winner(s) is promoted to next season, and from where bottom club(s) is relegated in place. `null` for the topmost League.
 - division level (position in the pyramid hierarchy), possibly some additional naming, like "Division 3, Southwest".
 
-Leagues form a pyramid hierarchy. There is a single top league, and each League has either 2 or 4 children (parametrized in Domain properties). The second-from-bottom level may have exceptions to this, see below. 
+Leagues form a linked-list pyramid hierarchy. There is a single top league, and each League has either 2 or 4 children (parametrized in Domain properties). The second-from-bottom level may have exceptions to this, see below. 
 
 When at least one user Club joins, the topmost League is created, backfilled with zombie clubs if needed. Whenever a new user Club is created during a season, it replaces the lowest-ranking zombie Club in the League hierarchy, but if there are no more zombie places available, the User club remains on waiting list until new season starts.
 
