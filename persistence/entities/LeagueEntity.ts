@@ -13,8 +13,8 @@ export const LeagueEntity = new EntitySchema<League>({
         divisionLevel: { 
             type: "int" 
         },
-        name: {
-            type: "varchar"
+        serialNumberOnDivisionLevel: {
+            type: "int"
         },
         started: {
             type: "boolean"
