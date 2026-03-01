@@ -16,7 +16,7 @@ export default class League {
     // standings?: Standing[];
 
     constructror(season: number, divisionLevel: number, promotesTo: League | null) {
-        this.season = season
+        this.season = season;
 
         this.divisionLevel = divisionLevel;
         this.promotesTo = promotesTo;

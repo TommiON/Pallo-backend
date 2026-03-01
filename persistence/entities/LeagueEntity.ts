@@ -33,6 +33,15 @@ export const LeagueEntity = new EntitySchema<League>({
             target: "league",
             type: "many-to-one",
             joinColumn: { name: "promotes_to_id" }
+        },
+        clubs: {
+            target: "club",
+            type: "many-to-many",
+            joinTable: {
+                name: "league_clubs",
+                joinColumn: { name: "league_id" },
+                inverseJoinColumn: { name: "club_id" }
+            }
         }
     }
 })

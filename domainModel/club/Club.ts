@@ -1,4 +1,5 @@
 import Player from "../player/Player";
+import League from "../league/League";
 import { hashPassword } from "../../utils/passwordUtils";
 import { getRandomNumberInRange } from "../../utils/randomizer";
 
@@ -9,8 +10,9 @@ export default class Club {
     established: Date;
     zombie: boolean;
     players?: Player[];
+    leagues?: League[];
 
-    // must use factory method instead of constructor because of async password hashing and database traffic
+    // must use factory method instead of constructor because of async password hashing
     static create = async (name: string, password: string): Promise<Club> => {
         const club = new Club();
 
