@@ -8,6 +8,7 @@ type AuthenticationResult = {
     usernameFound: boolean;
     passwordMatches?: boolean;
     authenticatedClubId?: number;
+    token?: string;
 }
 
 export const authenticateLogin = async (clubname: string, password: string): Promise<AuthenticationResult> => {
@@ -17,28 +18,31 @@ export const authenticateLogin = async (clubname: string, password: string): Pro
         return {
             usernameFound: false,
             passwordMatches: undefined,
-            authenticatedClubId: undefined
+            authenticatedClubId: undefined,
+            token: undefined
         }
     }
 
     const passwordMatch = await passwordMatches(password, club.passwordHash as string);
 
-    if (passwordMatch) {
+    if (!passwordMatch) {
         return {
             usernameFound: true,
-            passwordMatches: true,
-            authenticatedClubId: club.id
+            passwordMatches: false,
+            authenticatedClubId: undefined,
+            token: undefined
         }
     } else {
         return {
             usernameFound: true,
-            passwordMatches: false,
-            authenticatedClubId: undefined
+            passwordMatches: true,
+            authenticatedClubId: club.id,
+            token: generateToken({ clubName: club.name, clubId: club.id! })
         }
     }
 }
 
-type AuthenticatedUser = {
+export type AuthenticatedUser = {
     clubName: string;
     clubId: number;
 }
