@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import environment from "./environment";
 import { PlayerEntity } from "../persistence/entities/PlayerEntity";
 import { ClubEntity } from "../persistence/entities/ClubEntity";
+import { LeagueEntity } from "../persistence/entities/LeagueEntity";
 import { TimeEntity } from "../persistence/entities/TimeEntity";
 
 const appDataSource = new DataSource({
@@ -16,6 +17,7 @@ const appDataSource = new DataSource({
     entities:       [
         PlayerEntity,
         ClubEntity,
+        LeagueEntity
         TimeEntity
     ],
     subscribers:    [],
