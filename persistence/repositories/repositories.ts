@@ -8,3 +8,5 @@ export const clubRepository = appDataSource.getRepository(ClubEntity);
 
 import { LeagueEntity } from "../entities/LeagueEntity";
 export const leagueRepository = appDataSource.getRepository(LeagueEntity);
+import { TimeEntity } from "../entities/TimeEntity";
+export const timeRepository = appDataSource.getRepository(TimeEntity);

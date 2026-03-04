@@ -12,7 +12,7 @@ export type ValidationError =
     'PASSWORDS_DO_NOT_MATCH'        |
     
     // logging in
-    'USERNAME_NOT_FOUND'            |
+    'CLUBNAME_NOT_FOUND'            |
     'PASSWORD_DOES_NOT_MATCH'       |
 
     // JSONWebtoken validation
