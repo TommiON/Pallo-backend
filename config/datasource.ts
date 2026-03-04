@@ -17,7 +17,7 @@ const appDataSource = new DataSource({
     entities:       [
         PlayerEntity,
         ClubEntity,
-        LeagueEntity
+        LeagueEntity,
         TimeEntity
     ],
     subscribers:    [],
