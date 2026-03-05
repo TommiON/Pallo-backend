@@ -8,7 +8,7 @@ import playerRouter from "./api/player/playerRoutes";
 import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
 
-import { createClub } from "./services/clubService";
+import { initializeDomain } from "./domainEngine/initializer";
 
 const app = express();
 
@@ -21,19 +21,16 @@ app.use(playerRouter);
 app.use(clubRouter);
 
 const start = async () => {
-    appDataSource.initialize()
-        .then(() => {
-            console.log('Datalähde auki.');
-            // tähän startScheduler() -tyyppinen kun ollaan siellä asti...
-            app.listen(environment.port);
-            console.log(`Sovellus käynnissä, kuuntelee porttia ${environment.port}.`);
-            //testaa()
-        })
-};
+    try {
+        await appDataSource.initialize();
+        await initializeDomain();
+
+        app.listen(environment.port);
+        
+        console.log(`Sovellus käynnissä, kuuntelee porttia ${environment.port}.`);
+    } catch (error) {
+        console.error('Virhe sovelluksen käynnistyksessä:', error)
+    }
+}
 
 start();
-
-const testaa = async () => {
-    await createClub("FC Orvokki", "salasana");
-
-}

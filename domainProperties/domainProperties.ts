@@ -7,3 +7,6 @@ export const CLUB_NUMBER_OF_PLAYERS_AT_START = 15;
 export const LEAGUE_NUMBER_OF_TEAMS = 8;
 export const LEAGUE_SPAN_FACTOR = 2;
 export const LEAGUE_PROMOTED_FROM_TOP = 2;
+
+export const TIME_USE_SCHEDULER = false;
+export const TIME_SYNC_WITH_REAL_TIME = false;

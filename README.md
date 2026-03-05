@@ -72,9 +72,19 @@ Properties:
 - `club: Club`
 - situation: points, wins, losses, draws, goals for, goals against, etc.
 
-## Domain engine
+### Club
+
+### Player
 
 ### Time
+
+Represents a moment in time in the gameworld (season, week, day, hour). May progress in sync with real-world time, or faster (configured in DomainProperties).
+
+### WeeklyEvent
+
+## Domain engine
+
+### Timekeeping
 
 (preliminary musings)
 
