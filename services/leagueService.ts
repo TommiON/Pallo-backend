@@ -20,8 +20,10 @@ export const createLeague = async (
     const promotesTo = spanningFrom ? spanningFrom : null;
     const serialNumber = previousSeasonPredecessor ? previousSeasonPredecessor.serialNumberOnDivisionLevel : serialNumberOnDivisionLevel;
 
-    const league = new League(season, divisionLevel, serialNumber, promotesTo);
+    const league = new League(season, divisionLevel, serialNumber!, promotesTo);
     const savedLeague = await leagueRepository.save(league);
+
+    return savedLeague;
 }
 
 /**
@@ -40,7 +42,7 @@ const findLeagueBySeasonAndDivionalPosition = async (
 
 
 const findChildrenForLeague = async (leagueId: number): Promise<League[] | null> => {
-
+    return null;
 }
 
 // funktio jolla vaihdetaan kahden seuran paikka (promotion/relegation)

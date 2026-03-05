@@ -1,4 +1,9 @@
-// ylläpitää liigapyramidia, kauden vaihteessa pitää pystyä hetken ylläpitämään sekä vanhaa että uutta
+/* ylläpitää liigapyramidia, kauden vaihteessa pitää pystyä hetken ylläpitämään sekä vanhaa että uutta
+    - luodaan kauden välissä kokonaan uudelleen, mahdollisuus reagoida parametrien muutoksiin
+    - ei suoraa linkitystä liigojen välillä, eli nousija/laskija ei tiedä tulevaa liigaansa -> helpottanee implementointia
+    
+*/
+
 
 // väliaikainen, haetaan DomainEnginen kellosta sitten kun toteutettu
 const currentSeason = 1;
