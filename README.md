@@ -1,38 +1,38 @@
 # Pallo-backend
 
-## Structure
+## Structure and general architecture
 
-### /domainModel
+Directory structure:
 
-Domain model containing Domain objects, and factory functionalities for creating these.
+- **/domainModel** Domain model containing Domain objects, and factory functionalities for creating these.
 
-### /persistence
+- **/persistence** Domain model persisted; contains Entities and Repositories.
 
-Domain model persisted; contains Entities and Repositories.
+- **/api** REST endpoints for frontend; request and response types; request validators.
 
-### /api
+- **/services** Mediates between API and inner parts of the application; returns Domain Objects.
 
-REST endpoints for frontend; request and response types; request validators.
+- **/domainEngine** Actual business logic; deals with Domain objects and does things to them.
 
-### /services
+- **/domainProperties** Domain-related settings and properties.
 
-Mediates between API and inner parts of the application; returns Domain Objects.
+- **/config** Technical configuration.
 
-### /domainEngine
+- **/utils** Helper functions and stuff.
 
-Actual business logic; deals with Domain objects and does things to them.
+Flow:
 
-### /domainProperties
-
-Domain-related settings and properties.
-
-### /config
-
-Technical configuration.
-
-### /utils
-
-Helper functions and stuff.
+API Layer
+    ↓ (uses)
+Domain Data Contracts that define what Domain Model exposes (PlayerData, ClubData, etc.)
+    ↓ (implements)
+Domain Models (Player, Club, etc.)
+    ↕ (adapters: fromEntity/toEntity)
+Persistence Data Contracts that define what is persisted (PlayerEntityData, ClubEntityData, etc.)
+    ↓ (uses)
+Entity Schemas (PlayerEntity, ClubEntity, etc.)
+    ↓ (maps to)
+Database Tables
 
 ## Domain objects
 
@@ -89,7 +89,10 @@ Represents the current time in the gameworld (season, week, day, hour).
 - Upon startup, `initializeDomain()` initializes the starting Time (domain object) to either zero-hour (first start) or to the previous state from the database.
 - `startDomain()` then fires up a scheduler. The scheduler knows nothing about domain-spesific Time, it just periodically calls `timeService.advanceTime()` to advance Time by one hour. This happens either once every real-time hour, or more frequently, as parametrized.
 - Time object handles the actual time change. Changed time is passed back to `timeService`, which persists it.
-- Time object also offers subscriptions for listeners interested in changes of time. Listeners are notified whenever Time changes. (Planned listeners: SeasonRunner reacts when a new season begins, WeekRunner reacts when a new week begins. Maybe also some kind of Calendar to react whenever an hour changes, used by UI etc?)
+- Time object also offers subscriptions for listeners interested in changes of time. Listeners are notified whenever Time changes.
+    - SeasonRunner listens and reacts when a new season begins
+    - WeekRunner listens and reacts when a new week begins, and when deadlines for WeeklyEvents approach and expire
+    - (Maybe also some kind of Calendar to react whenever an hour changes, used by UI etc?)
 
 ### League pyramid, seasons, etc (very preliminary...)
 

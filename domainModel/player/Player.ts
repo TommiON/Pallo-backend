@@ -10,7 +10,7 @@ export default class Player implements PlayerData {
     age: number;
     footedness: Footedness;
     clubId?: number;
-    club?: Club;  // NOT in IPlayerData - internal only
+    club?: Club;
 
     /*
     stamina: number;
