@@ -2,7 +2,7 @@
 
 ## Structure and general architecture
 
-Directory structure:
+### Directory structure
 
 - **/domainModel**: Domain objects and their related business logic. Each Domain Object offers a Domain Data Contract that defines what is exposed, and fromEntity/toEntity factories/adapters for dealing with persistence level.
 
@@ -20,7 +20,7 @@ Directory structure:
 
 - **/utils**: Helper functions and stuff.
 
-Flow:
+### Flow
 
 (huom. tuohon tarvitaan myös se että API "uses" services, kun kyselee sovellukselta palautettavaa. Domain Data Contracts koskee vain datatyyppejä.)
 
@@ -65,6 +65,8 @@ Leagues form a linked-list pyramid hierarchy. There is a single top league, and 
 
 When at least one user Club joins, the topmost League is created, backfilled with zombie clubs if needed. Whenever a new user Club is created during a season, it replaces the lowest-ranking zombie Club in the League hierarchy, but if there are no more zombie places available, the User club remains on waiting list until new season starts.
 
+(jossain vaiheessa sepustusta pitää eriyttää DomainEngine-puolelle)
+
 In between seasons, LeagueOrganizator (DomainEngine) does the following:
 - Normal promotion and relegation: promoted and relegated Clubs change places.
 - Zombie relegation: starting from top, if there are zombie Clubs in non-relegating places, they are relegated anyway. This means there may open up additional promotions on the levels below. Zombie relegation recurs until all zombies are as low as they can go. (Zombia ei siirretä koskaan ylempään liigaan. Mutta mitä tapahtuu jos alemmassa liigassa enemmän zombeja kuin ylemmässä? Pitäisikö sittenkin aloittaa alhaalta?)
@@ -100,8 +102,8 @@ Represents the current time in the gameworld (season, week, day, hour).
 
 - Upon startup, `initializeDomain()` initializes the starting `Time` (domain object) to either zero-hour or to a previous state from the database.
 - `startDomain()` then fires up a scheduler, which knows nothing about domain-spesific `Time` and just periodically calls `timeService.advanceTime()` to advance `Time` by one hour. This happens either once every real-time hour, or more frequently, as parametrized.
-- Time object handles the actual time change. Changed time is passed back to `timeService`, which persists it.
-- `Time` object also offers subscriptions for listeners interested in changes of time.
+- `Time` handles the actual time change. Changed time is passed back to `timeService`, which persists it.
+- `Time` also offers subscriptions for listeners interested in changes.
     - `SeasonRunner` listens and reacts when a new season begins.
     - `WeekRunner` listens and reacts when a new week begins, and when deadlines for `WeeklyEvents` approach and expire
     - (Maybe also some kind of Calendar to react whenever an hour changes, used by UI etc?)

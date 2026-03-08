@@ -7,20 +7,18 @@ This document describes the architecture, patterns, and conventions used in the 
 **Pallo** is a football (soccer) club management backend built with:
 - **Framework**: Express.js (TypeScript)
 - **Database**: PostgreSQL with TypeORM
-- **Architecture**: Clean domain-driven design with separation of layers
+- **Architecture**: Clean domain-driven design with strict separation of layers
 
 ## Directory Structure
 
 ```
 api/                    # HTTP API routes and request/response types
 ├── player/             # Player endpoints
-│   ├── PlayerRequest.ts
-│   ├── PlayerResponse.ts
+│   ├── PlayerRequestResponseTypes.ts
 │   ├── playerRoutes.ts
 │   └── playerRequestValidator.ts
 ├── club/               # Club endpoints
-│   ├── ClubRequest.ts
-│   ├── ClubResponse.ts
+│   ├── ClubRequestResponseTypes.ts
 │   ├── clubRoutes.ts
 │   └── clubRequestValidator.ts
 ├── ApiResponse.ts      # Shared response wrapper
@@ -33,10 +31,18 @@ config/                 # Application configuration
 domainModel/            # Core business logic (domain-driven design)
 ├── player/
 │   ├── Player.ts       # Domain entity
+│   ├── PlayerData.ts   # API contract interface
 │   ├── Footedness.ts   # Value object
 │   └── playerFactoryUtils.ts
 ├── club/
-│   └── Club.ts         # Domain entity with factory methods
+│   ├── Club.ts         # Domain entity with factory methods
+│   └── ClubData.ts     # API contract interface
+├── league/
+│   ├── League.ts       # Domain entity
+│   └── LeagueData.ts   # API contract interface
+├── time/
+│   ├── Time.ts         # Domain entity with listeners
+│   └── WeeklyEvent.ts  # Time-related value objects
 └── ...
 
 domainProperties/       # Constants and configuration
@@ -44,10 +50,28 @@ domainProperties/       # Constants and configuration
 
 persistence/            # Data access layer
 ├── entities/           # TypeORM entity schema definitions
-│   ├── PlayerEntity.ts
-│   ├── ClubEntity.ts
+│   ├── PlayerEntity.ts # Entity schema + PlayerEntityData interface
+│   ├── ClubEntity.ts   # Entity schema + ClubEntityData interface
+│   ├── LeagueEntity.ts # Entity schema + LeagueEntityData interface
+│   ├── TimeEntity.ts   # Entity schema + TimeEntityData interface
 │   └── sharedEntityBase.ts
-└── repositories/       # Repository instances
+└── repositories/       # Repository instances with explicit typing
+    └── repositories.ts
+
+services/               # Business logic / use case orchestration
+├── playerService.ts
+├── clubService.ts
+├── leagueService.ts
+├── timeService.ts
+└── ...
+
+utils/                  # Utility functions and helpers
+├── randomizer.ts
+├── passwordUtils.ts
+└── ...
+
+index.ts               # Application entry point
+```
     └── repositories.ts
 
 services/               # Business logic / use case orchestration
@@ -64,6 +88,28 @@ index.ts               # Application entry point
 ```
 
 ## Architecture & Patterns
+
+### Clean Architecture Overview
+
+The application follows **Clean Architecture** principles with strict separation between layers:
+
+```
+┌─────────────────────────────────────┐
+│         API Layer (Routes)          │ ← HTTP requests/responses
+├─────────────────────────────────────┤
+│     Domain Data Contracts           │ ← PlayerData, ClubData, etc.
+├─────────────────────────────────────┤
+│       Domain Model Layer            │ ← Business logic, no dependencies
+├─────────────────────────────────────┤
+│   Persistence Data Contracts        │ ← PlayerEntityData, etc.
+├─────────────────────────────────────┤
+│      Persistence Layer              │ ← TypeORM entities & repositories
+├─────────────────────────────────────┤
+│         Database (PostgreSQL)       │
+└─────────────────────────────────────┘
+```
+
+**Dependency Rule**: Inner layers don't depend on outer layers. Data flows through adapters.
 
 ### 1. Domain Model Layer (`domainModel/`)
 
@@ -109,9 +155,10 @@ export default class Club {
 ```
 
 **Key Principles:**
-- Domain entities contain both scalar FK (`clubId`) and object references (`club`) for flexibility
-- Use factory methods (static async) for complex initialization requiring I/O
-- Keep domain entities focused on business rules, not DB details
+- Domain entities implement their `Data` interface (public contract)
+- Use factory methods (`fromEntity`) for persistence → domain conversion
+- Use adapter methods (`toEntity`) for domain → persistence conversion
+- Keep domain entities focused on business rules, not data transformation
 
 ### 2. Persistence Layer (`persistence/`)
 
@@ -149,8 +196,9 @@ export const PlayerEntity = new EntitySchema<Player>({
 
 **Repository Pattern:**
 ```typescript
-export const playerRepository = appDataSource.getRepository(PlayerEntity);
-export const clubRepository = appDataSource.getRepository(ClubEntity);
+// Explicit typing for type safety
+export const playerRepository: Repository<PlayerEntityData> = appDataSource.getRepository(PlayerEntity);
+export const clubRepository: Repository<ClubEntityData> = appDataSource.getRepository(ClubEntity);
 ```
 
 **Querying Best Practices:**
@@ -166,7 +214,8 @@ Orchestrates domain logic and persistence operations.
 ```typescript
 export const createClub = async(name: string, password?: string): Promise<Club> => {
     const club = await Club.create(name, password || "");
-    const savedClub = await clubRepository.save(club);
+    const savedClubEntity = await clubRepository.save(club.toEntity());
+    const savedClub = Club.fromEntity(savedClubEntity);
 
     const players: Player[] = [];
     for (let i = 0; i < CLUB_NUMBER_OF_PLAYERS_AT_START; i++) {
@@ -176,23 +225,27 @@ export const createClub = async(name: string, password?: string): Promise<Club> 
         players.push(p);
     }
 
-    const savedPlayers = await playerRepository.save(players);
-    savedClub.players = savedPlayers;
+    const savedPlayerEntities = await playerRepository.save(players.map(p => p.toEntity()));
+    savedClub.players = savedPlayerEntities.map(pe => Player.fromEntity(pe));
 
     return savedClub;
 };
 ```
 
 **Key Principles:**
-- Services receive request/search parameters and return domain objects
-- Services handle transactions and complex multi-step operations
-- Services do not format responses (that's the API layer's job)
+- Services use domain models and repositories
+- Convert between domain objects and persistence entities using `fromEntity`/`toEntity`
+- Handle business logic and data validation
+- Return domain objects or API data contracts
 
 ### 4. API Layer (`api/`)
 
-HTTP routing and request/response handling.
+HTTP routing and request/response handling using data contracts.
 
 **Request Types:**
+- Use `Data` interfaces for API contracts (e.g., `PlayerData`, `ClubData`)
+- Define request types that match the API contract
+
 ```typescript
 export interface PlayerRequest {
     ids: number[];
@@ -200,18 +253,14 @@ export interface PlayerRequest {
 ```
 
 **Response Types:**
-- Use `type` (not `interface`) for response unions and utility types
-- Use utility types (`Omit`, `Pick`, intersection `&`) to derive from domain objects
+- Use `Data` interfaces as the basis for API responses
+- Use utility types (`Omit`, `Pick`, intersection `&`) to derive from data contracts
 - Never extend `Response<T>` to avoid type conflicts
 
 ```typescript
-export type StrippedResponse = Omit<Player, 'footedness'>;
-export type LargeResponse = Player & {
-    team: string;
-    position: string;
-    stats: { … };
-};
-export type PlayerListResponse = (LargeResponse | StrippedResponse)[];
+export type PlayerResponse = PlayerData;  // Full player data
+export type StrippedPlayerResponse = Omit<PlayerData, 'footedness'>;
+export type PlayerListResponse = PlayerData[];
 ```
 
 **Request Validators:**
@@ -235,7 +284,8 @@ export const playerRequestValidator: RequestHandler<any, any, PlayerRequest> = (
 
 **Route Handlers:**
 - Use `Response<ApiResponse<T>>` to type the JSON response body
-- Call helpers like `sendSuccessResponse(data)` to build response objects
+- Call service methods that return domain objects
+- Convert domain objects to data contracts for API responses
 - Pass validators as middleware before the handler
 
 ```typescript
@@ -243,8 +293,9 @@ playerRouter.get(
     `${baseUrl}/`,
     playerRequestValidator,
     async (req: Request<any, any, PlayerRequest>, res: Response<ApiResponse<PlayerResponse>>) => {
-        const result = await findPlayersByIds(req.body.ids);
-        res.json(sendSuccessResponse([...result.ownPlayers, ...result.othersPlayers]));
+        const players = await playerService.findPlayersByIds(req.body.ids);
+        const playerData = players.map(p => p.toData()); // Convert to API contract
+        res.json(sendSuccessResponse(playerData));
     }
 );
 ```
@@ -295,7 +346,9 @@ const players = await playerRepository.find({
 ### Naming
 
 - **Domain models**: PascalCase classes (`Player`, `Club`)
+- **Domain data contracts**: Append `Data` suffix (`PlayerData`, `ClubData`)
 - **Entity schemas**: Append `Entity` suffix (`PlayerEntity`, `ClubEntity`)
+- **Entity data contracts**: Append `EntityData` suffix (`PlayerEntityData`, `ClubEntityData`)
 - **Service functions**: camelCase with `create`, `find`, `update` prefix (`createClub`, `findPlayersByIds`)
 - **Repositories**: `${entity}Repository` (`playerRepository`, `clubRepository`)
 - **Routes**: Plural form matching feature (`/api/player`, `/api/club`)
@@ -345,14 +398,15 @@ describe('Player', () => {
 
 ### Adding a New Domain Entity
 
-1. **Create the domain model** in `domainModel/{feature}/{Entity}.ts`
-2. **Create the TypeORM entity** in `persistence/entities/{Entity}Entity.ts`
-3. **Register the repository** in `persistence/repositories/repositories.ts`
-4. **Create service functions** in `services/{feature}Service.ts`
-5. **Create request/response types** in `api/{feature}/{Feature}Request.ts`, `{Feature}Response.ts`
-6. **Create validators** in `api/{feature}/{feature}Validator.ts` (if needed)
-7. **Create routes** in `api/{feature}/{feature}Routes.ts`
-8. **Register router** in `index.ts`
+1. **Create data contracts** in `domainModel/{feature}/{Entity}Data.ts` and `persistence/entities/{Entity}EntityData.ts`
+2. **Create the domain model** in `domainModel/{feature}/{Entity}.ts` implementing `{Entity}Data` interface
+3. **Create the TypeORM entity** in `persistence/entities/{Entity}Entity.ts` implementing `{Entity}EntityData` interface
+4. **Register the repository** in `persistence/repositories/repositories.ts` with explicit typing
+5. **Create service functions** in `services/{feature}Service.ts` using domain objects and conversions
+6. **Create request/response types** in `api/{feature}/{Feature}RequestResponseTypes.ts` using data contracts
+7. **Create validators** in `api/{feature}/{feature}RequestValidator.ts` (if needed)
+8. **Create routes** in `api/{feature}/{feature}Routes.ts` converting between domain and data contracts
+9. **Register router** in `index.ts`
 
 ### Adding a Relationship
 
