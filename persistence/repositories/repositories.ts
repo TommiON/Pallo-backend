@@ -8,5 +8,6 @@ export const clubRepository = appDataSource.getRepository(ClubEntity);
 
 import { LeagueEntity } from "../entities/LeagueEntity";
 export const leagueRepository = appDataSource.getRepository(LeagueEntity);
-import { TimeEntity } from "../entities/TimeEntity";
-export const timeRepository = appDataSource.getRepository(TimeEntity);
+import { Repository } from "typeorm";
+import { TimeEntity, ITimeEntity } from "../entities/TimeEntity";
+export const timeRepository: Repository<ITimeEntity> = appDataSource.getRepository(TimeEntity);
