@@ -4,35 +4,45 @@
 
 Directory structure:
 
-- **/domainModel** Domain model containing Domain objects, and factory functionalities for creating these.
+- **/domainModel** - Domain model containing Domain objects. Each Domain Object offers a Domain Data Contract that defines what is exposed, and fromEntity/toEntity factories/adapters for dealing with persistence level.
 
-- **/persistence** Domain model persisted; contains Entities and Repositories.
+- **/persistence** - Domain model persisted; contains Entities and Repositories.
 
-- **/api** REST endpoints for frontend; request and response types; request validators.
+- **/api** - REST endpoints for frontend; request and response types; request validators.
 
-- **/services** Mediates between API and inner parts of the application; returns Domain Objects.
+- **/services** - Mediates between API and inner parts of the application; responsible for dealing with the persistence level, returns Domain Objects.
 
-- **/domainEngine** Actual business logic; deals with Domain objects and does things to them.
+- **/domainEngine** - Actual business logic; deals with Domain objects and does things to them.
 
-- **/domainProperties** Domain-related settings and properties.
+- **/domainProperties** - Domain-related settings and properties.
 
-- **/config** Technical configuration.
+- **/config** - Technical configuration.
 
-- **/utils** Helper functions and stuff.
+- **/utils** - Helper functions and stuff.
 
 Flow:
 
-API Layer
+API layer
+
     ↓ (uses)
-Domain Data Contracts that define what Domain Model exposes (PlayerData, ClubData, etc.)
+
+Domain Data Contracts (PlayerData, ClubData, etc.) for response types
+
     ↓ (implements)
+
 Domain Models (Player, Club, etc.)
+
     ↕ (adapters: fromEntity/toEntity)
+
 Persistence Data Contracts that define what is persisted (PlayerEntityData, ClubEntityData, etc.)
+
     ↓ (uses)
+
 Entity Schemas (PlayerEntity, ClubEntity, etc.)
+
     ↓ (maps to)
-Database Tables
+
+Database tables
 
 ## Domain objects
 
