@@ -5,7 +5,8 @@ import { clubRepository, playerRepository } from "../persistence/repositories/re
 
 export const createClub = async(name: string, password: string): Promise<Club> => {
     const club = await Club.create(name, password);
-    const savedClub = await clubRepository.save(club);
+    const savedClubEntity = await clubRepository.save(club.toEntity() as any);
+    const savedClub = Club.fromEntity(savedClubEntity);
 
     const players: Player[] = [];
     for (let i = 0; i < CLUB_NUMBER_OF_PLAYERS_AT_START; i++) {
@@ -15,18 +16,20 @@ export const createClub = async(name: string, password: string): Promise<Club> =
         players.push(p);
     }
 
-    const savedPlayers = await playerRepository.save(players);
+    const playerEntities = players.map(p => p.toEntity());
+    await playerRepository.save(playerEntities as any);
 
     return savedClub;
 };
 
 export const findClubById = async (id: number): Promise<Club|null> => {
-    const club = await clubRepository.findOne({
+    const clubEntity = await clubRepository.findOne({
         where: { id },
         relations: ["players"]
     });
 
-    return club;
+    if (!clubEntity) return null;
+    return Club.fromEntity(clubEntity);
 }
 
 export const clubExistsForName = async (name: string): Promise<boolean> => {

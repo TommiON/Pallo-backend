@@ -1,6 +1,6 @@
-import Club from "../../domainModel/club/Club";
+import type { ClubData } from "../../domainModel/club/ClubData";
 
-export type ClubResponse = Omit<Club, "passwordHash"> | null;
+export type ClubResponse = Omit<ClubData, "passwordHash"> | null;
 
 export type CreateClubRequest = {
     name: string;

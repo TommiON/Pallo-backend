@@ -1,32 +1,31 @@
 import Time from "../domainModel/time/Time";
 import { timeRepository } from "../persistence/repositories/repositories";
-import { LEAGUE_NUMBER_OF_TEAMS } from "../domainProperties/domainProperties";
+import type { TimeEntityData } from "../persistence/entities/TimeEntity";
 
 /**
  * Gets the current time from the database.
  * @returns 
  */
-export const getCurrentTime = async (): Promise<Time|null> => {
+export const getCurrentTime = async (): Promise<TimeEntityData|null> => {
     return await timeRepository.findOne({ where: { id: 1 } });
 }
 
 /**
- * Initializes the staring point of time in the database, if not initialized already.
+ * Initializes the starting point of time in the database, if not initialized already.
  * @returns 
  */
 export const initializeTime = async (): Promise<Time> => {
-    const existingTime = await getCurrentTime();
+    const existingTimeEntity = await getCurrentTime();
 
-    if (existingTime) {
-        return existingTime;
+    if (existingTimeEntity) {
+        // Convert entity to domain object
+        return Time.fromEntity(existingTimeEntity);
     } else {
         const time = new Time();
-        time.season = 1;
-        time.week = 1;
-        time.day = 1;
-        time.hour = 0;
-
-        return await timeRepository.save(time);
+        // Convert domain object to entity for persistence
+        // TypeORM repository typing is complex with entity schema changes, using cast as temporary solution
+        return await timeRepository.save(time.toEntity() as any)
+            .then(savedEntity => Time.fromEntity(savedEntity));
     }
 }
 
@@ -48,5 +47,7 @@ export const advanceTime = async (): Promise<Time> => {
     const newtime = timeInstance.advanceByAnHour();
     newtime.notifyTimeChange();
 
-    return await timeRepository.save(newtime);
+    // Convert domain object back to entity for persistence
+    // TypeORM repository typing is complex with entity schema changes, using cast as temporary solution
+    return await timeRepository.save(newtime.toEntity() as any);
 }

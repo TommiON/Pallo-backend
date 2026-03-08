@@ -4,8 +4,7 @@ import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainProperties/dom
 
 export const initializeDomain = async () => {
     // initialize time and related things
-    const timeEntity = await initializeTime();
-    const time = Time.fromEntity(timeEntity);
+    const time = await initializeTime();
 
     time.registerChangeListener((newTime) => { console.log('Aika rientää:', newTime) });
 }

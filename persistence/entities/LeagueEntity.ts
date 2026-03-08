@@ -1,9 +1,20 @@
 import { EntitySchema } from "typeorm";
-
-import League from "../../domainModel/league/League";
 import { sharedEntityBaseColumns } from "./sharedEntityBase";
 
-export const LeagueEntity = new EntitySchema<League>({
+// Pure data structure for persistence - no domain logic
+export interface LeagueEntityData {
+    id?: number;
+    season: number;
+    divisionLevel: number;
+    serialNumberOnDivisionLevel: number;
+    promotesToId?: number;
+    started: boolean;
+    finished: boolean;
+    promotesTo?: any;
+    clubs?: any;
+}
+
+export const LeagueEntity = new EntitySchema<LeagueEntityData>({
     name: "league",
     columns: {
         ...sharedEntityBaseColumns,

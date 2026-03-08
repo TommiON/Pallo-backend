@@ -1,12 +1,15 @@
+import { Repository } from "typeorm";
+
 import appDataSource from "../../config/datasource";
 
-import { PlayerEntity } from "../entities/PlayerEntity";
-export const playerRepository = appDataSource.getRepository(PlayerEntity);
+import { PlayerEntity, PlayerEntityData } from "../entities/PlayerEntity";
+export const playerRepository: Repository<PlayerEntityData> = appDataSource.getRepository(PlayerEntity);
 
-import { ClubEntity } from "../entities/ClubEntity";
-export const clubRepository = appDataSource.getRepository(ClubEntity);
+import { ClubEntity, ClubEntityData } from "../entities/ClubEntity";
+export const clubRepository: Repository<ClubEntityData> = appDataSource.getRepository(ClubEntity);
 
-import { LeagueEntity } from "../entities/LeagueEntity";
-export const leagueRepository = appDataSource.getRepository(LeagueEntity);
-import { TimeEntity } from "../entities/TimeEntity";
-export const timeRepository = appDataSource.getRepository(TimeEntity);
+import { LeagueEntity, LeagueEntityData } from "../entities/LeagueEntity";
+export const leagueRepository: Repository<LeagueEntityData> = appDataSource.getRepository(LeagueEntity);
+
+import { TimeEntity, TimeEntityData } from "../entities/TimeEntity";
+export const timeRepository: Repository<TimeEntityData> = appDataSource.getRepository(TimeEntity);
