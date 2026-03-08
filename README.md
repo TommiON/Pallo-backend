@@ -4,43 +4,45 @@
 
 Directory structure:
 
-- **/domainModel** - Domain model containing Domain objects. Each Domain Object offers a Domain Data Contract that defines what is exposed, and fromEntity/toEntity factories/adapters for dealing with persistence level.
+- **/domainModel**: Domain objects and their related business logic. Each Domain Object offers a Domain Data Contract that defines what is exposed, and fromEntity/toEntity factories/adapters for dealing with persistence level.
 
-- **/persistence** - Domain model persisted; contains Entities and Repositories.
+- **/persistence**: Persisted version of the Domain model. Contains Entities and Repositories corresponding to Domain objects. Persistence Data Contracts define how Domain objects are persisted.
 
-- **/api** - REST endpoints for frontend; request and response types; request validators.
+- **/api**: REST endpoints for frontend. Request and response types. Request validators.
 
-- **/services** - Mediates between API and inner parts of the application; responsible for dealing with the persistence level, returns Domain Objects.
+- **/services**: Mediates between API and inner parts of the application. Responsible for dealing with the persistence level. Returns Domain objects.
 
-- **/domainEngine** - Actual business logic; deals with Domain objects and does things to them.
+- **/domainEngine**: Larger-scale business logic. Deals with Domain objects and does things to them.
 
-- **/domainProperties** - Domain-related settings and properties.
+- **/domainProperties**: Domain-related settings and properties.
 
-- **/config** - Technical configuration.
+- **/config**: Technical configuration.
 
-- **/utils** - Helper functions and stuff.
+- **/utils**: Helper functions and stuff.
 
 Flow:
 
+(huom. tuohon tarvitaan myös se että API "uses" services, kun kyselee sovellukselta palautettavaa. Domain Data Contracts koskee vain datatyyppejä.)
+
 API layer
 
-    ↓ (uses)
+↓ (uses)
 
-Domain Data Contracts (PlayerData, ClubData, etc.) for response types
+Domain Data Contracts (PlayerData, ClubData, etc.) for crafting response types
 
-    ↓ (implements)
+↓ (implements)
 
-Domain Models (Player, Club, etc.)
+Domain models (Player, Club, etc.)
 
-    ↕ (adapters: fromEntity/toEntity)
+↕ (adapters: fromEntity/toEntity)
 
 Persistence Data Contracts that define what is persisted (PlayerEntityData, ClubEntityData, etc.)
 
-    ↓ (uses)
+↓ (uses)
 
-Entity Schemas (PlayerEntity, ClubEntity, etc.)
+Entity schemas (PlayerEntity, ClubEntity, etc.)
 
-    ↓ (maps to)
+↓ (maps to)
 
 Database tables
 
@@ -96,12 +98,12 @@ Represents the current time in the gameworld (season, week, day, hour).
 
 ### Timekeeping
 
-- Upon startup, `initializeDomain()` initializes the starting Time (domain object) to either zero-hour (first start) or to the previous state from the database.
-- `startDomain()` then fires up a scheduler. The scheduler knows nothing about domain-spesific Time, it just periodically calls `timeService.advanceTime()` to advance Time by one hour. This happens either once every real-time hour, or more frequently, as parametrized.
+- Upon startup, `initializeDomain()` initializes the starting `Time` (domain object) to either zero-hour or to a previous state from the database.
+- `startDomain()` then fires up a scheduler, which knows nothing about domain-spesific `Time` and just periodically calls `timeService.advanceTime()` to advance `Time` by one hour. This happens either once every real-time hour, or more frequently, as parametrized.
 - Time object handles the actual time change. Changed time is passed back to `timeService`, which persists it.
-- Time object also offers subscriptions for listeners interested in changes of time. Listeners are notified whenever Time changes.
-    - SeasonRunner listens and reacts when a new season begins
-    - WeekRunner listens and reacts when a new week begins, and when deadlines for WeeklyEvents approach and expire
+- `Time` object also offers subscriptions for listeners interested in changes of time.
+    - `SeasonRunner` listens and reacts when a new season begins.
+    - `WeekRunner` listens and reacts when a new week begins, and when deadlines for `WeeklyEvents` approach and expire
     - (Maybe also some kind of Calendar to react whenever an hour changes, used by UI etc?)
 
 ### League pyramid, seasons, etc (very preliminary...)
