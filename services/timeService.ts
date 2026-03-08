@@ -2,8 +2,6 @@ import Time from "../domainModel/time/Time";
 import { timeRepository } from "../persistence/repositories/repositories";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../domainProperties/domainProperties";
 
-// Itse asiassa kaikki aikalogiikka domainObjectin hommia ja tänne vain tietokantaliikenne?
-
 /**
  * Gets the current time from the database.
  * @returns 
@@ -18,6 +16,7 @@ export const getCurrentTime = async (): Promise<Time|null> => {
  */
 export const initializeTime = async (): Promise<Time> => {
     const existingTime = await getCurrentTime();
+
     if (existingTime) {
         return existingTime;
     } else {
@@ -31,35 +30,23 @@ export const initializeTime = async (): Promise<Time> => {
     }
 }
 
-interface TimeUpdate {
-    nextSeason?: boolean;
-    nextWeek?: boolean;
-    nextDay?: boolean;
-    nextHour?: boolean;
-}
-
-const weeksInSeason = (LEAGUE_NUMBER_OF_TEAMS - 1) * 2;
-
 /**
- * Updates some aspect of time in the database
+ * Updates time in the database
  * @param timeUpdate 
  * @returns 
  */
-export const advanceTime = async (timeUpdate: TimeUpdate): Promise<Time> => {
-    let time = await getCurrentTime();
-    
-    if (!time) {
+export const advanceTime = async (): Promise<Time> => {
+    let oldtime = await getCurrentTime();
+
+    if (!oldtime) {
         throw new Error("Time not initialized");
     }
 
-    if (timeUpdate.nextSeason) {
-        time.season += 1;
-        time.week = 1;
-        time.day = 1;
-        time.hour = 0;
-    }
+    // Create a proper Time instance from the database entity
+    const timeInstance = Time.fromEntity(oldtime);
 
-    // jne.
+    const newtime = timeInstance.advanceByAnHour();
+    newtime.notifyTimeChange();
 
-    return await timeRepository.save(time);
+    return await timeRepository.save(newtime);
 }

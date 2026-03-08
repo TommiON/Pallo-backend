@@ -78,7 +78,7 @@ Properties:
 
 ### Time
 
-Represents a moment in time in the gameworld (season, week, day, hour). May progress in sync with real-world time, or faster (configured in DomainProperties).
+Represents the current time in the gameworld (season, week, day, hour).
 
 ### WeeklyEvent
 
@@ -86,9 +86,13 @@ Represents a moment in time in the gameworld (season, week, day, hour). May prog
 
 ### Timekeeping
 
-(preliminary musings)
+- Upon startup, `initializeDomain()` initializes the starting Time (domain object) to either zero-hour (first start) or to the previous state from the database.
+- `startDomain()` then fires up a scheduler. The scheduler knows nothing about domain-spesific Time, it just periodically calls `timeService.advanceTime()` to advance Time by one hour. This happens either once every real-time hour, or more frequently, as parametrized.
+- Time object handles the actual time change. Changed time is passed back to `timeService`, which persists it.
+- Time object also offers subscriptions for listeners interested in changes of time. Listeners are notified whenever Time changes. (Planned listeners: SeasonRunner reacts when a new season begins, WeekRunner reacts when a new week begins. Maybe also some kind of Calendar to react whenever an hour changes, used by UI etc?)
 
-- Season, with (TOTAL_NUMBER_OF_TEAMS - 1) * 2 Gameweeks in it.
+### League pyramid, seasons, etc (very preliminary...)
+
 - Gameweek, with recurring sequence of WeeklyOccurrences in it.
 - WeeklyOccurrences (training instructions deadline, match instructions deadline, match start, etc.). Need to have some easy-to-maintain way to determine deadlines inside Gameweek. Also, possibility to add/remove with relative ease.
 - No correspondence with actual, physical time. 
