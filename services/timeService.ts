@@ -1,17 +1,17 @@
 import Time from "../domainModel/time/Time";
 import { timeRepository } from "../persistence/repositories/repositories";
-import type { ITimeEntity } from "../persistence/entities/TimeEntity";
+import type { TimeEntityData } from "../persistence/entities/TimeEntity";
 
 /**
  * Gets the current time from the database.
  * @returns 
  */
-export const getCurrentTime = async (): Promise<ITimeEntity|null> => {
+export const getCurrentTime = async (): Promise<TimeEntityData|null> => {
     return await timeRepository.findOne({ where: { id: 1 } });
 }
 
 /**
- * Initializes the staring point of time in the database, if not initialized already.
+ * Initializes the starting point of time in the database, if not initialized already.
  * @returns 
  */
 export const initializeTime = async (): Promise<Time> => {

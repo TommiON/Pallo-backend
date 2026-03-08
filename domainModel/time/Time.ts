@@ -1,6 +1,6 @@
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties";
 import { WeeklyDeadline } from "./WeeklyEvent";
-import type { ITimeEntity } from "../../persistence/entities/TimeEntity";
+import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
 
 const weeksInSeason = (LEAGUE_NUMBER_OF_TEAMS - 1) * 2;
 
@@ -24,12 +24,12 @@ export default class Time {
     }
 
     // Factory: Database entity → Domain object
-    static fromEntity(entity: ITimeEntity): Time {
+    static fromEntity(entity: TimeEntityData): Time {
         return new Time(entity.season, entity.week, entity.day, entity.hour, entity.id);
     }
 
     // Adapter: Domain object → Database entity
-    toEntity(): ITimeEntity {
+    toEntity(): TimeEntityData {
         return {
             id: this.id,
             season: this.season,

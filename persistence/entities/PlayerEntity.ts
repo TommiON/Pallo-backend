@@ -1,9 +1,17 @@
 import { EntitySchema } from "typeorm"
-
-import Player from "../../domainModel/player/Player";
 import { sharedEntityBaseColumns } from "./sharedEntityBase";
 
-export const PlayerEntity = new EntitySchema<Player>({
+// Pure data structure for persistence - no domain logic
+export interface PlayerEntityData {
+    id?: number;
+    name: string;
+    age: number;
+    footedness: string;
+    clubId?: number;
+    club?: any;
+}
+
+export const PlayerEntity = new EntitySchema<PlayerEntityData>({
     name: "player",
     columns: {
         ...sharedEntityBaseColumns,

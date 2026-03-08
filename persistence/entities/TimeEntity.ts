@@ -1,8 +1,8 @@
 import { EntitySchema } from "typeorm"
 import { sharedEntityBaseColumns } from "./sharedEntityBase";
 
-// Pure data interface for persistence - no domain logic
-export interface ITimeEntity {
+// Pure data structure for persistence - no domain logic
+export interface TimeEntityData {
     id: number;
     season: number;
     week: number;
@@ -10,7 +10,7 @@ export interface ITimeEntity {
     hour: number;
 }
 
-export const TimeEntity = new EntitySchema<ITimeEntity>({
+export const TimeEntity = new EntitySchema<TimeEntityData>({
     name: "time",
     columns: {
         ...sharedEntityBaseColumns,

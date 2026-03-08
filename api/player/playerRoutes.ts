@@ -17,8 +17,22 @@ playerRouter.get(`${baseUrl}/`,
 
         const result = await findPlayersByIds(req.body.ids, res.locals.authenticatedUser);
 
-        const ownPlayers = result.ownPlayers.map(p => ({ ...p, restricted: false }));
-        const othersPlayers = result.othersPlayers.map(p => ({ ...p, restricted: true }));
+        const ownPlayers = result.ownPlayers.map(p => ({ 
+            id: p.id,
+            name: p.name,
+            age: p.age,
+            footedness: p.footedness,
+            clubId: p.clubId,
+            restricted: false 
+        }));
+        const othersPlayers = result.othersPlayers.map(p => ({ 
+            id: p.id,
+            name: p.name,
+            age: p.age,
+            footedness: p.footedness,
+            clubId: p.clubId,
+            restricted: true 
+        }));
     
         res.json(sendSuccessResponse([...ownPlayers, ...othersPlayers]));
     }

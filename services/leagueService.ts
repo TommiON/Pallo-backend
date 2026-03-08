@@ -21,7 +21,8 @@ export const createLeague = async (
     const serialNumber = previousSeasonPredecessor ? previousSeasonPredecessor.serialNumberOnDivisionLevel : serialNumberOnDivisionLevel;
 
     const league = new League(season, divisionLevel, serialNumber!, promotesTo);
-    const savedLeague = await leagueRepository.save(league);
+    const savedLeagueEntity = await leagueRepository.save(league.toEntity() as any);
+    const savedLeague = League.fromEntity(savedLeagueEntity);
 
     return savedLeague;
 }

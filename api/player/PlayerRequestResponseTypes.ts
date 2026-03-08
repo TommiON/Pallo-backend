@@ -1,8 +1,6 @@
-import Player from "../../domainModel/player/Player";
+import type { PlayerData } from "../../domainModel/player/PlayerData";
 
-export type PlayerResponse = (Player & { 
-    restricted: boolean }
-)[];
+export type PlayerResponse = (PlayerData & { restricted: boolean })[];
 
 export type PlayersByIdsRequest = {
     ids: number[];

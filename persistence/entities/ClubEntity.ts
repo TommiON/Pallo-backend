@@ -1,9 +1,18 @@
 import { EntitySchema } from "typeorm"
-
-import Club from "../../domainModel/club/Club";
 import { sharedEntityBaseColumns } from "./sharedEntityBase";
 
-export const ClubEntity = new EntitySchema<Club>({
+// Pure data structure for persistence - no domain logic
+export interface ClubEntityData {
+    id?: number;
+    name: string;
+    passwordHash?: string;
+    established: Date;
+    zombie: boolean;
+    players?: any;
+    leagues?: any;
+}
+
+export const ClubEntity = new EntitySchema<ClubEntityData>({
     name: "club",
     columns: {
         ...sharedEntityBaseColumns,
