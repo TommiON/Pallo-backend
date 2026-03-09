@@ -1,5 +1,4 @@
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties";
-import { WeeklyDeadline } from "./WeeklyEvent";
 import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
 
 const weeksInSeason = (LEAGUE_NUMBER_OF_TEAMS - 1) * 2;

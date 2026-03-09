@@ -10,4 +10,4 @@ export const LEAGUE_PROMOTED_FROM_TOP = 2;
 
 // tätä tarvitaan jos tehdään admin-endpoint API:iin
 export const TIME_USE_SCHEDULER = true;
-export const TIME_SPEEDUP_FACTOR = 360; // 60 = one real minute is one hour in game time; 1 = real time
+export const TIME_SPEEDUP_FACTOR = 3600; // 60 = one real minute is one hour in game time; 1 = real time

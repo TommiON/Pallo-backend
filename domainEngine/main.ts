@@ -1,12 +1,15 @@
 import Time from "../domainModel/time/Time";
 import { advanceTime, initializeTime } from "../services/timeService"
+import { seasonRunner } from "./runners/seasonRunner";
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainProperties/domainProperties";
 
 export const initializeDomain = async () => {
-    // initialize time and related things
-    const time = await initializeTime();
+    // register time listeners for Runners, then initialize Time
+    let time = new Time();
 
-    time.registerChangeListener((newTime) => { console.log('Aika rientää:', newTime) });
+    time.registerChangeListener((t: Time) => seasonRunner(t));
+    
+    time = await initializeTime();
 }
 
 export const startDomain = () => {

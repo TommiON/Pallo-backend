@@ -15,18 +15,21 @@ export const getCurrentTime = async (): Promise<TimeEntityData|null> => {
  * @returns 
  */
 export const initializeTime = async (): Promise<Time> => {
+    let time: Time;
     const existingTimeEntity = await getCurrentTime();
 
     if (existingTimeEntity) {
-        // Convert entity to domain object
-        return Time.fromEntity(existingTimeEntity);
+        time = Time.fromEntity(existingTimeEntity); 
     } else {
-        const time = new Time();
-        // Convert domain object to entity for persistence
-        // TypeORM repository typing is complex with entity schema changes, using cast as temporary solution
-        return await timeRepository.save(time.toEntity() as any)
-            .then(savedEntity => Time.fromEntity(savedEntity));
+        time = new Time();
+        await timeRepository.save(time.toEntity() as any)
+            .then(savedEntity => time = Time.fromEntity(savedEntity));
     }
+
+    // time hasn't really "changed" at this point, but listeners informed about the initial time on startup
+    time.notifyTimeChange();
+
+    return time;
 }
 
 /**
