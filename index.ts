@@ -8,7 +8,7 @@ import playerRouter from "./api/player/playerRoutes";
 import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
 
-import { initializeDomain, startDomain } from "./domainEngine/main";
+import { initializeAndStartDomain } from "./domainEngine/main";
 
 const app = express();
 
@@ -23,8 +23,7 @@ app.use(clubRouter);
 const start = async () => {
     try {
         await appDataSource.initialize();
-        await initializeDomain();
-        startDomain();
+        await initializeAndStartDomain();
         app.listen(environment.port);
         
         console.log(`Sovellus käynnissä, kuuntelee porttia ${environment.port}.`);
