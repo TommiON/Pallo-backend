@@ -5,7 +5,6 @@ import WeekRunner from "./runners/WeekRunner";
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainProperties/domainProperties";
 
 export const initializeAndStartDomain = async () => {
-    // register time listeners for Runners, then initialize Time
     let time = new Time();
 
     SeasonRunner.initialize();
@@ -16,7 +15,6 @@ export const initializeAndStartDomain = async () => {
     
     time = await initializeTime();
 
-    // start scheduler
     if (TIME_USE_SCHEDULER) {
         const hourInMilliseconds = 60 * 60 * 1000;
         const interval = hourInMilliseconds / TIME_SPEEDUP_FACTOR;

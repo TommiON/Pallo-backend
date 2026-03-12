@@ -2,8 +2,8 @@ import { WeeklyEvent } from "../../domainModel/time/WeeklyEvent";
 import Time from "../../domainModel/time/Time";
 
 export default class WeekRunner {
-    static weeklyTimetable: WeeklyEvent[];
-    static eventsLeftThisWeek: WeeklyEvent[];
+    private static weeklyTimetable: WeeklyEvent[];
+    private static eventsLeftThisWeek: WeeklyEvent[];
 
     static initialize() {
         WeekRunner.weeklyTimetable = [];
@@ -11,32 +11,77 @@ export default class WeekRunner {
 
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
+                'youthAcademyDrawDeadline',
+                {day: 1, hour: 21},
+                () => {}
+            )
+        );
+
+        WeekRunner.weeklyTimetable.push(
+            new WeeklyEvent(
+                'financesSetupDeadline',
+                {day: 1, hour: 21},
+                () => {}
+            )
+        );
+
+        WeekRunner.weeklyTimetable.push(
+            new WeeklyEvent(
                 'trainingSetupDeadline',
-                {day: 2, hour: 20},
-                () => console.log('treenidedis meni!')
-        ));
+                {day: 2, hour: 21},
+                () => {}
+            )
+        );
 
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'transfersDeadline',
-                {day: 4, hour: 20},
-                () => console.log('siirtodedis meni!')
-        ));
+                {day: 3, hour: 21},
+                () => {}
+            )
+        );
+
+        WeekRunner.weeklyTimetable.push(
+            new WeeklyEvent(
+                'training',
+                {day: 4, hour: 9},
+                () => {}
+            )
+        );
 
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'matchSetupDeadline',
-                {day: 6, hour: 19},
-                () => console.log('matsidedis meni!')
-        ));
+                {day: 6, hour: 20},
+                () => {}
+            )
+        );
+
+        WeekRunner.weeklyTimetable.push(
+            new WeeklyEvent(
+                'match',
+                {day: 6, hour: 21},
+                () => {}
+            )
+        );
+
+        WeekRunner.weeklyTimetable.push(
+            new WeeklyEvent(
+                'financesUpdate',
+                {day: 7, hour: 9},
+                () => {}
+            )
+        );
     }
 
-    // mieti tämä vielä paremmin, pitää osata myös palautuminen kannan ajasta
     static runWeek(time: Time) {
         if (time.day === 1 && time.hour === 0) {
             WeekRunner.eventsLeftThisWeek = WeekRunner.weeklyTimetable;
-            console.log('Alkaa uusi viikko:', time.week, 'jonka ohjelma', WeekRunner.eventsLeftThisWeek);
         } else {
+            WeekRunner.eventsLeftThisWeek = WeekRunner.weeklyTimetable.filter(
+                e => e.deadline.day > time.day || (e.deadline.day === time.day && e.deadline.hour >= time.hour)
+            );
+
             const expiringEvent = WeekRunner.eventsLeftThisWeek.find(
                 e => e.deadline.day === time.day && e.deadline.hour === time.hour
             );
@@ -46,9 +91,11 @@ export default class WeekRunner {
                 WeekRunner.eventsLeftThisWeek = WeekRunner.eventsLeftThisWeek.filter(
                     e => e != expiringEvent
                 );
-
-                console.log('Yksi meni, jäljellä vielä:', WeekRunner.eventsLeftThisWeek)
             }
         }
+    }
+
+    static getEvents(): WeeklyEvent[] {
+        return WeekRunner.eventsLeftThisWeek;
     }
 }

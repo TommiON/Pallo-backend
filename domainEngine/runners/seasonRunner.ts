@@ -6,7 +6,7 @@ export default class SeasonRunner {
 
     static runSeason(time: Time) {
         if (time.week === 1 && time.day === 1 && time.hour === 0) {
-            console.log('Alkaa uusi kausi:', time.season);
+            // kutsutaan leagueOrganizatoria
         }
     }
 }
