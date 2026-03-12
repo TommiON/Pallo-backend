@@ -1,9 +1,11 @@
-type WeeklyDeadline = {
+import Time from "./Time";
+
+export type WeeklyDeadline = {
     day: number;
     hour: number;
 }
 
-type WeeklyEventType = 
+export type WeeklyEventType = 
     'transfersDeadline' | 'matchSetupDeadline' | 'match' | 'trainingSetupDeadline' |
     'training' | 'financesSetupDeadline' | 'financesUpdate' | 'youthAcademyDrawDeadline';
 
@@ -20,21 +22,15 @@ export class WeeklyEvent {
         this.interactionFunction = interaction;
     }
 
-    hasExpired(day: number, hour: number): boolean {
-        return (day > this.deadline.day) || (day === this.deadline.day && hour >= this.deadline.hour);
+    hasExpired(time: Time): boolean {
+        return this.deadline.day < time.day || (this.deadline.day === time.day && this.deadline.hour < time.hour);
     }
 
-    isAboutToExpire(day: number, hour: number): boolean {
-        return (day === this.deadline.day && hour >= this.deadline.hour - 8);
+    isExpiring(time: Time): boolean {
+        return this.deadline.day === time.day && this.deadline.hour === time.hour;
     }
 
-    finish() {
+    finish(): void {
         this.finishingCallback();
-    }
-
-    interact() {
-        if (this.interactionFunction) {
-            this.interactionFunction();
-        }
     }
 }

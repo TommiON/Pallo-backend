@@ -20,14 +20,6 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'financesSetupDeadline',
-                {day: 1, hour: 21},
-                () => {}
-            )
-        );
-
-        WeekRunner.weeklyTimetable.push(
-            new WeeklyEvent(
-                'trainingSetupDeadline',
                 {day: 2, hour: 21},
                 () => {}
             )
@@ -35,7 +27,7 @@ export default class WeekRunner {
 
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
-                'transfersDeadline',
+                'trainingSetupDeadline',
                 {day: 3, hour: 21},
                 () => {}
             )
@@ -43,8 +35,16 @@ export default class WeekRunner {
 
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
+                'transfersDeadline',
+                {day: 4, hour: 21},
+                () => {}
+            )
+        );
+
+        WeekRunner.weeklyTimetable.push(
+            new WeeklyEvent(
                 'training',
-                {day: 4, hour: 9},
+                {day: 5, hour: 9},
                 () => {}
             )
         );
@@ -78,19 +78,13 @@ export default class WeekRunner {
         if (time.day === 1 && time.hour === 0) {
             WeekRunner.eventsLeftThisWeek = WeekRunner.weeklyTimetable;
         } else {
-            WeekRunner.eventsLeftThisWeek = WeekRunner.weeklyTimetable.filter(
-                e => e.deadline.day > time.day || (e.deadline.day === time.day && e.deadline.hour >= time.hour)
-            );
+            WeekRunner.eventsLeftThisWeek = WeekRunner.weeklyTimetable.filter(e => !e.hasExpired(time));
 
-            const expiringEvent = WeekRunner.eventsLeftThisWeek.find(
-                e => e.deadline.day === time.day && e.deadline.hour === time.hour
-            );
+            const expiringEvent = WeekRunner.eventsLeftThisWeek.find(e => e.isExpiring(time));
 
             if (expiringEvent) {
-                expiringEvent.finishingCallback();
-                WeekRunner.eventsLeftThisWeek = WeekRunner.eventsLeftThisWeek.filter(
-                    e => e != expiringEvent
-                );
+                expiringEvent.finish();
+                WeekRunner.eventsLeftThisWeek = WeekRunner.eventsLeftThisWeek.filter(e => e != expiringEvent);
             }
         }
     }
