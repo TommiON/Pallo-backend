@@ -7,6 +7,7 @@ import healthCheckRouter from "./api/healthCheck/healthCheckRoutes";
 import playerRouter from "./api/player/playerRoutes";
 import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
+import timeRouter from "./api/time/timeRoutes";
 
 import { initializeAndStartDomain } from "./domainEngine/main";
 
@@ -19,6 +20,7 @@ app.use(healthCheckRouter);
 app.use(loginRouter);
 app.use(playerRouter);
 app.use(clubRouter);
+app.use(timeRouter);
 
 const start = async () => {
     try {

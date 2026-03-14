@@ -6,7 +6,7 @@ import { HealthCheckResponse } from "./HealthCheckResponse";
 const baseUrl = '/api/healthcheck';
 const healthCheckRouter = express.Router();
 
-healthCheckRouter.get(`${baseUrl}/`, (req: Request, res: Response<ApiResponse<HealthCheckResponse>>) => {
+healthCheckRouter.get(`${baseUrl}/`, (req: Request<{}, any, {}>, res: Response<ApiResponse<HealthCheckResponse>>) => {
     const response: HealthCheckResponse = {
         health: 'Feeling good, boss!',
     };

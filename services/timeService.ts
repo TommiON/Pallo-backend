@@ -1,13 +1,16 @@
 import Time from "../domainModel/time/Time";
 import { timeRepository } from "../persistence/repositories/repositories";
 import type { TimeEntityData } from "../persistence/entities/TimeEntity";
+import { WeeklyEvent } from "../domainModel/time/WeeklyEvent";
+import WeekRunner from "../domainEngine/runners/WeekRunner";
 
 /**
  * Gets the current time from the database.
  * @returns 
  */
-export const getCurrentTime = async (): Promise<TimeEntityData|null> => {
-    return await timeRepository.findOne({ where: { id: 1 } });
+export const getCurrentTime = async (): Promise<Time|null> => {
+    const timeEntity = await timeRepository.findOne({ where: { id: 1 } });
+    return timeEntity ? Time.fromEntity(timeEntity) : null;
 }
 
 /**
@@ -15,18 +18,14 @@ export const getCurrentTime = async (): Promise<TimeEntityData|null> => {
  * @returns 
  */
 export const initializeTime = async (): Promise<Time> => {
-    let time: Time;
-    const existingTimeEntity = await getCurrentTime();
+    let time: Time | null = await getCurrentTime();
 
-    if (existingTimeEntity) {
-        time = Time.fromEntity(existingTimeEntity); 
-    } else {
+    if (!time) {
         time = new Time();
         await timeRepository.save(time.toEntity() as any)
             .then(savedEntity => time = Time.fromEntity(savedEntity));
     }
 
-    // time hasn't really "changed" at this point, but listeners informed about the initial time on startup
     time.notifyTimeChange();
 
     return time;
@@ -38,19 +37,22 @@ export const initializeTime = async (): Promise<Time> => {
  * @returns 
  */
 export const advanceTime = async (): Promise<Time> => {
-    let oldtime = await getCurrentTime();
+    const timeInstance = await getCurrentTime();
 
-    if (!oldtime) {
+    if (!timeInstance) {
         throw new Error("Time not initialized");
     }
-
-    // Create a proper Time instance from the database entity
-    const timeInstance = Time.fromEntity(oldtime);
 
     const newtime = timeInstance.advanceByAnHour();
     newtime.notifyTimeChange();
 
-    // Convert domain object back to entity for persistence
     // TypeORM repository typing is complex with entity schema changes, using cast as temporary solution
     return await timeRepository.save(newtime.toEntity() as any);
+}
+
+/**
+ * Gets current Weekly Events
+ */
+export const getWeeklyEvents = (): WeeklyEvent[] => {
+    return WeekRunner.getEvents();
 }
