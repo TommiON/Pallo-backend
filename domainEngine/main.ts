@@ -7,7 +7,7 @@ import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainProperties/dom
 export const initializeAndStartDomain = async () => {
     let time = new Time();
 
-    SeasonRunner.initialize();
+    await SeasonRunner.initialize();
     WeekRunner.initialize();
 
     time.registerChangeListener((t: Time) => SeasonRunner.runSeason(t));
