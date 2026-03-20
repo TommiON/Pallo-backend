@@ -8,6 +8,7 @@ export default class MatchEvent {
     initiator: 'home' | 'away';
     minute: number;
     // playerId?: number; // myöhemmin liitos pelaajiin, pitää miettiä tarvitaanko hyökkääjä vs. puolustaja -asetelma
+    // followedBy: MatchEvent[]; // esim. syöttö -> maalitilanne -> maali ja loukkaantuminen
 
     constructor(type: MatchEventType, initiator: 'home' | 'away', minute: number) {
         this.type = type;

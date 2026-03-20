@@ -63,7 +63,17 @@ Additional properties:
 - `promotesTo: League`. Where winner(s) is promoted to next season, and from where bottom club(s) is relegated in place. `null` for the topmost League.
 - division level (position in the pyramid hierarchy), possibly some additional naming, like "Division 3, Southwest".
 
-Leagues form a linked-list pyramid hierarchy. There is a single top league, and each League has either 2 or 4 children (parametrized in Domain properties). The second-from-bottom level may have exceptions to this. 
+Leagues form a linked-list pyramid hierarchy. There is a single top league, and each League has either 2 or 4 children (parametrized in Domain properties). The second-from-bottom level may have exceptions to this.
+
+### Match
+
+A match between two Clubs happening on a given week in a League. Once being played, a Match holds an array of MatchEvents. Additional properties:
+
+- `started: boolean` and `finished: boolean`.
+
+### MatchEvent
+
+A single event of note during a Match, such as a goal. (Tämä vaatii tarkan mietinnän yhdessä DomainEnginen kanssa, riittävän geneerinen jotta mahdollistaa enginen muuttelun, ja lisäksi pitänee rakentaa jonkinlainen MatchEvent-ketjujen mahdollisuus)
 
 ### Standing
 
