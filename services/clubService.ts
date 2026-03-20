@@ -44,10 +44,13 @@ export const clubExistsForName = async (name: string): Promise<boolean> => {
     return !!club;
 }
 
-/** Finds all clubs that are not attached to any league */
-export const findNonAttachedClubs = async (): Promise<Club[]> => {
-    const clubEntities = await clubRepository
+/** Finds all clubs that are not attached to any league
+ * @returns An array of club ids
+*/
+export const findNonAttachedClubs = async (): Promise<number[]> => {
+    const rawClubIds = await clubRepository
         .createQueryBuilder("club")
+        .select("club.id", "id")
         .where((qb) => {
             const subQuery = qb
                 .subQuery()
@@ -58,13 +61,20 @@ export const findNonAttachedClubs = async (): Promise<Club[]> => {
 
             return `NOT EXISTS ${subQuery}`;
         })
-        .getMany();
+        .getRawMany<{ id: number }>();
 
-    return clubEntities.map(Club.fromEntity);
+    return rawClubIds.map(club => Number(club.id));
 }
 
-/** Finds all clubs that are marked as zombies */
-export const findZombieClubs = async (): Promise<Club[]> => {
-    const clubEntities = await clubRepository.findBy({ zombie: true });
-    return clubEntities.map(Club.fromEntity);
+/** Finds all clubs that are marked as zombies
+ * @returns An array of club ids
+ */
+export const findZombieClubs = async (): Promise<number[]> => {
+    const rawClubIds = await clubRepository
+        .createQueryBuilder("club")
+        .select("club.id", "id")
+        .where("club.zombie = :zombie", { zombie: true })
+        .getRawMany<{ id: number }>();
+
+    return rawClubIds.map(club => Number(club.id));
 }
