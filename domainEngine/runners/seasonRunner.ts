@@ -8,6 +8,7 @@ export default class SeasonRunner {
         const newUserClubIds = await findNonAttachedClubs();
         if (newUserClubIds.length > 0) {
             console.log('Olis ekan liigan paikka:', newUserClubIds)
+            
             // oikeasti kutsutaan leagueOrganizatoria
         }
     }
