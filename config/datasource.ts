@@ -4,6 +4,7 @@ import environment from "./environment";
 import { PlayerEntity } from "../persistence/entities/PlayerEntity";
 import { ClubEntity } from "../persistence/entities/ClubEntity";
 import { LeagueEntity } from "../persistence/entities/LeagueEntity";
+import { MatchEntity } from "../persistence/entities/MatchEntity";
 import { TimeEntity } from "../persistence/entities/TimeEntity";
 
 const appDataSource = new DataSource({
@@ -18,6 +19,7 @@ const appDataSource = new DataSource({
         PlayerEntity,
         ClubEntity,
         LeagueEntity,
+        MatchEntity,
         TimeEntity
     ],
     subscribers:    [],

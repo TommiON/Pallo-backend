@@ -8,8 +8,10 @@ export interface MatchResult {
 
 export interface FullMatchData {
     id?: number;
+    leagueId?: number;
     homeClubId: number;
     awayClubId: number;
+    week: number;
     started: boolean;
     finished: boolean;
     events: MatchEventData[];

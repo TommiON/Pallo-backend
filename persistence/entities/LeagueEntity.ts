@@ -12,6 +12,7 @@ export interface LeagueEntityData {
     finished: boolean;
     promotesTo?: any;
     clubs?: any;
+    matches?: any;
 }
 
 export const LeagueEntity = new EntitySchema<LeagueEntityData>({
@@ -53,6 +54,11 @@ export const LeagueEntity = new EntitySchema<LeagueEntityData>({
                 joinColumn: { name: "league_id" },
                 inverseJoinColumn: { name: "club_id" }
             }
+        },
+        matches: {
+            target: "match",
+            type: "one-to-many",
+            inverseSide: "league"
         }
     }
 })
