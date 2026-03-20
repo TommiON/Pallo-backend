@@ -30,6 +30,12 @@
 - New clubs create initial players in service layer (see [services/clubService.ts](../services/clubService.ts)).
 - Current code sometimes uses `as any` on `repository.save(...)` due TypeORM typing friction; keep changes minimal and consistent with nearby code.
 
+## DomainEngine ↔ service boundary guideline
+- Query-style service methods for DomainEngine should return ids or minimal readonly shapes, not full domain objects by default.
+- Behavior-heavy methods should accept ids, load needed entities internally, and then operate on domain objects inside service/engine code.
+- Apply this especially in season/week orchestration paths (see [domainEngine/runners/SeasonRunner.ts](../domainEngine/runners/SeasonRunner.ts), [domainEngine/runners/WeekRunner.ts](../domainEngine/runners/WeekRunner.ts)).
+- If multiple engine flows need the same partial payload, introduce a small explicit internal type for that use case instead of reusing API response contracts.
+
 ## Developer workflow (actual commands in this repo)
 - Run dev server: `npm run start-dev`
 - Run tests: `npm test`
