@@ -11,8 +11,8 @@ export default class Club implements ClubData {
     passwordHash?: string;
     established: Date;
     zombie: boolean;
-    players?: Player[];  // NOT in IClubData - internal only
-    leagues?: League[];  // NOT in IClubData - internal only
+    players?: Player[];
+    leagues?: League[];
 
     // must use factory method instead of constructor because of async password hashing
     static create = async (name: string, password: string): Promise<Club> => {
