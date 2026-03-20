@@ -14,5 +14,8 @@ export const leagueRepository: Repository<LeagueEntityData> = appDataSource.getR
 import { MatchEntity, MatchEntityData } from "../entities/MatchEntity";
 export const matchRepository: Repository<MatchEntityData> = appDataSource.getRepository(MatchEntity);
 
+import { MatchEventEntity, MatchEventEntityData } from "../entities/MatchEventEntity";
+export const matchEventRepository: Repository<MatchEventEntityData> = appDataSource.getRepository(MatchEventEntity);
+
 import { TimeEntity, TimeEntityData } from "../entities/TimeEntity";
 export const timeRepository: Repository<TimeEntityData> = appDataSource.getRepository(TimeEntity);

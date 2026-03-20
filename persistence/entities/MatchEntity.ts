@@ -12,6 +12,7 @@ export interface MatchEntityData {
     league?: any;
     homeClub?: any;
     awayClub?: any;
+    events?: any;
 }
 
 export const MatchEntity = new EntitySchema<MatchEntityData>({
@@ -56,6 +57,11 @@ export const MatchEntity = new EntitySchema<MatchEntityData>({
             target: "club",
             type: "many-to-one",
             joinColumn: { name: "away_club_id" }
+        },
+        events: {
+            target: "match_event",
+            type: "one-to-many",
+            inverseSide: "match"
         }
     }
 })
