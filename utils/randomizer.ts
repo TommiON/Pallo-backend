@@ -73,9 +73,9 @@ export function getRandomNumberInRange(floor: number, ceiling: number): number {
     return floor + increment;
 }
 
-export function shuffleCollectionRandomly(elements: any[]): any[] {
-    let originalElements: any[] = JSON.parse(JSON.stringify(elements));
-    let shuffledElements: any[] = [];
+export function shuffleCollectionRandomly<T>(elements: T[]): T[] {
+    let originalElements: T[] = [...elements];
+    let shuffledElements: T[] = [];
 
     while (originalElements.length > 0) {
         const randomIndex = getRandomNumberInRange(0, originalElements.length);
