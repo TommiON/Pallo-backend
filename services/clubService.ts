@@ -45,10 +45,10 @@ export const clubExistsForName = async (name: string): Promise<boolean> => {
     return !!club;
 }
 
-/** Finds all user clubs that are not attached to any league
+/** Finds all user clubs that are not attached to any league for the given season
  * @returns An array of club ids
 */
-export const findNonAttachedUserClubs = async (): Promise<number[]> => {
+export const findNonAttachedUserClubs = async (currentSeason: number): Promise<number[]> => {
     const rawClubIds = await clubRepository
         .createQueryBuilder("club")
         .select("club.id", "id")
@@ -58,20 +58,23 @@ export const findNonAttachedUserClubs = async (): Promise<number[]> => {
                 .subQuery()
                 .select("1")
                 .from("league_clubs", "lc")
+                .innerJoin("league", "league", "league.id = lc.league_id")
                 .where("lc.club_id = club.id")
+                .andWhere("league.season = :currentSeason")
                 .getQuery();
 
             return `NOT EXISTS ${subQuery}`;
         })
+        .setParameter("currentSeason", currentSeason)
         .getRawMany<{ id: number }>();
 
     return rawClubIds.map(club => Number(club.id));
 }
 
-/** Finds all user clubs that are attached to a league
+/** Finds all user clubs that are attached to a league for the given season
  * @returns An array of club ids
  */
-export const findAttachedUserClubs = async (): Promise<number[]> => {
+export const findAttachedUserClubs = async (currentSeason: number): Promise<number[]> => {
     const rawClubIds = await clubRepository
         .createQueryBuilder("club")
         .select("club.id", "id")
@@ -81,11 +84,14 @@ export const findAttachedUserClubs = async (): Promise<number[]> => {
                 .subQuery()
                 .select("1")
                 .from("league_clubs", "lc")
+                .innerJoin("league", "league", "league.id = lc.league_id")
                 .where("lc.club_id = club.id")
+                .andWhere("league.season = :currentSeason")
                 .getQuery();
 
             return `EXISTS ${subQuery}`;
         })
+        .setParameter("currentSeason", currentSeason)
         .getRawMany<{ id: number }>();
 
     return rawClubIds.map(club => Number(club.id));
