@@ -1,5 +1,6 @@
 import Club from "../domainModel/club/Club";
 import Player from "../domainModel/player/Player";
+import appDataSource from "../config/datasource";
 import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../domainProperties/domainProperties";
 import { clubRepository, playerRepository } from "../persistence/repositories/repositories";
 
@@ -44,14 +45,15 @@ export const clubExistsForName = async (name: string): Promise<boolean> => {
     return !!club;
 }
 
-/** Finds all clubs that are not attached to any league
+/** Finds all user clubs that are not attached to any league
  * @returns An array of club ids
 */
-export const findNonAttachedClubs = async (): Promise<number[]> => {
+export const findNonAttachedUserClubs = async (): Promise<number[]> => {
     const rawClubIds = await clubRepository
         .createQueryBuilder("club")
         .select("club.id", "id")
-        .where((qb) => {
+        .where("club.zombie = :zombie", { zombie: false })
+        .andWhere((qb) => {
             const subQuery = qb
                 .subQuery()
                 .select("1")
@@ -60,6 +62,29 @@ export const findNonAttachedClubs = async (): Promise<number[]> => {
                 .getQuery();
 
             return `NOT EXISTS ${subQuery}`;
+        })
+        .getRawMany<{ id: number }>();
+
+    return rawClubIds.map(club => Number(club.id));
+}
+
+/** Finds all user clubs that are attached to a league
+ * @returns An array of club ids
+ */
+export const findAttachedUserClubs = async (): Promise<number[]> => {
+    const rawClubIds = await clubRepository
+        .createQueryBuilder("club")
+        .select("club.id", "id")
+        .where("club.zombie = :zombie", { zombie: false })
+        .andWhere((qb) => {
+            const subQuery = qb
+                .subQuery()
+                .select("1")
+                .from("league_clubs", "lc")
+                .where("lc.club_id = club.id")
+                .getQuery();
+
+            return `EXISTS ${subQuery}`;
         })
         .getRawMany<{ id: number }>();
 
@@ -77,4 +102,62 @@ export const findZombieClubs = async (): Promise<number[]> => {
         .getRawMany<{ id: number }>();
 
     return rawClubIds.map(club => Number(club.id));
+}
+
+/** Removes all zombie clubs from database together with dependent rows.
+ * @returns Number of zombie clubs removed
+ */
+export const removeAllZombieClubs = async (): Promise<number> => {
+    const zombieClubIds = await findZombieClubs();
+
+    if (zombieClubIds.length === 0) {
+        return 0;
+    }
+
+    await appDataSource.transaction(async (manager) => {
+        await manager
+            .createQueryBuilder()
+            .delete()
+            .from("match_event")
+            .where(
+                "match_id IN (SELECT id FROM match WHERE home_club_id IN (:...zombieClubIds) OR away_club_id IN (:...zombieClubIds))"
+            )
+            .setParameter("zombieClubIds", zombieClubIds)
+            .execute();
+
+        await manager
+            .createQueryBuilder()
+            .delete()
+            .from("match")
+            .where("home_club_id IN (:...zombieClubIds)")
+            .orWhere("away_club_id IN (:...zombieClubIds)")
+            .setParameter("zombieClubIds", zombieClubIds)
+            .execute();
+
+        await manager
+            .createQueryBuilder()
+            .delete()
+            .from("player")
+            .where("club_id IN (:...zombieClubIds)")
+            .setParameter("zombieClubIds", zombieClubIds)
+            .execute();
+
+        await manager
+            .createQueryBuilder()
+            .delete()
+            .from("league_clubs")
+            .where("club_id IN (:...zombieClubIds)")
+            .setParameter("zombieClubIds", zombieClubIds)
+            .execute();
+
+        await manager
+            .createQueryBuilder()
+            .delete()
+            .from("club")
+            .where("id IN (:...zombieClubIds)")
+            .setParameter("zombieClubIds", zombieClubIds)
+            .execute();
+    });
+
+    return zombieClubIds.length;
 }
