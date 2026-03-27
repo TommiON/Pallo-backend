@@ -4,10 +4,10 @@ export const PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH = [70, 95, 1
 
 export const CLUB_NUMBER_OF_PLAYERS_AT_START = 15;
 
-export const LEAGUE_NUMBER_OF_TEAMS = 8;
+export const LEAGUE_NUMBER_OF_TEAMS = 6;
 export const LEAGUE_SPAN_FACTOR = 2;
 export const LEAGUE_PROMOTED_FROM_TOP = 2;
 
 // tätä tarvitaan jos tehdään admin-endpoint API:iin
 export const TIME_USE_SCHEDULER = true;
-export const TIME_SPEEDUP_FACTOR = 60; // 60 = one real minute is one hour in game time; 1 = real time
+export const TIME_SPEEDUP_FACTOR = 600; // 60 = one real minute is one hour in game time; 1 = real time
