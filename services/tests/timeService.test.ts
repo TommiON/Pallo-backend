@@ -1,7 +1,7 @@
 import { Repository } from "typeorm";
 import Time from "../../domainModel/time/Time";
 import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
-import { getCurrentTime, initializeTime, advanceTime } from "../timeService";
+import { getCurrentTime, initializeTime, advanceTime, onTimeChanged } from "../timeService";
 
 jest.mock('../../persistence/repositories/repositories', () => ({
     timeRepository: {
@@ -236,8 +236,7 @@ describe('timeService', () => {
             (timeRepository.save as jest.Mock).mockImplementation((entity) => Promise.resolve(entity));
 
             const listenerMock = jest.fn();
-            const timeInstance = Time.fromEntity(initialTimeEntity);
-            timeInstance.registerChangeListener(listenerMock);
+            onTimeChanged(listenerMock);
 
             // When: calling advanceTime
             await advanceTime();

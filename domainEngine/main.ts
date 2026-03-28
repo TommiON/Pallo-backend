@@ -1,18 +1,15 @@
-import Time from "../domainModel/time/Time";
-import { advanceTime, initializeTime } from "../services/timeService"
+import { advanceTime, initializeTime, onTimeChanged } from "../services/timeService"
 import SeasonRunner from "./runners/SeasonRunner";
 import WeekRunner from "./runners/WeekRunner";
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainProperties/domainProperties";
 
 export const initializeDomain = async () => {
-    let time = new Time();
-
-    time.registerChangeListener((t: Time) => SeasonRunner.runSeason(t));
+    onTimeChanged((t) => SeasonRunner.runSeason(t));
 
     WeekRunner.initialize();
-    time.registerChangeListener((t: Time) => WeekRunner.runWeek(t));
+    onTimeChanged((t) => WeekRunner.runWeek(t));
     
-    time = await initializeTime();
+    await initializeTime();
 }
 
 // started by SeasonRunner, if conditions met
