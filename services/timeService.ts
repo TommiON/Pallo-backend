@@ -3,11 +3,11 @@ import { timeRepository } from "../persistence/repositories/repositories";
 import { WeeklyEvent } from "../domainModel/time/WeeklyEvent";
 import WeekRunner from "../domainEngine/runners/WeekRunner";
 
-export type TimeChangeListener = (newTime: Time) => void;
+export type OnTimeChanged = (newTime: Time) => void;
 
-const timeChangeListeners: TimeChangeListener[] = [];
+const timeChangeListeners: OnTimeChanged[] = [];
 
-export const onTimeChanged = (listener: TimeChangeListener): void => {
+export const onTimeChanged = (listener: OnTimeChanged): void => {
     timeChangeListeners.push(listener);
 };
 
