@@ -1,13 +1,14 @@
-import { advanceTime, initializeTime, onTimeChanged } from "../services/timeService"
+import { advanceTime, initializeTime } from "../services/timeService"
+import { eventNotifications } from "../services/eventNotifications";
 import SeasonRunner from "./runners/SeasonRunner";
 import WeekRunner from "./runners/WeekRunner";
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainProperties/domainProperties";
 
 export const initializeDomain = async () => {
-    onTimeChanged((t) => SeasonRunner.runSeason(t));
+    eventNotifications.on("time.changed", (t) => SeasonRunner.runSeason(t));
 
     WeekRunner.initialize();
-    onTimeChanged((t) => WeekRunner.runWeek(t));
+    eventNotifications.on("time.changed", (t) => WeekRunner.runWeek(t));
     
     await initializeTime();
 }

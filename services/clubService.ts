@@ -3,6 +3,7 @@ import Player from "../domainModel/player/Player";
 import appDataSource from "../config/datasource";
 import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../domainProperties/domainProperties";
 import { clubRepository, playerRepository } from "../persistence/repositories/repositories";
+import { eventNotifications } from "./eventNotifications";
 
 /** Creates a new club, and also creates the starting players for that club. */
 export const createClub = async(name: string, password: string): Promise<Club> => {
@@ -20,6 +21,8 @@ export const createClub = async(name: string, password: string): Promise<Club> =
 
     const playerEntities = players.map(p => p.toEntity());
     await playerRepository.save(playerEntities as any);
+
+    eventNotifications.emit("club.created", savedClub);
 
     return savedClub;
 };

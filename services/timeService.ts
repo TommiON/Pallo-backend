@@ -2,18 +2,7 @@ import Time from "../domainModel/time/Time";
 import { timeRepository } from "../persistence/repositories/repositories";
 import { WeeklyEvent } from "../domainModel/time/WeeklyEvent";
 import WeekRunner from "../domainEngine/runners/WeekRunner";
-
-export type OnTimeChanged = (newTime: Time) => void;
-
-const timeChangeListeners: OnTimeChanged[] = [];
-
-export const onTimeChanged = (listener: OnTimeChanged): void => {
-    timeChangeListeners.push(listener);
-};
-
-const notifyTimeChanged = (newTime: Time): void => {
-    timeChangeListeners.forEach(listener => listener(newTime));
-};
+import { eventNotifications } from "./eventNotifications";
 
 /**
  * Gets the current time from the database.
@@ -37,7 +26,7 @@ export const initializeTime = async (): Promise<Time> => {
             .then(savedEntity => time = Time.fromEntity(savedEntity));
     }
 
-    notifyTimeChanged(time);
+    eventNotifications.emit("time.changed", time);
 
     return time;
 }
@@ -59,7 +48,7 @@ export const advanceTime = async (): Promise<Time> => {
     // TypeORM repository typing is complex with entity schema changes, using cast as temporary solution
     const savedTime = await timeRepository.save(newtime.toEntity() as any);
     const updatedTime = Time.fromEntity(savedTime);
-    notifyTimeChanged(updatedTime);
+    eventNotifications.emit("time.changed", updatedTime);
 
     return updatedTime;
 }
