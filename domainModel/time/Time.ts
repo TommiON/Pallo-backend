@@ -3,8 +3,6 @@ import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
 
 const weeksInSeason = (LEAGUE_NUMBER_OF_TEAMS - 1) * 2;
 
-export type TimeChangeListener = (newTime: Time) => void;
-
 export default class Time {
     // Time is a singleton, only ever one Time exists in the database
     id: number = 1;
@@ -36,16 +34,6 @@ export default class Time {
             day: this.day,
             hour: this.hour
         };
-    }
-
-    private static changeListeners: (TimeChangeListener)[] = [];
-
-    registerChangeListener(listener: TimeChangeListener) {
-        Time.changeListeners.push(listener);
-    }
-
-    notifyTimeChange() {
-        Time.changeListeners.forEach(listener => listener(this));
     }
 
     advanceByAnHour() {

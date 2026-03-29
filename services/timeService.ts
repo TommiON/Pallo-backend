@@ -1,8 +1,8 @@
 import Time from "../domainModel/time/Time";
 import { timeRepository } from "../persistence/repositories/repositories";
-import type { TimeEntityData } from "../persistence/entities/TimeEntity";
 import { WeeklyEvent } from "../domainModel/time/WeeklyEvent";
 import WeekRunner from "../domainEngine/runners/WeekRunner";
+import { eventNotifications } from "./eventNotifications";
 
 /**
  * Gets the current time from the database.
@@ -26,7 +26,7 @@ export const initializeTime = async (): Promise<Time> => {
             .then(savedEntity => time = Time.fromEntity(savedEntity));
     }
 
-    time.notifyTimeChange();
+    eventNotifications.emit("time.changed", time);
 
     return time;
 }
@@ -44,10 +44,13 @@ export const advanceTime = async (): Promise<Time> => {
     }
 
     const newtime = timeInstance.advanceByAnHour();
-    newtime.notifyTimeChange();
 
     // TypeORM repository typing is complex with entity schema changes, using cast as temporary solution
-    return await timeRepository.save(newtime.toEntity() as any);
+    const savedTime = await timeRepository.save(newtime.toEntity() as any);
+    const updatedTime = Time.fromEntity(savedTime);
+    eventNotifications.emit("time.changed", updatedTime);
+
+    return updatedTime;
 }
 
 /**
