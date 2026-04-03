@@ -6,21 +6,23 @@ import { wrapUpLeaguesForSeason } from "../leagues/leagueDeactivator";
 import { startScheduler } from "../main";
 
 export default class SeasonRunner {
+    static currentTime: Time;
     static schedulerCanStart: boolean = false;
     static schedulerHasStarted: boolean = false;
 
     static async runSeason(time: Time) {
-        console.log('Ping...', time);
-        if (time.season === 1 && time.week === 1 && time.day === 1 && time.hour === 0) {
-            const clubsOnWaitingList = await findNonAttachedUserClubs(1);
-            if (clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS) {
+        this.currentTime = time;
+
+        if (this.currentTime.season === 1 && this.currentTime.week === 1 && this.currentTime.day === 1 && this.currentTime.hour === 0) {
+            if (await this.isEnoughClubsForStartup()) {
                 await createLeaguesForSeason(1);
                 this.schedulerCanStart = true;
             }
-        } else if (time.week === 1 && time.day === 1 && time.hour === 0) {
-            await wrapUpLeaguesForSeason(time.season - 1);
+        } else if (this.currentTime.week === 1 && this.currentTime.day === 1 && this.currentTime.hour === 0) {
+            await wrapUpLeaguesForSeason(this.currentTime.season - 1);
             // jos halutaan että LEAGUE_NUMBER_OF_TEAMS voi muuttua kausittain, tämä on oleellinen jakolinja (ei toteuteta vielä)
             await createLeaguesForSeason(time.season);
+        } else if (await this.isEnoughClubsForStartup()) {
             this.schedulerCanStart = true;
         }
 
@@ -29,5 +31,22 @@ export default class SeasonRunner {
         }
     }
 
-    
+    // tarkistus on nyt yksisuuntainen: oletetaan että kun klubeja on kerran ollut riittävästi, niitä ei enää katoa
+    static async updateClubSituation(): Promise<void> {
+        if (this.schedulerCanStart) return;
+
+        if (await this.isEnoughClubsForStartup()) {
+            this.schedulerCanStart = true;
+        }
+
+        if (this.schedulerCanStart && !this.schedulerHasStarted) {
+            await createLeaguesForSeason(1);
+            await startScheduler();
+        }
+    }
+
+    static async isEnoughClubsForStartup(): Promise<boolean> {
+        const clubsOnWaitingList = await findNonAttachedUserClubs(this.currentTime.season);
+        return clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS;
+    }
 }

@@ -5,10 +5,11 @@ import WeekRunner from "./runners/WeekRunner";
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainProperties/domainProperties";
 
 export const initializeDomain = async () => {
-    eventNotifications.on("time.changed", (t) => SeasonRunner.runSeason(t));
+    eventNotifications.on("time.changed", (newTime) => SeasonRunner.runSeason(newTime));
+    eventNotifications.on("club.created", () => SeasonRunner.updateClubSituation());
 
     WeekRunner.initialize();
-    eventNotifications.on("time.changed", (t) => WeekRunner.runWeek(t));
+    eventNotifications.on("time.changed", (newTime) => WeekRunner.runWeek(newTime));
     
     await initializeTime();
 }
@@ -16,7 +17,6 @@ export const initializeDomain = async () => {
 // started by SeasonRunner, if conditions met
 export const startScheduler = async () => {
     if (TIME_USE_SCHEDULER) {
-        console.log('KOVAA AJOA!')
 
         const hourInMilliseconds = 60 * 60 * 1000;
         const interval = hourInMilliseconds / TIME_SPEEDUP_FACTOR;
