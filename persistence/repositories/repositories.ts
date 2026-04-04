@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { EntityManager, Repository } from "typeorm";
 
 import appDataSource from "../../config/datasource";
 
@@ -19,3 +19,12 @@ export const matchEventRepository: Repository<MatchEventEntityData> = appDataSou
 
 import { TimeEntity, TimeEntityData } from "../entities/TimeEntity";
 export const timeRepository: Repository<TimeEntityData> = appDataSource.getRepository(TimeEntity);
+
+export const getTransactionalRepositories = (manager: EntityManager) => ({
+	playerRepository: manager.getRepository<PlayerEntityData>(PlayerEntity),
+	clubRepository: manager.getRepository<ClubEntityData>(ClubEntity),
+	leagueRepository: manager.getRepository<LeagueEntityData>(LeagueEntity),
+	matchRepository: manager.getRepository<MatchEntityData>(MatchEntity),
+	matchEventRepository: manager.getRepository<MatchEventEntityData>(MatchEventEntity),
+	timeRepository: manager.getRepository<TimeEntityData>(TimeEntity)
+});

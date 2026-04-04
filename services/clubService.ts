@@ -2,26 +2,36 @@ import Club from "../domainModel/club/Club";
 import Player from "../domainModel/player/Player";
 import appDataSource from "../config/datasource";
 import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../domainProperties/domainProperties";
-import { clubRepository, playerRepository } from "../persistence/repositories/repositories";
+import { clubRepository, getTransactionalRepositories, playerRepository } from "../persistence/repositories/repositories";
 import { eventNotifications } from "./eventNotifications";
 
 /** Creates a new club, and also creates the starting players for that club. */
 export const createClub = async(name: string, password: string): Promise<Club> => {
     const club = await Club.create(name, password);
-    const savedClubEntity = await clubRepository.save(club.toEntity() as any);
-    const savedClub = Club.fromEntity(savedClubEntity);
+    let savedClub: Club | null = null;
 
-    const players: Player[] = [];
-    for (let i = 0; i < CLUB_NUMBER_OF_PLAYERS_AT_START; i++) {
-        const p = new Player();
-        p.clubId = savedClub.id;
-        p.club = savedClub;
-        players.push(p);
+    await appDataSource.transaction(async (manager) => {
+        const { clubRepository, playerRepository } = getTransactionalRepositories(manager);
+
+        const savedClubEntity = await clubRepository.save(club.toEntity() as any);
+        savedClub = Club.fromEntity(savedClubEntity);
+
+        const players: Player[] = [];
+        for (let i = 0; i < CLUB_NUMBER_OF_PLAYERS_AT_START; i++) {
+            const p = new Player();
+            p.clubId = savedClub.id;
+            p.club = savedClub;
+            players.push(p);
+        }
+
+        const playerEntities = players.map(p => p.toEntity());
+        await playerRepository.save(playerEntities as any);
+    });
+
+    if (!savedClub) {
+        throw new Error("Club creation transaction did not produce a saved club");
     }
-
-    const playerEntities = players.map(p => p.toEntity());
-    await playerRepository.save(playerEntities as any);
-
+    
     eventNotifications.emit("club.created", savedClub);
 
     return savedClub;
