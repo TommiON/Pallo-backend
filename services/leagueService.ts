@@ -27,23 +27,30 @@ export const createLeague = async (
     return savedLeague;
 }
 
-/**
- * Finds a league by season number and divisional position (division level and serial number on that division level)
- * @param season 
- * @param divisionLevel 
- * @param serialNumberOnDivisionLevel 
- */
-const findLeagueBySeasonAndDivionalPosition = async (
+/** Finds a league by season number and divisional position (division level and serial number on that division level) */
+export const findLeagueBySeasonAndDivionalPosition = async (
         season: number,
         divisionLevel: number,
         serialNumberOnDivisionLevel: number
 ): Promise<League|null> => {
-    return null;
+    const leagueEntity = await leagueRepository.findOne({
+        where: {
+            season,
+            divisionLevel,
+            serialNumberOnDivisionLevel
+        }
+    });
+
+    return leagueEntity ? League.fromEntity(leagueEntity) : null;
 }
 
+/** Returns the children Leagues for a given league (i.e., Leagues that promote to the given League) */
+export const findChildrenForLeague = async (leagueId: number): Promise<League[]> => {
+    const leagueEntities = await leagueRepository.find({
+        where: { promotesToId: leagueId }
+    });
 
-const findChildrenForLeague = async (leagueId: number): Promise<League[] | null> => {
-    return null;
+    return leagueEntities.map(entity => League.fromEntity(entity));
 }
 
 // funktio jolla vaihdetaan kahden seuran paikka (promotion/relegation)
