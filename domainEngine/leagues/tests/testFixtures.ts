@@ -17,14 +17,19 @@ const makeClub = (id: number, name: string): Club => {
     return club;
 };
 
-const makeSequentialClubs = (startId: number, prefix: string, count: number): Club[] => {
+const makeSequentialClubs = (startId: number, count: number, nameFactory: (position: number) => string): Club[] => {
     const clubs: Club[] = [];
 
     for (let i = 0; i < count; i++) {
-        clubs.push(makeClub(startId + i, `${prefix} ${i + 1}`));
+        const position = i + 1;
+        clubs.push(makeClub(startId + i, nameFactory(position)));
     }
 
     return clubs;
+};
+
+const makeFixtureClubName = (divisionLevel: number, serialNumberOnDivisionLevel: number, position: number): string => {
+    return `L${divisionLevel}S${serialNumberOnDivisionLevel}P${position}`;
 };
 
 /**
@@ -57,7 +62,11 @@ export const createLeaguePyramidFixture = ({
 
     const topLeague = new League(1, 1, 1, null);
     topLeague.id = nextLeagueId++;
-    topLeague.clubs = makeSequentialClubs(nextClubId, "L1S1 Club", clubsPerLeague);
+    topLeague.clubs = makeSequentialClubs(
+        nextClubId,
+        clubsPerLeague,
+        (position) => makeFixtureClubName(topLeague.divisionLevel, topLeague.serialNumberOnDivisionLevel, position),
+    );
     nextClubId += clubsPerLeague;
 
     levels.push([topLeague]);
@@ -86,7 +95,11 @@ export const createLeaguePyramidFixture = ({
                 const league = new League(1, divisionLevel, serialNumberOnDivisionLevel, parentLeague);
                 league.id = nextLeagueId++;
                 league.promotesToId = parentLeague.id;
-                league.clubs = makeSequentialClubs(nextClubId, `L${divisionLevel}S${serialNumberOnDivisionLevel} Club`, clubsPerLeague);
+                league.clubs = makeSequentialClubs(
+                    nextClubId,
+                    clubsPerLeague,
+                    (position) => makeFixtureClubName(divisionLevel, serialNumberOnDivisionLevel, position),
+                );
                 nextClubId += clubsPerLeague;
 
                 currentLevelLeagues.push(league);
@@ -98,4 +111,30 @@ export const createLeaguePyramidFixture = ({
     }
 
     return allLeagues;
+};
+
+export const findLeagueInFixture = (leagues: League[], divisionLevel: number, serialNumberOnDivisionLevel: number): League => {
+    const league = leagues.find((item) => item.divisionLevel === divisionLevel && item.serialNumberOnDivisionLevel === serialNumberOnDivisionLevel);
+
+    if (!league) {
+        throw new Error(`League not found for divisionLevel=${divisionLevel}, serialNumberOnDivisionLevel=${serialNumberOnDivisionLevel}`);
+    }
+
+    return league;
+};
+
+export const topClubNames = (league: League, count: number): string[] => {
+    if (!league.clubs) {
+        throw new Error("League has no clubs for topClubNames");
+    }
+
+    return league.clubs.slice(0, count).map((club) => club.name);
+};
+
+export const bottomClubNames = (league: League, count: number): string[] => {
+    if (!league.clubs) {
+        throw new Error("League has no clubs for bottomClubNames");
+    }
+
+    return league.clubs.slice(-count).map((club) => club.name);
 };
