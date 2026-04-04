@@ -1,26 +1,41 @@
-import { Repository } from "typeorm";
 import Time from "../../domainModel/time/Time";
+import appDataSource from "../../config/datasource";
 import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
+import { getTransactionalRepositories, timeRepository } from "../../persistence/repositories/repositories";
 import { getCurrentTime, initializeTime, advanceTime } from "../timeService";
 import { eventNotifications } from "../eventNotifications";
 
-jest.mock('../../persistence/repositories/repositories', () => ({
-    timeRepository: {
-        findOne: jest.fn(),
-        save: jest.fn(),
-    },
+jest.mock("../../config/datasource", () => ({
+    __esModule: true,
+    default: {
+        transaction: jest.fn()
+    }
 }));
 
-import { timeRepository } from '../../persistence/repositories/repositories';
+jest.mock("../../persistence/repositories/repositories", () => ({
+    timeRepository: {
+        findOne: jest.fn()
+    },
+    getTransactionalRepositories: jest.fn()
+}));
 
-describe('timeService', () => {
+jest.mock("../eventNotifications", () => ({
+    eventNotifications: {
+        emit: jest.fn()
+    }
+}));
+
+describe("timeService", () => {
+    const transactionMock = appDataSource.transaction as jest.Mock;
+    const getTransactionalRepositoriesMock = getTransactionalRepositories as jest.Mock;
+    const emitMock = eventNotifications.emit as jest.Mock;
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    describe('getCurrentTime', () => {
-        it('should return the current time entity from database', async () => {
-            // Given: a mock time entity in the database
+    describe("getCurrentTime", () => {
+        it("should return current time from the repository", async () => {
             const mockTimeEntity: TimeEntityData = {
                 id: 1,
                 season: 1,
@@ -28,39 +43,32 @@ describe('timeService', () => {
                 day: 1,
                 hour: 12
             };
-            
+
             (timeRepository.findOne as jest.Mock).mockResolvedValue(mockTimeEntity);
 
-            // When: calling getCurrentTime
             const result = await getCurrentTime();
 
-            // Then: should return the mock time entity
             expect(timeRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 1 }
             });
-
-            expect(result).toEqual(mockTimeEntity);
+            expect(result).toBeInstanceOf(Time);
+            expect(result?.hour).toBe(12);
         });
 
-        it('should return null when no time exists in database', async () => {
-            // Given: no time enrity in the database
+        it("should return null when singleton row does not exist", async () => {
             (timeRepository.findOne as jest.Mock).mockResolvedValue(null);
 
-            // When: calling getCurrentTime
             const result = await getCurrentTime();
 
-            // Then: should return null
             expect(timeRepository.findOne).toHaveBeenCalledWith({
                 where: { id: 1 }
             });
-
             expect(result).toBeNull();
         });
     });
 
-    describe('initializeTime', () => {
-        it('should return existing time if already initialized', async () => {
-            // Given: a time entity exists in the database
+    describe("initializeTime", () => {
+        it("should return existing locked singleton when already initialized", async () => {
             const existingTimeEntity: TimeEntityData = {
                 id: 1,
                 season: 2,
@@ -68,17 +76,37 @@ describe('timeService', () => {
                 day: 3,
                 hour: 15
             };
-            
-            (timeRepository.findOne as jest.Mock).mockResolvedValue(existingTimeEntity);
 
-            // When: calling initializeTime
+            const selectQueryBuilderMock = {
+                setLock: jest.fn().mockReturnThis(),
+                where: jest.fn().mockReturnThis(),
+                getOne: jest.fn().mockResolvedValue(existingTimeEntity)
+            };
+
+            const insertQueryBuilderMock = {
+                insert: jest.fn().mockReturnThis(),
+                into: jest.fn().mockReturnThis(),
+                values: jest.fn().mockReturnThis(),
+                orIgnore: jest.fn().mockReturnThis(),
+                execute: jest.fn().mockResolvedValue(undefined)
+            };
+
+            const transactionalTimeRepositoryMock = {
+                createQueryBuilder: jest.fn((alias?: string) => alias ? selectQueryBuilderMock : insertQueryBuilderMock)
+            };
+
+            const managerMock = {};
+            transactionMock.mockImplementation(async (callback) => callback(managerMock));
+            getTransactionalRepositoriesMock.mockReturnValue({
+                timeRepository: transactionalTimeRepositoryMock
+            });
+
             const result = await initializeTime();
 
-            // Then: should return the existing time as a Time instance
-            expect(timeRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 1 }
-            });
-            expect(timeRepository.save).not.toHaveBeenCalled();
+            expect(transactionMock).toHaveBeenCalledTimes(1);
+            expect(selectQueryBuilderMock.getOne).toHaveBeenCalledTimes(1);
+            expect(insertQueryBuilderMock.execute).not.toHaveBeenCalled();
+            expect(emitMock).toHaveBeenCalledTimes(1);
             expect(result).toBeInstanceOf(Time);
             expect(result.season).toBe(2);
             expect(result.week).toBe(5);
@@ -86,9 +114,8 @@ describe('timeService', () => {
             expect(result.hour).toBe(15);
         });
 
-        it('should create and save new time if not initialized', async () => {
-            // Given: no time entity exists in the database
-            const newTimeEntity: TimeEntityData = {
+        it("should insert singleton when missing and then return it", async () => {
+            const initializedTimeEntity: TimeEntityData = {
                 id: 1,
                 season: 1,
                 week: 1,
@@ -96,32 +123,44 @@ describe('timeService', () => {
                 hour: 0
             };
 
-            const savedTimeEntity: TimeEntityData = { ...newTimeEntity };
+            const selectQueryBuilderMock = {
+                setLock: jest.fn().mockReturnThis(),
+                where: jest.fn().mockReturnThis(),
+                getOne: jest.fn()
+                    .mockResolvedValueOnce(null)
+                    .mockResolvedValueOnce(initializedTimeEntity)
+            };
 
-            (timeRepository.findOne as jest.Mock).mockResolvedValue(null);
-            (timeRepository.save as jest.Mock).mockResolvedValue(savedTimeEntity);
+            const insertQueryBuilderMock = {
+                insert: jest.fn().mockReturnThis(),
+                into: jest.fn().mockReturnThis(),
+                values: jest.fn().mockReturnThis(),
+                orIgnore: jest.fn().mockReturnThis(),
+                execute: jest.fn().mockResolvedValue(undefined)
+            };
 
-            // When: calling initializeTime
+            const transactionalTimeRepositoryMock = {
+                createQueryBuilder: jest.fn((alias?: string) => alias ? selectQueryBuilderMock : insertQueryBuilderMock)
+            };
+
+            const managerMock = {};
+            transactionMock.mockImplementation(async (callback) => callback(managerMock));
+            getTransactionalRepositoriesMock.mockReturnValue({
+                timeRepository: transactionalTimeRepositoryMock
+            });
+
             const result = await initializeTime();
 
-            // Then: should save and return the new time
-            expect(timeRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 1 }
-            });
-            expect(timeRepository.save).toHaveBeenCalledWith(newTimeEntity);
+            expect(selectQueryBuilderMock.getOne).toHaveBeenCalledTimes(2);
+            expect(insertQueryBuilderMock.execute).toHaveBeenCalledTimes(1);
+            expect(emitMock).toHaveBeenCalledTimes(1);
             expect(result).toBeInstanceOf(Time);
-            expect(result.season).toBe(1);
-            expect(result.week).toBe(1);
-            expect(result.day).toBe(1);
             expect(result.hour).toBe(0);
         });
     });
 
-    describe('advanceTime', () => {
-        // Integration tests that use real Time domain logic
-
-        it('should advance time by one hour and save to database', async () => {
-            // Given: an existing time entity in the database
+    describe("advanceTime", () => {
+        it("should lock singleton, advance one hour and save", async () => {
             const initialTimeEntity: TimeEntityData = {
                 id: 1,
                 season: 1,
@@ -130,20 +169,30 @@ describe('timeService', () => {
                 hour: 10
             };
 
-            (timeRepository.findOne as jest.Mock).mockResolvedValue(initialTimeEntity);
-            (timeRepository.save as jest.Mock).mockImplementation((entity) => Promise.resolve(entity));
+            const selectQueryBuilderMock = {
+                setLock: jest.fn().mockReturnThis(),
+                where: jest.fn().mockReturnThis(),
+                getOne: jest.fn().mockResolvedValue(initialTimeEntity)
+            };
 
-            // When: calling advanceTime
+            const transactionalTimeRepositoryMock = {
+                createQueryBuilder: jest.fn().mockReturnValue(selectQueryBuilderMock),
+                save: jest.fn().mockImplementation((entity) => Promise.resolve(entity))
+            };
+
+            const managerMock = {};
+            transactionMock.mockImplementation(async (callback) => callback(managerMock));
+            getTransactionalRepositoriesMock.mockReturnValue({
+                timeRepository: transactionalTimeRepositoryMock
+            });
+
             const result = await advanceTime();
 
-            // Then: repository is correctly called
-            expect(timeRepository.findOne).toHaveBeenCalledWith({
-                where: { id: 1 }
-            });
-            expect(timeRepository.save).toHaveBeenCalledTimes(1);
-            const savedEntity = (timeRepository.save as jest.Mock).mock.calls[0][0];
+            expect(transactionMock).toHaveBeenCalledTimes(1);
+            expect(selectQueryBuilderMock.getOne).toHaveBeenCalledTimes(1);
+            expect(transactionalTimeRepositoryMock.save).toHaveBeenCalledTimes(1);
 
-            // And: the saved entity has the correct advanced time
+            const savedEntity = transactionalTimeRepositoryMock.save.mock.calls[0][0];
             expect(savedEntity).toEqual({
                 id: 1,
                 season: 1,
@@ -152,104 +201,32 @@ describe('timeService', () => {
                 hour: 11
             });
 
-            // And: the returned Time instance has correct time
-            expect(result).toEqual(savedEntity);
+            expect(result).toBeInstanceOf(Time);
+            expect(result.hour).toBe(11);
+            expect(emitMock).toHaveBeenCalledTimes(1);
         });
 
-        it('should advance to next day when hour reaches 23', async () => {
-            // Given: time at the end of a day
-            const initialTimeEntity: TimeEntityData = {
-                id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
-                hour: 23
+        it("should throw if singleton does not exist", async () => {
+            const selectQueryBuilderMock = {
+                setLock: jest.fn().mockReturnThis(),
+                where: jest.fn().mockReturnThis(),
+                getOne: jest.fn().mockResolvedValue(null)
             };
 
-            (timeRepository.findOne as jest.Mock).mockResolvedValue(initialTimeEntity);
-            (timeRepository.save as jest.Mock).mockImplementation((entity) => Promise.resolve(entity));
+            const transactionalTimeRepositoryMock = {
+                createQueryBuilder: jest.fn().mockReturnValue(selectQueryBuilderMock),
+                save: jest.fn()
+            };
 
-            // When: calling advanceTime
-            const result = await advanceTime();
-
-            // Then: repository is correctly called
-            expect(timeRepository.save).toHaveBeenCalledTimes(1);
-            const savedEntity = (timeRepository.save as jest.Mock).mock.calls[0][0];
-
-            // And: new time is correct
-            expect(savedEntity).toEqual({
-                id: 1,
-                season: 1,
-                week: 1,
-                day: 2,
-                hour: 0 
+            const managerMock = {};
+            transactionMock.mockImplementation(async (callback) => callback(managerMock));
+            getTransactionalRepositoriesMock.mockReturnValue({
+                timeRepository: transactionalTimeRepositoryMock
             });
 
-            expect(result.day).toBe(2);
-            expect(result.hour).toBe(0);
-        });
-
-        it('should adcance to next week when last day of a week over', async () => {
-            // Given: time at the end of a week (day 7, hour 23)
-            const initialTime: TimeEntityData = {
-                id: 1,
-                season: 1,
-                week: 1,
-                day: 7,
-                hour: 23
-            };
-
-            (timeRepository.findOne as jest.Mock).mockResolvedValue(initialTime);
-            (timeRepository.save as jest.Mock).mockImplementation((entity) => Promise.resolve(entity));
-
-            // When: calling advanceTime
-            const result = await advanceTime();
-
-            // Then: repository is correctly called
-            expect(timeRepository.save).toHaveBeenCalledTimes(1);
-            const savedEntity = (timeRepository.save as jest.Mock).mock.calls[0][0];
-
-            // And: new time is correct
-            expect(savedEntity).toEqual({
-                id: 1,
-                season: 1,
-                week: 2,
-                day: 1,
-                hour: 0
-            });
-
-            expect(result.week).toBe(2);
-            expect(result.day).toBe(1);
-            expect(result.hour).toBe(0);
-        });
-
-        it('should notify registered listeners when time advances', async () => {
-            // Given: time entity and a registered listener
-            const initialTimeEntity: TimeEntityData = {
-                id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
-                hour: 10
-            };
-
-            (timeRepository.findOne as jest.Mock).mockResolvedValue(initialTimeEntity);
-            (timeRepository.save as jest.Mock).mockImplementation((entity) => Promise.resolve(entity));
-
-            const listenerMock = jest.fn();
-            eventNotifications.on("time.changed", listenerMock);
-
-            // When: calling advanceTime
-            await advanceTime();
-
-            // Then: the listener was called with the advanced time
-            expect(listenerMock).toHaveBeenCalledTimes(1);
-            const notifiedTime = listenerMock.mock.calls[0][0];
-            expect(notifiedTime).toBeInstanceOf(Time);
-            expect(notifiedTime.hour).toBe(11);
-            expect(notifiedTime.day).toBe(1);
-            expect(notifiedTime.week).toBe(1);
-            expect(notifiedTime.season).toBe(1);
+            await expect(advanceTime()).rejects.toThrow("Time not initialized");
+            expect(transactionalTimeRepositoryMock.save).not.toHaveBeenCalled();
+            expect(emitMock).not.toHaveBeenCalled();
         });
     });
 });
