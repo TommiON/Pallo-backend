@@ -27,6 +27,15 @@ export const createLeague = async (
     return savedLeague;
 }
 
+/** Finds all leagues for a given season */
+export const findLeaguesBySeason = async (season: number): Promise<League[]> => {
+    const leagueEntities = await leagueRepository.find({
+        where: { season }
+    });
+
+    return leagueEntities.map(entity => League.fromEntity(entity));
+}
+
 /** Finds a league by season number and divisional position (division level and serial number on that division level) */
 export const findLeagueBySeasonAndDivionalPosition = async (
         season: number,

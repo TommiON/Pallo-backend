@@ -2,7 +2,6 @@ import Time from "../../domainModel/time/Time";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties";
 import { findAttachedUserClubs, findNonAttachedUserClubs, findZombieClubs } from "../../services/clubService";
 import { createLeaguesForSeason } from "../leagues/leagueFactory";
-import { wrapUpLeaguesForSeason } from "../leagues/leagueDeactivator";
 import { startScheduler } from "../main";
 
 export default class SeasonRunner {
@@ -19,7 +18,7 @@ export default class SeasonRunner {
                 this.schedulerCanStart = true;
             }
         } else if (this.currentTime.week === 1 && this.currentTime.day === 1 && this.currentTime.hour === 0) {
-            await wrapUpLeaguesForSeason(this.currentTime.season - 1);
+            //await wrapUpLeaguesForSeason(this.currentTime.season - 1);
             // jos halutaan että LEAGUE_NUMBER_OF_TEAMS voi muuttua kausittain, tämä on oleellinen jakolinja (ei toteuteta vielä)
             await createLeaguesForSeason(time.season);
         } else if (await this.isEnoughClubsForStartup()) {
