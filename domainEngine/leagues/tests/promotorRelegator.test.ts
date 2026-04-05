@@ -1,5 +1,5 @@
 import { createLeaguePyramidFixture, findLeagueInFixture } from "./testFixtures";
-import { promoteAndRelegate } from "../promoRelegator";
+import { promoteAndRelegate } from "../promotorRelegator";
 import { LEAGUE_PROMOTED_FROM_TOP } from "../../../domainProperties/domainProperties";
 
 describe("PromoRelegator", () => {

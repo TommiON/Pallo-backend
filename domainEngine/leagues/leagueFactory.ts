@@ -1,24 +1,32 @@
+import League from "../../domainModel/league/League";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties"
+import { findLeaguesBySeason } from "../../services/leagueService";
+import { findNonAttachedUserClubs } from "../../services/clubService";
+import { promoteAndRelegate } from "./promotorRelegator";
 
 /** This module is responsible for creating leagues for a given season. */
-
-type LeaguePyramidSize = {
-    depth: number;
-    totalNumberOfLeagues: number;
-}
-
 export const createLeaguesForSeason = async (season: number) => {
-    console.log('Luotaisiin liigat kaudelle ' + season);
+    let leagues: League[] = [];
 
-    // työn aikana edellinen ja tuleva liigapyramidi in-memory, jonkinlainen tietorakenne?
-    // haetaan edellisen kauden liigat (<- leagueService.findLeaguesBySeason)
-    // kopioidaan se tulevan pohjaksi
-    // swap, promotion/relegation
+    if (season > 1) {
+        const leaguesLastSeason = await findLeaguesBySeason(season - 1);
+        leagues = promoteAndRelegate(leaguesLastSeason);
+    }
+
+    const clubsOnWaitingList = await findNonAttachedUserClubs(season);
+    if (clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS) {
+        leagues = expandPyramid(leagues, clubsOnWaitingList);
+    }
+
     // generate fixtures
     // kirjoitetaan uudet kantaan (-> leagueService)
     // kirjoitetaan vanhat kantaan, deaktivinti (-> leagueService)
 
 
+}
+
+const expandPyramid = (leagues: League[], clubsOnWaitingList: number[]): League[] => {
+    return leagues; // placeholder
 }
 
 // Luodaan sen verran liigoja kuin saadaan täyteen, ylijäävät joutuvat odottamaan seuraavaa kautta.
