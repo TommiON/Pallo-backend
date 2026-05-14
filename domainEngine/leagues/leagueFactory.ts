@@ -15,11 +15,9 @@ export const createLeaguesForSeason = async (season: number) => {
 
     if (leaguesLastSeason.length > 0) {
         newLeagues = promoteAndRelegate(leaguesLastSeason);
+        newLeagues.forEach(league => { league.season = season; });
         leaguesLastSeason.forEach(league => { league.finished = true; });
     }
-
-    // asetetaan tulevan kauden kausinumero
-    newLeagues.forEach(league => { league.season = season; });
 
     // laajennetaan tarvittaessa pyramidia (ensimmäisellä kaudella "laajennus" tarkoittaa koko pyramidin luomista tyhjästä)
     const clubsOnWaitingList = await findNonAttachedUserClubs(season);
@@ -28,7 +26,9 @@ export const createLeaguesForSeason = async (season: number) => {
         newLeagues = expandPyramid(newLeagues, clubsOnWaitingList, season);
     }
 
-    // const persistedLeagues = await persistSeasonTransition(leaguesLastSeason, newLeagues);
-
     // generate fixtures
+
+    // started = true
+
+    // const persistedLeagues = await persistSeasonTransition(leaguesLastSeason, newLeagues);
 }
