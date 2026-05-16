@@ -10,7 +10,7 @@ import { persistSeasonTransition } from "../../services/leagueService";
 export const createLeaguesForSeason = async (season: number) => {
     let newLeagues: League[] = [];
 
-    // haetaan edelliskauden liigat; promootiot ja putoamiset
+    // Fetch leagues from last season (if exists), promote and relegate, and mark last season's leagues as finished
     const leaguesLastSeason = await findLeaguesBySeason(season - 1);
 
     if (leaguesLastSeason.length > 0) {
@@ -19,7 +19,7 @@ export const createLeaguesForSeason = async (season: number) => {
         leaguesLastSeason.forEach(league => { league.finished = true; });
     }
 
-    // laajennetaan tarvittaessa pyramidia (ensimmäisellä kaudella "laajennus" tarkoittaa koko pyramidin luomista tyhjästä)
+    // Expand pyramid if there are enough clubs on the waiting list; for the first season, this will create the initial leagues
     const clubsOnWaitingList = await findNonAttachedUserClubs(season);
 
     if (clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS) {
