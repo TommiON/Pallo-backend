@@ -6,11 +6,6 @@ export type PyramidExpansionResult = {
     remainingClubsOnWaitingList: number[];
 }
 
-type PyramidCursor = {
-    divisionLevel: number;
-    serialNumberOnDivisionLevel: number;
-}
-
 // Luodaan sen verran liigoja kuin saadaan täyteen, ylijäävät joutuvat odottamaan seuraavaa kautta. Muutetaan sitten kun saadaan zombiet toteutettua.
 export const expandPyramid = (leagues: League[], clubsOnWaitingList: number[], season: number): League[] => {
     const numberOfNewLeagues = Math.floor(clubsOnWaitingList.length / LEAGUE_NUMBER_OF_TEAMS);
@@ -21,14 +16,10 @@ export const expandPyramid = (leagues: League[], clubsOnWaitingList: number[], s
     for (let i = 0; i < numberOfNewLeagues; i++) {
         // tarvitaan parent-league johon kiinnitetään
 
-        const newLeague = new League(
-            season, // season
-            0, // divisionLevel
-            0, // serialNumberOnDivisionLevel
-            null // promotesTo
-        );
+        // luodaan oikeasti servicen kautta
+        // const newLeague = new League();
 
-        newLeagues.push(newLeague);
+        // newLeagues.push(newLeague);
 
         // popataan odotuslistalta
     }
@@ -44,24 +35,13 @@ export const expandPyramid = (leagues: League[], clubsOnWaitingList: number[], s
     return leagues.concat(newLeagues); // placeholder
 }
 
-const findLowestDivionLevel = (leagues: League[]): number | null => {
-    if (leagues.length === 0) { return null; }
-
-    return leagues.reduce((max, league) => Math.max(max, league.divisionLevel), 0);
+type PyramidPosition = {
+    divisionLevel: number;
+    serialNumberOnDivisionLevel: number;
+    parentLeague?: League;
 }
 
-// liigatasoa ei ole luotu jos siellä ei ole yhtään liigaa, siksi min-oletus 0
-const findHighestSerialNumberOnDivisionLevel = (leagues: League[], divisionLevel: number): number => {
-    return leagues.filter(league => league.divisionLevel === divisionLevel)
-        .reduce((max, league) => Math.max(max, league.serialNumberOnDivisionLevel), 0);
-}
-
-const isCapacityLeftOnDivisionLevel = (leagues: League[], divisionLevel: number): boolean => { 
-    const capacityOfDivisionLevel = Math.pow(LEAGUE_SPAN_FACTOR, divisionLevel);
-    return findHighestSerialNumberOnDivisionLevel(leagues, divisionLevel) < capacityOfDivisionLevel;    
-}
-
-const nextVacantPositionInPyramid = (leagues: League[]): PyramidCursor => {
+const nextVacantPositionInPyramid = (leagues: League[]): PyramidPosition => {
     const lowestDivisionLevel = findLowestDivionLevel(leagues);
 
     if (lowestDivisionLevel === null) {
@@ -83,5 +63,45 @@ const nextVacantPositionInPyramid = (leagues: League[]): PyramidCursor => {
         };
     }
 }
+
+const firstLeagueWithVacantChildPosition = (leagues: League[]): League | null => {
+    const lowestDivisionLevel = findLowestDivionLevel(leagues);
+
+    if (lowestDivisionLevel === null) { return null; }
+
+    const sortLeaguesByDivisionLevelAndSerialNumber = (a: League, b: League): number => {
+        if (a.divisionLevel !== b.divisionLevel) { return a.divisionLevel - b.divisionLevel; }
+
+        return a.serialNumberOnDivisionLevel - b.serialNumberOnDivisionLevel;
+    }
+
+    const childCount = (league: League): number => leagues.filter(l => l.promotesToId === league.id).length;
+
+    return leagues
+        .sort(sortLeaguesByDivisionLevelAndSerialNumber)
+        .find(league => league.id !== undefined && childCount(league) < LEAGUE_SPAN_FACTOR) ?? null;
+}
+
+const addLeagueToPyramid = (newLeague: League, fromParent: League | null, leagues: League[]): void => {
+
+}
+
+const findLowestDivionLevel = (leagues: League[]): number | null => {
+    if (leagues.length === 0) { return null; }
+
+    return leagues.reduce((max, league) => Math.max(max, league.divisionLevel), 0);
+}
+
+const findHighestSerialNumberOnDivisionLevel = (leagues: League[], divisionLevel: number): number => {
+    return leagues.filter(league => league.divisionLevel === divisionLevel)
+        .reduce((max, league) => Math.max(max, league.serialNumberOnDivisionLevel), 0);
+}
+
+const isCapacityLeftOnDivisionLevel = (leagues: League[], divisionLevel: number): boolean => { 
+    const capacityOfDivisionLevel = Math.pow(LEAGUE_SPAN_FACTOR, divisionLevel);
+    return findHighestSerialNumberOnDivisionLevel(leagues, divisionLevel) < capacityOfDivisionLevel;    
+}
+
+
 
 
