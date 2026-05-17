@@ -50,28 +50,38 @@ const findLowestDivionLevel = (leagues: League[]): number | null => {
     return leagues.reduce((max, league) => Math.max(max, league.divisionLevel), 0);
 }
 
+// liigatasoa ei ole luotu jos siellä ei ole yhtään liigaa, siksi min-oletus 0
 const findHighestSerialNumberOnDivisionLevel = (leagues: League[], divisionLevel: number): number => {
     return leagues.filter(league => league.divisionLevel === divisionLevel)
         .reduce((max, league) => Math.max(max, league.serialNumberOnDivisionLevel), 0);
-}
-
-const findStartingPositionInPyramid = (leagues: League[]): PyramidCursor => {
-    const lowestDivisionLevel = findLowestDivionLevel(leagues);
-
-    if (lowestDivisionLevel === null) { return { divisionLevel: 0, serialNumberOnDivisionLevel: 0 }; }
-
-    if (isCapacityLeftOnDivisionLevel(leagues, lowestDivisionLevel)) {
-        const highestSerialNumberOnLowestDivisionLevel = leagues
-            .filter(league => league.divisionLevel === lowestDivisionLevel)
-            .reduce((max, league) => Math.max(max, league.serialNumberOnDivisionLevel), 0);
-        return { divisionLevel: lowestDivisionLevel, serialNumberOnDivisionLevel: highestSerialNumberOnLowestDivisionLevel + 1 };
-    } else {
-        return { divisionLevel: lowestDivisionLevel + 1, serialNumberOnDivisionLevel: 0 };
-    }
 }
 
 const isCapacityLeftOnDivisionLevel = (leagues: League[], divisionLevel: number): boolean => { 
     const capacityOfDivisionLevel = Math.pow(LEAGUE_SPAN_FACTOR, divisionLevel);
     return findHighestSerialNumberOnDivisionLevel(leagues, divisionLevel) < capacityOfDivisionLevel;    
 }
+
+const nextVacantPositionInPyramid = (leagues: League[]): PyramidCursor => {
+    const lowestDivisionLevel = findLowestDivionLevel(leagues);
+
+    if (lowestDivisionLevel === null) {
+        return { 
+            divisionLevel: 0, 
+            serialNumberOnDivisionLevel: 0 
+        }; 
+    }
+
+    if (isCapacityLeftOnDivisionLevel(leagues, lowestDivisionLevel)) {
+        return { 
+            divisionLevel: lowestDivisionLevel, 
+            serialNumberOnDivisionLevel: findHighestSerialNumberOnDivisionLevel(leagues, lowestDivisionLevel) + 1 
+        };
+    } else {
+        return {
+            divisionLevel: lowestDivisionLevel + 1, 
+            serialNumberOnDivisionLevel: 0 
+        };
+    }
+}
+
 
