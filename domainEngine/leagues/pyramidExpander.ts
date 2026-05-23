@@ -1,30 +1,28 @@
 import League from "../../domainModel/league/League";
 import { LEAGUE_NUMBER_OF_TEAMS, LEAGUE_SPAN_FACTOR } from "../../domainProperties/domainProperties";
 
+/* tätä ei varmaan tarvita
 export type PyramidExpansionResult = {
     newLeagues: League[];
     remainingClubsOnWaitingList: number[];
 }
+    */
 
 // Luodaan sen verran liigoja kuin saadaan täyteen, ylijäävät joutuvat odottamaan seuraavaa kautta. Muutetaan sitten kun saadaan zombiet toteutettua.
 export const expandPyramid = (leagues: League[], clubsOnWaitingList: number[], season: number): League[] => {
+    // lasketaan moneenko uuteen liigaan riittää odottajia
     const numberOfNewLeagues = Math.floor(clubsOnWaitingList.length / LEAGUE_NUMBER_OF_TEAMS);
-    let newLeagues: League[] = [];
 
-    // luodaan aluksi kursori, joka ensimmäisessä vapaassa kohdassa pyramidia
-
+    // iteroidaan uudet (tässä vaiheessa tyhjät) liigat
     for (let i = 0; i < numberOfNewLeagues; i++) {
-        // tarvitaan parent-league johon kiinnitetään
-
-        // luodaan oikeasti servicen kautta
-        // const newLeague = new League();
-
-        // newLeagues.push(newLeague);
-
-        // popataan odotuslistalta
+        // firstLeagueWithVacantChildPosition(leagues) etsii ensimmäisen vapaan paikan
+        // jos ei löydy, pitää luoda uusi taso, miten tässä tapauksessa promotesTo-vanhempi?
+        // popataan odotulistalta liigan kokokoinen siivu (tälle funktio)
+        // jotain jotain...
+        // concataaan uusi liiga vanhojen jatkoksi
     }
 
-    // iteroidaan newLeagues ja lisätään pyramidin pohjille
+    // iteroinnin jälkeen palautetaan, odotuslistalle jääneille ylijäämille ei sinänsä tarvitse tehdä mitään?
 
     const lowestDivisionLevel = leagues.reduce((max, league) => Math.max(max, league.divisionLevel), 0);
 
@@ -32,7 +30,8 @@ export const expandPyramid = (leagues: League[], clubsOnWaitingList: number[], s
     // näitä tuskin tarvitaan jos mennään iteraatiopohjaisesti
     const numberOfLeaguesOnLowestLevel = leagues.filter(league => league.divisionLevel === lowestDivisionLevel).length;
 
-    return leagues.concat(newLeagues); // placeholder
+    // placeholder
+    return [];
 }
 
 type PyramidPosition = {
@@ -82,7 +81,20 @@ const firstLeagueWithVacantChildPosition = (leagues: League[]): League | null =>
         .find(league => league.id !== undefined && childCount(league) < LEAGUE_SPAN_FACTOR) ?? null;
 }
 
-const addLeagueToPyramid = (newLeague: League, fromParent: League | null, leagues: League[]): void => {
+const sliceClubsForLeaguePlacement = (clubsOnWaitingList: number[]): number[][] => {
+    const numberOfFullLeagues = Math.floor(clubsOnWaitingList.length / LEAGUE_NUMBER_OF_TEAMS);
+    const clubsForLeaguePlacement = clubsOnWaitingList.slice(0, numberOfFullLeagues * LEAGUE_NUMBER_OF_TEAMS);
+
+    const chunks: number[][] = [];
+
+    for (let i = 0; i < clubsForLeaguePlacement.length; i += LEAGUE_NUMBER_OF_TEAMS) {
+        chunks.push(clubsForLeaguePlacement.slice(i, i + LEAGUE_NUMBER_OF_TEAMS));
+    }
+
+    return chunks;
+}
+
+const addLeagueToPyramid = (newLeague: League, fromParent: League | null, clubs: number[],existingLeagues: League[]): void => {
 
 }
 
