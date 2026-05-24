@@ -2,18 +2,28 @@ import League from "../../domainModel/league/League";
 import { LEAGUE_NUMBER_OF_TEAMS, LEAGUE_SPAN_FACTOR } from "../../domainProperties/domainProperties";
 
 // Luodaan sen verran liigoja kuin saadaan täyteen, ylijäävät joutuvat odottamaan seuraavaa kautta. Muutetaan sitten kun saadaan zombiet toteutettua.
-export const expandPyramid = (leagues: League[], clubsOnWaitingList: number[], season: number): League[] => {
+export const expandPyramid = (
+    leagues: League[],
+    clubsOnWaitingList: number[],
+    season: number,
+    leagueSpanFactor: number = LEAGUE_SPAN_FACTOR,
+): League[] => {
+    if (!Number.isInteger(leagueSpanFactor) || leagueSpanFactor < 1) {
+        throw new Error("leagueSpanFactor must be a positive integer");
+    }
+
+    const resultLeagues = [...leagues];
     const clubChunksForNewLeagues: number[][] = sliceClubsForLeaguePlacement(clubsOnWaitingList);
 
     clubChunksForNewLeagues.forEach(clubChunk => {
-        const leaguePosition = nextVacantPositionInPyramid(leagues);
+        const leaguePosition = nextVacantPositionInPyramid(resultLeagues, leagueSpanFactor);
         const newLeague = new League(season, leaguePosition.divisionLevel, leaguePosition.serialNumberOnDivisionLevel, leaguePosition.parentLeague);
         newLeague.clubs = clubChunk.map(clubId => ({ id: clubId } as any));
 
-        leagues.push(newLeague);
+        resultLeagues.push(newLeague);
     });
 
-    return leagues;
+    return resultLeagues;
 }
 
 const sliceClubsForLeaguePlacement = (clubsOnWaitingList: number[]): number[][] => {
@@ -35,7 +45,7 @@ type PyramidPosition = {
     parentLeague: League | null;
 }
 
-const nextVacantPositionInPyramid = (leagues: League[]): PyramidPosition => {
+const nextVacantPositionInPyramid = (leagues: League[], leagueSpanFactor: number): PyramidPosition => {
     if (leagues.length === 0) {
         // ei vielä yhtään liigaa, luodaan ensimmäinen
         return { 
@@ -45,7 +55,7 @@ const nextVacantPositionInPyramid = (leagues: League[]): PyramidPosition => {
         };
     }
 
-    const parentCandidate: ParentInquiryResult = findFirstLeagueWithVacantChildPosition(leagues);
+    const parentCandidate: ParentInquiryResult = findFirstLeagueWithVacantChildPosition(leagues, leagueSpanFactor);
     
     if (parentCandidate.lowestLevelFullyOccupied) {
         // ei tilaa lapsille, luodaan uusi taso pyramidiin
@@ -56,8 +66,10 @@ const nextVacantPositionInPyramid = (leagues: League[]): PyramidPosition => {
         }
     } else {
         // luodaan lapsi vapaaseen kohtaan
+        const childDivisionLevel = parentCandidate.identity!.divisionLevel + 1;
+
         return {
-            divisionLevel: parentCandidate.lowestDivisionLevel,
+            divisionLevel: childDivisionLevel,
             serialNumberOnDivisionLevel: parentCandidate.highestExistingChildSerialNumber! + 1,
             parentLeague: parentCandidate.identity
         }
@@ -71,7 +83,7 @@ type ParentInquiryResult = {
     highestExistingChildSerialNumber: number | null;
 }
 
-const findFirstLeagueWithVacantChildPosition = (leagues: League[]): ParentInquiryResult => {
+const findFirstLeagueWithVacantChildPosition = (leagues: League[], leagueSpanFactor: number): ParentInquiryResult => {
     const lowestDivisionLevel = findLowestPyramidLevel(leagues);
 
     const sortLeaguesByDivisionLevelAndSerialNumber = (a: League, b: League): number => {
@@ -98,7 +110,7 @@ const findFirstLeagueWithVacantChildPosition = (leagues: League[]): ParentInquir
 
     const parentCandidate = [...leagues]
         .sort(sortLeaguesByDivisionLevelAndSerialNumber)
-        .find(league => childCount(league) < LEAGUE_SPAN_FACTOR)
+        .find(league => childCount(league) < leagueSpanFactor)
 
     return {
         lowestLevelFullyOccupied: parentCandidate === undefined,
@@ -114,8 +126,14 @@ const findLowestPyramidLevel = (leagues: League[]): number => {
 
 // helper: finds the biggest serial number (of a rightmost occupied position) on a given division level, or 0 if no leagues on that level
 const findBiggestSerialNumberOnDivisionLevel = (leagues: League[], divisionLevel: number): number => {
-    return leagues.filter(league => league.divisionLevel === divisionLevel)
-        .reduce((max, league) => Math.max(max, league.serialNumberOnDivisionLevel), 0);
+    const leaguesOnDivisionLevel = leagues.filter(league => league.divisionLevel === divisionLevel);
+
+    if (leaguesOnDivisionLevel.length === 0) {
+        return -1;
+    }
+
+    return leaguesOnDivisionLevel
+        .reduce((max, league) => Math.max(max, league.serialNumberOnDivisionLevel), -1);
 }
 
 // helper: finds the first (leftmost, smallest serial number) league on a pyramid level
