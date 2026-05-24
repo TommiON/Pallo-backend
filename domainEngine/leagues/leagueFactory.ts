@@ -8,27 +8,34 @@ import { persistSeasonTransition } from "../../services/leagueService";
 
 /** This module is responsible for creating leagues for a given season. */
 export const createLeaguesForSeason = async (season: number) => {
-    let newLeagues: League[] = [];
+    let leagues: League[] = [];
 
-    // Fetch leagues from last season (if exists), promote and relegate, and mark last season's leagues as finished
+    // Fetch leagues from last season (if any).
+
     const leaguesLastSeason = await findLeaguesBySeason(season - 1);
 
+    // Promote and relegate, and mark last season's leagues as finished.
+
     if (leaguesLastSeason.length > 0) {
-        newLeagues = promoteAndRelegate(leaguesLastSeason);
-        newLeagues.forEach(league => { league.season = season; });
+        leagues = promoteAndRelegate(leaguesLastSeason);
+        leagues.forEach(league => { league.season = season; });
+        
         leaguesLastSeason.forEach(league => { league.finished = true; });
     }
 
-    // Expand pyramid if there are enough clubs on the waiting list; for the first season, this will create the initial leagues
+    // Expand pyramid if there are enough clubs on the waiting list; for the first season, this will create the initial leagues.
+
     const clubsOnWaitingList = await findNonAttachedUserClubs(season);
 
     if (clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS) {
-        newLeagues = expandPyramid(newLeagues, clubsOnWaitingList, season);
+        leagues = expandPyramid(leagues, clubsOnWaitingList, season);
     }
 
-    // generate fixtures
+    // Generate fixtures.
 
     // started = true
 
-    // const persistedLeagues = await persistSeasonTransition(leaguesLastSeason, newLeagues);
+    // Persist changes to database.
+
+    await persistSeasonTransition(leaguesLastSeason, leagues);
 }
