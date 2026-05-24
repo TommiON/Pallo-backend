@@ -123,12 +123,5 @@ const findFirstLeagueOnDivisionLevel = (leagues: League[], divisionLevel: number
     return leagues.find(league => league.divisionLevel === divisionLevel) ?? null;
 }
 
-/*
-const isCapacityLeftOnDivisionLevel = (leagues: League[], divisionLevel: number): boolean => { 
-    const capacityOfDivisionLevel = Math.pow(LEAGUE_SPAN_FACTOR, divisionLevel);
-    return findBiggestSerialNumberOnDivisionLevel(leagues, divisionLevel) < capacityOfDivisionLevel;    
-}
-*/
-
 
 
