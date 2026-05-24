@@ -128,5 +128,3 @@ export const findChildrenForLeague = async (leagueId: number): Promise<League[]>
 
     return leagueEntities.map(entity => League.fromEntity(entity));
 }
-
-// funktio jolla vaihdetaan kahden seuran paikka (promotion/relegation)
