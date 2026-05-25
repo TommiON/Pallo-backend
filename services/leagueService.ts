@@ -97,7 +97,8 @@ export const persistSeasonTransition = async (
 /** Finds all leagues for a given season */
 export const findLeaguesBySeason = async (season: number): Promise<League[]> => {
     const leagueEntities = await leagueRepository.find({
-        where: { season }
+        where: { season },
+        relations: ["clubs"]
     });
 
     return leagueEntities.map(entity => League.fromEntity(entity));

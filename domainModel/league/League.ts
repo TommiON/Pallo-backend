@@ -37,6 +37,7 @@ export default class League implements LeagueData {
         league.promotesToId = entity.promotesToId;
         league.started = entity.started;
         league.finished = entity.finished;
+        league.clubs = entity.clubs;
         return league;
     }
 

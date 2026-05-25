@@ -14,26 +14,32 @@ export const createLeaguesForSeason = async (season: number) => {
 
     const leaguesLastSeason = await findLeaguesBySeason(season - 1);
 
-    // Promote and relegate, and mark last season's leagues as finished.
+    // Last season ends... Promote and relegate, and mark last season's leagues as finished.
 
     if (leaguesLastSeason.length > 0) {
         leagues = promoteAndRelegate(leaguesLastSeason);
-        leagues.forEach(league => { league.season = season; });
         
         leaguesLastSeason.forEach(league => { league.finished = true; });
     }
 
-    // Expand pyramid if there are enough clubs on the waiting list; for the first season, this will create the initial leagues.
+    // New season begins... Expand pyramid if there are enough clubs on the waiting list; for the first season, this will create the initial leagues.
+    // If no new leagues are created, the existing leagues will still continue to the new season.
 
-    const clubsOnWaitingList = await findNonAttachedUserClubs(season);
+    leagues.forEach(league => { league.season = season; });
+
+    const clubsOnWaitingList = await findNonAttachedUserClubs(season - 1);
 
     if (clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS) {
         leagues = expandPyramid(leagues, clubsOnWaitingList, season);
+    } else {
+
     }
 
     // Generate fixtures.
 
-    // started = true
+    // Mark leagues as started.
+
+    leagues.forEach(league => { league.started = true; });
 
     // Persist changes to database.
 

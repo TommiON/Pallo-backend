@@ -12,6 +12,8 @@ export const expandPyramid = (
         throw new Error("leagueSpanFactor must be a positive integer");
     }
 
+    console.log('PyramidExpander, syötteet:', { leagues, clubsOnWaitingList, season, leagueSpanFactor });
+    
     const resultLeagues = [...leagues];
     const clubChunksForNewLeagues: number[][] = sliceClubsForLeaguePlacement(clubsOnWaitingList);
 
@@ -22,6 +24,8 @@ export const expandPyramid = (
 
         resultLeagues.push(newLeague);
     });
+
+    console.log('PyramidExpander, lopputulos:', resultLeagues);
 
     return resultLeagues;
 }
