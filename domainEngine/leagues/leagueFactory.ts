@@ -22,8 +22,8 @@ export const createLeaguesForSeason = async (season: number) => {
         leaguesLastSeason.forEach(league => { league.finished = true; });
     }
 
-    // New season begins... Expand pyramid if there are enough clubs on the waiting list; for the first season, this will create the initial leagues.
-    // If no new leagues are created, the existing leagues will still continue to the new season.
+    // New season begins...
+    // Expand pyramid if there are enough clubs on the waiting list; for the first season, this will create the initial leagues.
 
     leagues.forEach(league => { league.season = season; });
 
@@ -31,8 +31,6 @@ export const createLeaguesForSeason = async (season: number) => {
 
     if (clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS) {
         leagues = expandPyramid(leagues, clubsOnWaitingList, season);
-    } else {
-
     }
 
     // Generate fixtures.
