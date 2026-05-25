@@ -23,7 +23,7 @@ export const promoteAndRelegate = (
 
     const lowestDivisionLevel = getLowestDivisionLevel(clonedLeagues);
 
-    for (let divisionLevel = lowestDivisionLevel; divisionLevel > 1; divisionLevel--) {
+    for (let divisionLevel = lowestDivisionLevel; divisionLevel > 0; divisionLevel--) {
         const promotionTargets = getLeaguesOnDivision(clonedLeagues, divisionLevel - 1);
 
         for (const targetLeague of promotionTargets) {
