@@ -7,6 +7,10 @@ const createWaitingClubs = (numberOfFullLeagues: number, surplus: number = 0): n
     return Array.from({ length: total }, (_, i) => i + 1);
 }
 
+const surplus = (desired: number): number => {
+    return Math.min(desired, LEAGUE_NUMBER_OF_TEAMS - 1);
+}
+
 const assertSurplusClubsAreUnplaced = (waitingClubs: number[], fullLeaguesUsed: number, result: any[]): void => {
     const placedClubIds = result.flatMap(l => (l.clubs ?? []).map((c: any) => c.id));
     const surplusClubIds = waitingClubs.slice(fullLeaguesUsed * LEAGUE_NUMBER_OF_TEAMS);
@@ -122,8 +126,7 @@ describe('expandPyramid — no pre-existing leagues', () => {
 
     // 1c: enough for one league plus surplus clubs
     it('1c: creates one league and leaves surplus clubs unplaced when waiting clubs exceed one league but not two', () => {
-        const surplus = 3;
-        const waitingClubs = createWaitingClubs(1, surplus);
+        const waitingClubs = createWaitingClubs(1, surplus(3));
 
         const result = expandPyramid([], waitingClubs, 1);
 
@@ -135,7 +138,7 @@ describe('expandPyramid — no pre-existing leagues', () => {
 
     // 1d: enough for one child on second level (+ surplus)
     it('1d: creates root + one second-level child when waiting clubs fill two leagues', () => {
-        const waitingClubs = createWaitingClubs(2, 2);
+        const waitingClubs = createWaitingClubs(2, surplus(2));
 
         const result = expandPyramid([], waitingClubs, 1);
         const root = result.find(l => l.divisionLevel === 0 && l.serialNumberOnDivisionLevel === 0);
@@ -152,7 +155,7 @@ describe('expandPyramid — no pre-existing leagues', () => {
 
     // 1e: enough for second level to be fully occupied (+ surplus)
     it('1e: creates root + two second-level children when waiting clubs fill three leagues', () => {
-        const waitingClubs = createWaitingClubs(3, 1);
+        const waitingClubs = createWaitingClubs(3, surplus(1));
 
         const result = expandPyramid([], waitingClubs, 1);
         const root = result.find(l => l.divisionLevel === 0 && l.serialNumberOnDivisionLevel === 0);
@@ -172,7 +175,7 @@ describe('expandPyramid — no pre-existing leagues', () => {
 
     // 1f: enough for second level full + one child on third level (+ surplus)
     it('1f: creates one third-level child after filling second level', () => {
-        const waitingClubs = createWaitingClubs(4, 4);
+        const waitingClubs = createWaitingClubs(4, surplus(4));
 
         const result = expandPyramid([], waitingClubs, 1);
         const root = result.find(l => l.divisionLevel === 0 && l.serialNumberOnDivisionLevel === 0);
@@ -225,7 +228,7 @@ describe('expandPyramid — one pre-existing topmost league', () => {
     // 2c: one new league plus surplus clubs
     it('2c: adds one second-level child and keeps surplus clubs unplaced', () => {
         const topLeague = createPreExistingTopLeague(1);
-        const waitingClubs = createWaitingClubs(1, 2);
+        const waitingClubs = createWaitingClubs(1, surplus(2));
 
         const result = expandPyramid([topLeague], waitingClubs, 1);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -240,7 +243,7 @@ describe('expandPyramid — one pre-existing topmost league', () => {
     // 2d: enough to fully occupy second level
     it('2d: adds two second-level children under the pre-existing top league', () => {
         const topLeague = createPreExistingTopLeague(1);
-        const waitingClubs = createWaitingClubs(2, 1);
+        const waitingClubs = createWaitingClubs(2, surplus(1));
 
         const result = expandPyramid([topLeague], waitingClubs, 1);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -258,7 +261,7 @@ describe('expandPyramid — one pre-existing topmost league', () => {
     // 2e: second level full + first third-level child
     it('2e: adds one third-level child under the first second-level league after filling second level', () => {
         const topLeague = createPreExistingTopLeague(1);
-        const waitingClubs = createWaitingClubs(3, 3);
+        const waitingClubs = createWaitingClubs(3, surplus(3));
 
         const result = expandPyramid([topLeague], waitingClubs, 1);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -276,7 +279,7 @@ describe('expandPyramid — one pre-existing topmost league', () => {
     // 2f: second level full + two third-level children under first second-level league
     it('2f: adds two third-level children under same second-level parent before moving to next parent', () => {
         const topLeague = createPreExistingTopLeague(1);
-        const waitingClubs = createWaitingClubs(4, 5);
+        const waitingClubs = createWaitingClubs(4, surplus(5));
 
         const result = expandPyramid([topLeague], waitingClubs, 1);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -312,7 +315,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 3b: one new league still stays on lowest existing level
     it('3b: adds one league to level 3 and does not create level 4 yet', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeagues(1);
-        const waitingClubs = createWaitingClubs(1, 2);
+        const waitingClubs = createWaitingClubs(1, surplus(2));
 
         const result = expandPyramid(initialPyramid, waitingClubs, 1);
         const level2Leagues = getLeaguesOnLevel(result, 2);
@@ -331,7 +334,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 3c: two new leagues keep filling level 3 from left to right
     it('3c: adds two level-3 leagues and assigns parents according to first vacant parent order', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeagues(1);
-        const waitingClubs = createWaitingClubs(2, 1);
+        const waitingClubs = createWaitingClubs(2, surplus(1));
 
         const result = expandPyramid(initialPyramid, waitingClubs, 1);
         const level2Leagues = getLeaguesOnLevel(result, 2);
@@ -353,7 +356,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 3d: exactly enough to fully occupy current lowest level (level 3)
     it('3d: fills level 3 to eight leagues and still does not create level 4', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeagues(1);
-        const waitingClubs = createWaitingClubs(5, 3);
+        const waitingClubs = createWaitingClubs(5, surplus(3));
 
         const result = expandPyramid(initialPyramid, waitingClubs, 1);
         const level3Leagues = getLeaguesOnLevel(result, 3);
@@ -370,7 +373,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 3e: one more than level-3 fill should start level 4
     it('3e: creates first level-4 league only after level 3 becomes full', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeagues(1);
-        const waitingClubs = createWaitingClubs(6, 4);
+        const waitingClubs = createWaitingClubs(6, surplus(4));
 
         const result = expandPyramid(initialPyramid, waitingClubs, 1);
         const level3Leagues = getLeaguesOnLevel(result, 3);
@@ -388,7 +391,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 3f: two beyond level-3 fill should create two level-4 children under same first parent
     it('3f: creates two level-4 leagues under the first level-3 parent before moving to next parent', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeagues(1);
-        const waitingClubs = createWaitingClubs(7, 5);
+        const waitingClubs = createWaitingClubs(7, surplus(5));
 
         const result = expandPyramid(initialPyramid, waitingClubs, 1);
         const level3Leagues = getLeaguesOnLevel(result, 3);
@@ -436,7 +439,7 @@ describe('expandPyramid — no pre-existing leagues, span factor 4', () => {
 
     // 4c: enough for one league plus surplus clubs
     it('4c: creates one league and leaves surplus clubs unplaced when waiting clubs exceed one league but not two', () => {
-        const waitingClubs = createWaitingClubs(1, 3);
+        const waitingClubs = createWaitingClubs(1, surplus(3));
 
         const result = expandPyramidWithSpan([], waitingClubs, 1, spanFactor);
 
@@ -448,7 +451,7 @@ describe('expandPyramid — no pre-existing leagues, span factor 4', () => {
 
     // 4d: enough for one child on second level (+ surplus)
     it('4d: creates root + one second-level child when waiting clubs fill two leagues', () => {
-        const waitingClubs = createWaitingClubs(2, 2);
+        const waitingClubs = createWaitingClubs(2, surplus(2));
 
         const result = expandPyramidWithSpan([], waitingClubs, 1, spanFactor);
         const root = result.find(l => l.divisionLevel === 0 && l.serialNumberOnDivisionLevel === 0);
@@ -465,7 +468,7 @@ describe('expandPyramid — no pre-existing leagues, span factor 4', () => {
 
     // 4e: enough for second level to be fully occupied (+ surplus)
     it('4e: creates root + four second-level children when waiting clubs fill five leagues', () => {
-        const waitingClubs = createWaitingClubs(5, 1);
+        const waitingClubs = createWaitingClubs(5, surplus(1));
 
         const result = expandPyramidWithSpan([], waitingClubs, 1, spanFactor);
         const root = result.find(l => l.divisionLevel === 0 && l.serialNumberOnDivisionLevel === 0);
@@ -483,7 +486,7 @@ describe('expandPyramid — no pre-existing leagues, span factor 4', () => {
 
     // 4f: enough for second level full + one child on third level (+ surplus)
     it('4f: creates one third-level child after filling second level', () => {
-        const waitingClubs = createWaitingClubs(6, 4);
+        const waitingClubs = createWaitingClubs(6, surplus(4));
 
         const result = expandPyramidWithSpan([], waitingClubs, 1, spanFactor);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -534,7 +537,7 @@ describe('expandPyramid — one pre-existing topmost league, span factor 4', () 
     // 5c: one new league plus surplus clubs
     it('5c: adds one second-level child and keeps surplus clubs unplaced', () => {
         const topLeague = createPreExistingTopLeague(1);
-        const waitingClubs = createWaitingClubs(1, 2);
+        const waitingClubs = createWaitingClubs(1, surplus(2));
 
         const result = expandPyramidWithSpan([topLeague], waitingClubs, 1, spanFactor);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -549,7 +552,7 @@ describe('expandPyramid — one pre-existing topmost league, span factor 4', () 
     // 5d: enough to fully occupy second level
     it('5d: adds four second-level children under the pre-existing top league', () => {
         const topLeague = createPreExistingTopLeague(1);
-        const waitingClubs = createWaitingClubs(4, 1);
+        const waitingClubs = createWaitingClubs(4, surplus(1));
 
         const result = expandPyramidWithSpan([topLeague], waitingClubs, 1, spanFactor);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -566,7 +569,7 @@ describe('expandPyramid — one pre-existing topmost league, span factor 4', () 
     // 5e: second level full + first third-level child
     it('5e: adds one third-level child under the first second-level league after filling second level', () => {
         const topLeague = createPreExistingTopLeague(1);
-        const waitingClubs = createWaitingClubs(5, 3);
+        const waitingClubs = createWaitingClubs(5, surplus(3));
 
         const result = expandPyramidWithSpan([topLeague], waitingClubs, 1, spanFactor);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -584,7 +587,7 @@ describe('expandPyramid — one pre-existing topmost league, span factor 4', () 
     // 5f: second level full + two third-level children under first second-level league
     it('5f: adds two third-level children under same second-level parent before moving to next parent', () => {
         const topLeague = createPreExistingTopLeague(1);
-        const waitingClubs = createWaitingClubs(6, 5);
+        const waitingClubs = createWaitingClubs(6, surplus(5));
 
         const result = expandPyramidWithSpan([topLeague], waitingClubs, 1, spanFactor);
         const secondLevelLeagues = getLeaguesOnLevel(result, 1);
@@ -622,7 +625,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 6b: one new league still stays on lowest existing level
     it('6b: adds one league to level 3 and does not create level 4 yet', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeaguesAndCustomSpan(1, spanFactor);
-        const waitingClubs = createWaitingClubs(1, 2);
+        const waitingClubs = createWaitingClubs(1, surplus(2));
 
         const result = expandPyramidWithSpan(initialPyramid, waitingClubs, 1, spanFactor);
         const level2Leagues = getLeaguesOnLevel(result, 2);
@@ -641,7 +644,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 6c: two new leagues keep filling level 3 from left to right
     it('6c: adds two level-3 leagues and assigns parents according to first vacant parent order', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeaguesAndCustomSpan(1, spanFactor);
-        const waitingClubs = createWaitingClubs(2, 1);
+        const waitingClubs = createWaitingClubs(2, surplus(1));
 
         const result = expandPyramidWithSpan(initialPyramid, waitingClubs, 1, spanFactor);
         const level2Leagues = getLeaguesOnLevel(result, 2);
@@ -663,7 +666,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 6d: exactly enough to fully occupy current lowest level (level 3)
     it('6d: fills level 3 to sixty-four leagues and still does not create level 4', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeaguesAndCustomSpan(1, spanFactor);
-        const waitingClubs = createWaitingClubs(61, 3);
+        const waitingClubs = createWaitingClubs(61, surplus(3));
 
         const result = expandPyramidWithSpan(initialPyramid, waitingClubs, 1, spanFactor);
         const level3Leagues = getLeaguesOnLevel(result, 3);
@@ -680,7 +683,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 6e: one more than level-3 fill should start level 4
     it('6e: creates first level-4 league only after level 3 becomes full', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeaguesAndCustomSpan(1, spanFactor);
-        const waitingClubs = createWaitingClubs(62, 4);
+        const waitingClubs = createWaitingClubs(62, surplus(4));
 
         const result = expandPyramidWithSpan(initialPyramid, waitingClubs, 1, spanFactor);
         const level3Leagues = getLeaguesOnLevel(result, 3);
@@ -698,7 +701,7 @@ describe('expandPyramid — pre-existing four-level pyramid with partially occup
     // 6f: two beyond level-3 fill should create two level-4 children under same first parent
     it('6f: creates two level-4 leagues under the first level-3 parent before moving to next parent', () => {
         const initialPyramid = createPreExistingFourLevelPyramidWithThreeLowestLeaguesAndCustomSpan(1, spanFactor);
-        const waitingClubs = createWaitingClubs(63, 5);
+        const waitingClubs = createWaitingClubs(63, surplus(5));
 
         const result = expandPyramidWithSpan(initialPyramid, waitingClubs, 1, spanFactor);
         const level3Leagues = getLeaguesOnLevel(result, 3);
@@ -786,10 +789,15 @@ describe('expandPyramid — reliability guarantees', () => {
         const waitingClubs = [42, 5, 9, 100, 8, 7, 6, 11, 13, 15, 1, 3, 999];
         const result = expandPyramid([], waitingClubs, 1);
         const placedClubIds = getPlacedClubIds(result);
+        const fullLeagues = Math.floor(waitingClubs.length / LEAGUE_NUMBER_OF_TEAMS);
+        const placedClubCount = LEAGUE_NUMBER_OF_TEAMS * fullLeagues;
 
-        expect(placedClubIds).toEqual(waitingClubs.slice(0, LEAGUE_NUMBER_OF_TEAMS * 2));
-        expect(result).toHaveLength(2);
-        expect(result[0].clubs!.map((club: any) => club.id)).toEqual(waitingClubs.slice(0, LEAGUE_NUMBER_OF_TEAMS));
-        expect(result[1].clubs!.map((club: any) => club.id)).toEqual(waitingClubs.slice(LEAGUE_NUMBER_OF_TEAMS, LEAGUE_NUMBER_OF_TEAMS * 2));
+        expect(placedClubIds).toEqual(waitingClubs.slice(0, placedClubCount));
+        expect(result).toHaveLength(fullLeagues);
+        result.forEach((league, index) => {
+            const start = index * LEAGUE_NUMBER_OF_TEAMS;
+            const end = start + LEAGUE_NUMBER_OF_TEAMS;
+            expect(league.clubs!.map((club: any) => club.id)).toEqual(waitingClubs.slice(start, end));
+        });
     });
 });
