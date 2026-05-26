@@ -12,7 +12,7 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'youthAcademyDrawDeadline',
-                {day: 1, hour: 21},
+                {day: 0, hour: 21},
                 () => {}
             )
         );
@@ -20,7 +20,7 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'financesSetupDeadline',
-                {day: 2, hour: 21},
+                {day: 1, hour: 21},
                 () => {}
             )
         );
@@ -28,7 +28,7 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'trainingSetupDeadline',
-                {day: 3, hour: 21},
+                {day: 2, hour: 21},
                 () => {}
             )
         );
@@ -36,7 +36,7 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'transfersDeadline',
-                {day: 4, hour: 21},
+                {day: 3, hour: 21},
                 () => {}
             )
         );
@@ -44,7 +44,7 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'training',
-                {day: 5, hour: 9},
+                {day: 4, hour: 9},
                 () => {}
             )
         );
@@ -52,7 +52,7 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'matchSetupDeadline',
-                {day: 6, hour: 20},
+                {day: 5, hour: 20},
                 () => {}
             )
         );
@@ -60,7 +60,7 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'match',
-                {day: 6, hour: 21},
+                {day: 5, hour: 21},
                 () => {}
             )
         );
@@ -68,14 +68,14 @@ export default class WeekRunner {
         WeekRunner.weeklyTimetable.push(
             new WeeklyEvent(
                 'financesUpdate',
-                {day: 7, hour: 9},
+                {day: 6, hour: 9},
                 () => {}
             )
         );
     }
 
     static runWeek(time: Time) {
-        if (time.day === 1 && time.hour === 0) {
+        if (time.day === 0 && time.hour === 0) {
             WeekRunner.eventsLeftThisWeek = WeekRunner.weeklyTimetable;
         } else {
             WeekRunner.eventsLeftThisWeek = WeekRunner.weeklyTimetable.filter(e => !e.hasExpired(time));

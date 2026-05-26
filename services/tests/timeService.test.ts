@@ -38,9 +38,9 @@ describe("timeService", () => {
         it("should return current time from the repository", async () => {
             const mockTimeEntity: TimeEntityData = {
                 id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
+                season: 0,
+                week: 0,
+                day: 0,
                 hour: 12
             };
 
@@ -117,9 +117,9 @@ describe("timeService", () => {
         it("should insert singleton when missing and then return it", async () => {
             const initializedTimeEntity: TimeEntityData = {
                 id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
+                season: 0,
+                week: 0,
+                day: 0,
                 hour: 0
             };
 
@@ -163,9 +163,9 @@ describe("timeService", () => {
         it("should lock singleton, advance one hour and save", async () => {
             const initialTimeEntity: TimeEntityData = {
                 id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
+                season: 0,
+                week: 0,
+                day: 0,
                 hour: 10
             };
 
@@ -195,9 +195,9 @@ describe("timeService", () => {
             const savedEntity = transactionalTimeRepositoryMock.save.mock.calls[0][0];
             expect(savedEntity).toEqual({
                 id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
+                season: 0,
+                week: 0,
+                day: 0,
                 hour: 11
             });
 
