@@ -1,12 +1,8 @@
 # Pallo-backend
 
-case study, mieti miten menee jos halutaan...
-- muuttaa sitä laukaiseeko riittävä määrä klubeja ensimmäisen kauden automaattisesti (Scheduler?)
-- kauden alussa määriteltävä ManCity-vähennys (DomainEngine?)
-
 Dependencies point inwards, inner levels know nothing about outer levels.
 
-## Domain Core
+## 1 Domain Core
 Domain Objects that represent foundational game concepts.
 - Time
 - WeeklyEvent
@@ -17,39 +13,46 @@ Domain Objects that represent foundational game concepts.
 - MatchEvent
 Also contain Domain Properties.
 
-## Domain Engine
+## 2 Domain Engine
 Algorithms and orchestrating functions that typically involve multiple Domain Objects. Actual workings of the game start taking shape here, but this is purely domain logic that knows nothing about persistence, user interaction, or wider application flow-of-control.
 - PyramidExpander
 - PromoRelegator
 - FixtureGenerator
 - (StandingsOrderer)
 
-## Data Access
+## 3 Data Access
+Access to persistent data, defined as abtract Ports.
 - TimeService
 - PlayerService
 - ClubService
 - AuthService
 
-## Persistence Implementation
+## 4 Persistence Implementation
 Concrete implementation of Data Access.
 - entities
 - repositories
 - adapters
 - mappers: entity data <-> Domain Objects
 
-## Application Controllers
+## 5 Application Controllers
 Define and handle application behavior by reacting to requests from API and Scheduler. Use Data Access for data needs and Domain Engine for performing domain operations.
 - SeasonController: nykyinen LeagueFactory, varmaan ottaa asioita SeasonRunnerilta?
 - EventNotifications
 
-## Interactors
+## 6 Interactors
 - REST API
 - Scheduler
 - Datasource
 
-## The outside
+## 7 The outside
 - index.ts
 - (e2e tests)
+
+
+
+case study, mieti miten menee jos halutaan...
+- muuttaa sitä laukaiseeko riittävä määrä klubeja ensimmäisen kauden automaattisesti (Scheduler?)
+- kauden alussa määriteltävä ManCity-vähennys (DomainEngine?)
 
 ----
 
