@@ -1,6 +1,7 @@
 import League from "../domainModel/league/League";
 import appDataSource from "../config/datasource";
 import { getTransactionalRepositories, leagueRepository } from "../persistence/repositories/repositories";
+import { fromLeagueEntity, toLeagueEntityData } from "../persistence/mappers/leagueMapper";
 
 /**
  * Creates a new league for the given season
@@ -21,8 +22,8 @@ export const createLeague = async (
     const serialNumber = previousSeasonPredecessor ? previousSeasonPredecessor.serialNumberOnDivisionLevel : serialNumberOnDivisionLevel;
 
     const league = new League(season, divisionLevel, serialNumber!, promotesTo);
-    const savedLeagueEntity = await leagueRepository.save(league.toEntity() as any);
-    const savedLeague = League.fromEntity(savedLeagueEntity);
+    const savedLeagueEntity = await leagueRepository.save(toLeagueEntityData(league) as any);
+    const savedLeague = fromLeagueEntity(savedLeagueEntity);
 
     return savedLeague;
 }
@@ -41,7 +42,7 @@ export const persistSeasonTransition = async (
         const { leagueRepository } = getTransactionalRepositories(manager);
 
         for (const league of previousSeasonLeagues) {
-            await leagueRepository.save(league.toEntity() as any);
+            await leagueRepository.save(toLeagueEntityData(league) as any);
         }
 
         const sortedNewLeagues = [...newSeasonLeagues].sort((a, b) => {
@@ -55,7 +56,7 @@ export const persistSeasonTransition = async (
         const oldToSaved = new Map<League, League>();
 
         for (const league of sortedNewLeagues) {
-            const entity = league.toEntity();
+            const entity = toLeagueEntityData(league);
             delete entity.id;
 
             if (league.promotesTo) {
@@ -69,7 +70,7 @@ export const persistSeasonTransition = async (
             }
 
             const savedLeagueEntity = await leagueRepository.save(entity as any);
-            const savedLeague = League.fromEntity(savedLeagueEntity);
+            const savedLeague = fromLeagueEntity(savedLeagueEntity);
 
             const clubIds = (league.clubs ?? [])
                 .map((club) => club.id)
@@ -101,7 +102,7 @@ export const findLeaguesBySeason = async (season: number): Promise<League[]> => 
         relations: ["clubs"]
     });
 
-    return leagueEntities.map(entity => League.fromEntity(entity));
+    return leagueEntities.map(entity => fromLeagueEntity(entity));
 }
 
 /** Finds a league by season number and divisional position (division level and serial number on that division level) */
@@ -118,7 +119,7 @@ export const findLeagueBySeasonAndDivionalPosition = async (
         }
     });
 
-    return leagueEntity ? League.fromEntity(leagueEntity) : null;
+    return leagueEntity ? fromLeagueEntity(leagueEntity) : null;
 }
 
 /** Returns the children Leagues for a given league (i.e., Leagues that promote to the given League) */
@@ -127,5 +128,5 @@ export const findChildrenForLeague = async (leagueId: number): Promise<League[]>
         where: { promotesToId: leagueId }
     });
 
-    return leagueEntities.map(entity => League.fromEntity(entity));
+    return leagueEntities.map(entity => fromLeagueEntity(entity));
 }

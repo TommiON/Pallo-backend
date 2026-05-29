@@ -1,6 +1,5 @@
 import Club from "../club/Club";
 import { getRandomNumberInRange } from "../../utils/randomizer";
-import type { LeagueEntityData } from "../../persistence/entities/LeagueEntity";
 import type { LeagueData } from "./LeagueData";
 
 export default class League implements LeagueData {
@@ -30,27 +29,4 @@ export default class League implements LeagueData {
         this.finished = false;
     }
 
-    // Factory: Database entity → Domain object
-    static fromEntity(entity: LeagueEntityData): League {
-        const league = new League(entity.season, entity.divisionLevel, entity.serialNumberOnDivisionLevel, null);
-        league.id = entity.id;
-        league.promotesToId = entity.promotesToId;
-        league.started = entity.started;
-        league.finished = entity.finished;
-        league.clubs = entity.clubs;
-        return league;
-    }
-
-    // Adapter: Domain object → Database entity
-    toEntity(): LeagueEntityData {
-        return {
-            id: this.id,
-            season: this.season,
-            divisionLevel: this.divisionLevel,
-            serialNumberOnDivisionLevel: this.serialNumberOnDivisionLevel,
-            promotesToId: this.promotesToId,
-            started: this.started,
-            finished: this.finished
-        };
-    }
 }
