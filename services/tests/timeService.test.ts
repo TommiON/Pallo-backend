@@ -1,7 +1,7 @@
 import Time from "../../domainModel/time/Time";
 import appDataSource from "../../config/datasource";
 import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
-import { getTransactionalRepositories, timeRepository } from "../../persistence/repositories/repositories";
+import { timeRepository } from "../../persistence/repositories/repositories";
 import { getCurrentTime, initializeTime, advanceTime } from "../timeService";
 import { eventNotifications } from "../eventNotifications";
 
@@ -15,8 +15,7 @@ jest.mock("../../config/datasource", () => ({
 jest.mock("../../persistence/repositories/repositories", () => ({
     timeRepository: {
         findOne: jest.fn()
-    },
-    getTransactionalRepositories: jest.fn()
+    }
 }));
 
 jest.mock("../eventNotifications", () => ({
@@ -27,7 +26,6 @@ jest.mock("../eventNotifications", () => ({
 
 describe("timeService", () => {
     const transactionMock = appDataSource.transaction as jest.Mock;
-    const getTransactionalRepositoriesMock = getTransactionalRepositories as jest.Mock;
     const emitMock = eventNotifications.emit as jest.Mock;
 
     beforeEach(() => {
@@ -38,9 +36,9 @@ describe("timeService", () => {
         it("should return current time from the repository", async () => {
             const mockTimeEntity: TimeEntityData = {
                 id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
+                season: 0,
+                week: 0,
+                day: 0,
                 hour: 12
             };
 
@@ -95,11 +93,10 @@ describe("timeService", () => {
                 createQueryBuilder: jest.fn((alias?: string) => alias ? selectQueryBuilderMock : insertQueryBuilderMock)
             };
 
-            const managerMock = {};
+            const managerMock = {
+                getRepository: jest.fn().mockReturnValue(transactionalTimeRepositoryMock)
+            };
             transactionMock.mockImplementation(async (callback) => callback(managerMock));
-            getTransactionalRepositoriesMock.mockReturnValue({
-                timeRepository: transactionalTimeRepositoryMock
-            });
 
             const result = await initializeTime();
 
@@ -117,9 +114,9 @@ describe("timeService", () => {
         it("should insert singleton when missing and then return it", async () => {
             const initializedTimeEntity: TimeEntityData = {
                 id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
+                season: 0,
+                week: 0,
+                day: 0,
                 hour: 0
             };
 
@@ -143,11 +140,10 @@ describe("timeService", () => {
                 createQueryBuilder: jest.fn((alias?: string) => alias ? selectQueryBuilderMock : insertQueryBuilderMock)
             };
 
-            const managerMock = {};
+            const managerMock = {
+                getRepository: jest.fn().mockReturnValue(transactionalTimeRepositoryMock)
+            };
             transactionMock.mockImplementation(async (callback) => callback(managerMock));
-            getTransactionalRepositoriesMock.mockReturnValue({
-                timeRepository: transactionalTimeRepositoryMock
-            });
 
             const result = await initializeTime();
 
@@ -163,9 +159,9 @@ describe("timeService", () => {
         it("should lock singleton, advance one hour and save", async () => {
             const initialTimeEntity: TimeEntityData = {
                 id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
+                season: 0,
+                week: 0,
+                day: 0,
                 hour: 10
             };
 
@@ -180,11 +176,10 @@ describe("timeService", () => {
                 save: jest.fn().mockImplementation((entity) => Promise.resolve(entity))
             };
 
-            const managerMock = {};
+            const managerMock = {
+                getRepository: jest.fn().mockReturnValue(transactionalTimeRepositoryMock)
+            };
             transactionMock.mockImplementation(async (callback) => callback(managerMock));
-            getTransactionalRepositoriesMock.mockReturnValue({
-                timeRepository: transactionalTimeRepositoryMock
-            });
 
             const result = await advanceTime();
 
@@ -195,9 +190,9 @@ describe("timeService", () => {
             const savedEntity = transactionalTimeRepositoryMock.save.mock.calls[0][0];
             expect(savedEntity).toEqual({
                 id: 1,
-                season: 1,
-                week: 1,
-                day: 1,
+                season: 0,
+                week: 0,
+                day: 0,
                 hour: 11
             });
 
@@ -218,11 +213,10 @@ describe("timeService", () => {
                 save: jest.fn()
             };
 
-            const managerMock = {};
+            const managerMock = {
+                getRepository: jest.fn().mockReturnValue(transactionalTimeRepositoryMock)
+            };
             transactionMock.mockImplementation(async (callback) => callback(managerMock));
-            getTransactionalRepositoriesMock.mockReturnValue({
-                timeRepository: transactionalTimeRepositoryMock
-            });
 
             await expect(advanceTime()).rejects.toThrow("Time not initialized");
             expect(transactionalTimeRepositoryMock.save).not.toHaveBeenCalled();

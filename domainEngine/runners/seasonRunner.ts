@@ -12,12 +12,12 @@ export default class SeasonRunner {
     static async runSeason(time: Time) {
         this.currentTime = time;
 
-        if (this.currentTime.season === 1 && this.currentTime.week === 1 && this.currentTime.day === 1 && this.currentTime.hour === 0) {
+        if (this.currentTime.isTheVeryBeginningOfTime()) {
             if (await this.isEnoughClubsForStartup()) {
-                await createLeaguesForSeason(1);
+                await createLeaguesForSeason(0);
                 this.schedulerCanStart = true;
             }
-        } else if (this.currentTime.week === 1 && this.currentTime.day === 1 && this.currentTime.hour === 0) {
+        } else if (this.currentTime.isTheStartOfASeason()) {
             //await wrapUpLeaguesForSeason(this.currentTime.season - 1);
             // jos halutaan että LEAGUE_NUMBER_OF_TEAMS voi muuttua kausittain, tämä on oleellinen jakolinja (ei toteuteta vielä)
             await createLeaguesForSeason(time.season);
@@ -39,7 +39,7 @@ export default class SeasonRunner {
         }
 
         if (this.schedulerCanStart && !this.schedulerHasStarted) {
-            await createLeaguesForSeason(1);
+            await createLeaguesForSeason(0);
             await startScheduler();
         }
     }
