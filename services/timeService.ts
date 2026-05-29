@@ -1,19 +1,65 @@
 import Time from "../domainModel/time/Time";
-import appDataSource from "../config/datasource";
-import { timeRepository } from "../persistence/repositories/repositories";
-import { getTransactionalRepositories } from "../persistence/repositories/repositories";
-import { TimeEntity } from "../persistence/entities/TimeEntity";
 import { WeeklyEvent } from "../domainModel/time/WeeklyEvent";
 import WeekRunner from "../domainEngine/runners/WeekRunner";
-import { eventNotifications } from "./eventNotifications";
+import { TimeEventsPort, TimeStorePort, TimeTransactionPort } from "./ports/timePorts";
+import { createDefaultTimeServicePorts } from "./composition/timeServiceComposition";
+
+export type TimeServicePorts = {
+    timeStore: TimeStorePort;
+    timeTransaction: TimeTransactionPort;
+    timeEvents: TimeEventsPort;
+};
+
+export const createTimeService = ({ timeStore, timeTransaction, timeEvents }: TimeServicePorts) => ({
+    getCurrentTime: async (): Promise<Time | null> => {
+        return timeStore.getCurrent();
+    },
+
+    initializeTime: async (): Promise<Time> => {
+        const time = await timeTransaction.runInTransaction(async (transactionalStore) => {
+            let currentTime = await transactionalStore.getCurrentForUpdate();
+
+            if (!currentTime) {
+                await transactionalStore.insertIfMissing(new Time());
+                currentTime = await transactionalStore.getCurrentForUpdate();
+            }
+
+            if (!currentTime) {
+                throw new Error("Failed to initialize time singleton");
+            }
+
+            return currentTime;
+        });
+
+        timeEvents.emitTimeChanged(time);
+        return time;
+    },
+
+    advanceTime: async (): Promise<Time> => {
+        const updatedTime = await timeTransaction.runInTransaction(async (transactionalStore) => {
+            const currentTime = await transactionalStore.getCurrentForUpdate();
+
+            if (!currentTime) {
+                throw new Error("Time not initialized");
+            }
+
+            const advancedTime = currentTime.advanceByAnHour();
+            return transactionalStore.save(advancedTime);
+        });
+
+        timeEvents.emitTimeChanged(updatedTime);
+        return updatedTime;
+    }
+});
+
+const timeService = createTimeService(createDefaultTimeServicePorts());
 
 /**
  * Gets the current time from the database.
  * @returns 
  */
 export const getCurrentTime = async (): Promise<Time|null> => {
-    const timeEntity = await timeRepository.findOne({ where: { id: 1 } });
-    return timeEntity ? Time.fromEntity(timeEntity) : null;
+    return timeService.getCurrentTime();
 }
 
 /**
@@ -21,49 +67,7 @@ export const getCurrentTime = async (): Promise<Time|null> => {
  * @returns 
  */
 export const initializeTime = async (): Promise<Time> => {
-    let time: Time | null = null;
-
-    await appDataSource.transaction(async (manager) => {
-        const { timeRepository } = getTransactionalRepositories(manager);
-
-        let timeEntity = await timeRepository
-            .createQueryBuilder("time")
-            .setLock("pessimistic_write")
-            .where("time.id = :id", { id: 1 })
-            .getOne();
-
-        if (!timeEntity) {
-            const initialTime = new Time();
-
-            await timeRepository
-                .createQueryBuilder()
-                .insert()
-                .into(TimeEntity)
-                .values(initialTime.toEntity() as any)
-                .orIgnore()
-                .execute();
-
-            timeEntity = await timeRepository
-                .createQueryBuilder("time")
-                .setLock("pessimistic_write")
-                .where("time.id = :id", { id: 1 })
-                .getOne();
-        }
-
-        if (!timeEntity) {
-            throw new Error("Failed to initialize time singleton");
-        }
-
-        time = Time.fromEntity(timeEntity);
-    });
-
-    if (!time) {
-        throw new Error("Time initialization transaction did not produce a time instance");
-    }
-
-    eventNotifications.emit("time.changed", time);
-
-    return time;
+    return timeService.initializeTime();
 }
 
 /**
@@ -72,35 +76,7 @@ export const initializeTime = async (): Promise<Time> => {
  * @returns 
  */
 export const advanceTime = async (): Promise<Time> => {
-    let updatedTime: Time | null = null;
-
-    await appDataSource.transaction(async (manager) => {
-        const { timeRepository } = getTransactionalRepositories(manager);
-
-        const lockedTimeEntity = await timeRepository
-            .createQueryBuilder("time")
-            .setLock("pessimistic_write")
-            .where("time.id = :id", { id: 1 })
-            .getOne();
-
-        if (!lockedTimeEntity) {
-            throw new Error("Time not initialized");
-        }
-
-        const newtime = Time.fromEntity(lockedTimeEntity).advanceByAnHour();
-
-        // TypeORM repository typing is complex with entity schema changes, using cast as temporary solution
-        const savedTime = await timeRepository.save(newtime.toEntity() as any);
-        updatedTime = Time.fromEntity(savedTime);
-    });
-
-    if (!updatedTime) {
-        throw new Error("Time advance transaction did not produce an updated time");
-    }
-
-    eventNotifications.emit("time.changed", updatedTime);
-
-    return updatedTime;
+    return timeService.advanceTime();
 }
 
 /**
