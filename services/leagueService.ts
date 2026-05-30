@@ -1,7 +1,108 @@
 import League from "../domainModel/league/League";
-import appDataSource from "../config/datasource";
-import { getTransactionalRepositories, leagueRepository } from "../persistence/repositories/repositories";
-import { fromLeagueEntity, toLeagueEntityData } from "../persistence/mappers/leagueMapper";
+import { createDefaultLeagueServicePorts } from "./composition/leagueServiceComposition";
+import { LeagueStorePort, LeagueTransactionPort } from "./ports/leaguePorts";
+
+export type LeagueServicePorts = {
+    leagueStore: LeagueStorePort;
+    leagueTransaction: LeagueTransactionPort;
+};
+
+export const createLeagueService = ({ leagueStore, leagueTransaction }: LeagueServicePorts) => ({
+    createLeague: async (
+        season: number,
+        spanningFrom: League | null,
+        previousSeasonPredecessor: League | null,
+        serialNumberOnDivisionLevel: number | null
+    ): Promise<League> => {
+        const divisionLevel = spanningFrom ? spanningFrom.divisionLevel + 1 : 1;
+        const promotesTo = spanningFrom ? spanningFrom : null;
+        const serialNumber = previousSeasonPredecessor
+            ? previousSeasonPredecessor.serialNumberOnDivisionLevel
+            : serialNumberOnDivisionLevel;
+
+        const league = new League(season, divisionLevel, serialNumber!, promotesTo);
+        return leagueStore.save(league);
+    },
+
+    persistSeasonTransition: async (
+        previousSeasonLeagues: League[],
+        newSeasonLeagues: League[]
+    ): Promise<League[]> => {
+        return leagueTransaction.runInTransaction(async (transactionalStore) => {
+            for (const league of previousSeasonLeagues) {
+                await transactionalStore.save(league);
+            }
+
+            const sortedNewLeagues = [...newSeasonLeagues].sort((a, b) => {
+                if (a.divisionLevel !== b.divisionLevel) {
+                    return a.divisionLevel - b.divisionLevel;
+                }
+
+                return a.serialNumberOnDivisionLevel - b.serialNumberOnDivisionLevel;
+            });
+
+            const oldToSaved = new Map<League, League>();
+
+            for (const league of sortedNewLeagues) {
+                const previousPromotesToId = league.promotesToId;
+
+                if (league.promotesTo) {
+                    const savedParent = oldToSaved.get(league.promotesTo);
+                    if (!savedParent || savedParent.id === undefined) {
+                        throw new Error("Parent league must be saved before child league");
+                    }
+                    league.promotesToId = savedParent.id;
+                } else {
+                    league.promotesToId = undefined;
+                }
+
+                const unsavedId = league.id;
+                league.id = undefined;
+                const savedLeague = await transactionalStore.save(league);
+                league.id = unsavedId;
+                league.promotesToId = previousPromotesToId;
+
+                const clubIds = (league.clubs ?? [])
+                    .map((club) => club.id)
+                    .filter((id): id is number => id !== undefined);
+
+                if (clubIds.length > 0 && savedLeague.id !== undefined) {
+                    await transactionalStore.addClubsToLeague(savedLeague.id, clubIds);
+                }
+
+                savedLeague.clubs = league.clubs;
+                savedLeague.promotesTo = league.promotesTo ? oldToSaved.get(league.promotesTo) ?? null : null;
+                oldToSaved.set(league, savedLeague);
+            }
+
+            return newSeasonLeagues
+                .map((league) => oldToSaved.get(league))
+                .filter((league): league is League => league !== undefined);
+        });
+    },
+
+    findLeaguesBySeason: async (season: number): Promise<League[]> => {
+        return leagueStore.findBySeason(season);
+    },
+
+    findLeagueBySeasonAndDivionalPosition: async (
+        season: number,
+        divisionLevel: number,
+        serialNumberOnDivisionLevel: number
+    ): Promise<League | null> => {
+        return leagueStore.findBySeasonAndDivisionalPosition(
+            season,
+            divisionLevel,
+            serialNumberOnDivisionLevel
+        );
+    },
+
+    findChildrenForLeague: async (leagueId: number): Promise<League[]> => {
+        return leagueStore.findChildrenForLeague(leagueId);
+    }
+});
+
+const leagueService = createLeagueService(createDefaultLeagueServicePorts());
 
 /**
  * Creates a new league for the given season
@@ -17,15 +118,12 @@ export const createLeague = async (
         previousSeasonPredecessor: League | null,
         serialNumberOnDivisionLevel: number | null
 ): Promise<League> => {
-    const divisionLevel = spanningFrom ? spanningFrom.divisionLevel + 1 : 1;
-    const promotesTo = spanningFrom ? spanningFrom : null;
-    const serialNumber = previousSeasonPredecessor ? previousSeasonPredecessor.serialNumberOnDivisionLevel : serialNumberOnDivisionLevel;
-
-    const league = new League(season, divisionLevel, serialNumber!, promotesTo);
-    const savedLeagueEntity = await leagueRepository.save(toLeagueEntityData(league) as any);
-    const savedLeague = fromLeagueEntity(savedLeagueEntity);
-
-    return savedLeague;
+    return leagueService.createLeague(
+        season,
+        spanningFrom,
+        previousSeasonPredecessor,
+        serialNumberOnDivisionLevel
+    );
 }
 
 /**
@@ -38,71 +136,12 @@ export const persistSeasonTransition = async (
         previousSeasonLeagues: League[],
         newSeasonLeagues: League[]
 ): Promise<League[]> => {
-    return appDataSource.transaction(async (manager) => {
-        const { leagueRepository } = getTransactionalRepositories(manager);
-
-        for (const league of previousSeasonLeagues) {
-            await leagueRepository.save(toLeagueEntityData(league) as any);
-        }
-
-        const sortedNewLeagues = [...newSeasonLeagues].sort((a, b) => {
-            if (a.divisionLevel !== b.divisionLevel) {
-                return a.divisionLevel - b.divisionLevel;
-            }
-
-            return a.serialNumberOnDivisionLevel - b.serialNumberOnDivisionLevel;
-        });
-
-        const oldToSaved = new Map<League, League>();
-
-        for (const league of sortedNewLeagues) {
-            const entity = toLeagueEntityData(league);
-            delete entity.id;
-
-            if (league.promotesTo) {
-                const savedParent = oldToSaved.get(league.promotesTo);
-                if (!savedParent || savedParent.id === undefined) {
-                    throw new Error("Parent league must be saved before child league");
-                }
-                entity.promotesToId = savedParent.id;
-            } else {
-                entity.promotesToId = undefined;
-            }
-
-            const savedLeagueEntity = await leagueRepository.save(entity as any);
-            const savedLeague = fromLeagueEntity(savedLeagueEntity);
-
-            const clubIds = (league.clubs ?? [])
-                .map((club) => club.id)
-                .filter((id): id is number => id !== undefined);
-
-            if (clubIds.length > 0 && savedLeague.id !== undefined) {
-                await manager
-                    .createQueryBuilder()
-                    .relation("league", "clubs")
-                    .of(savedLeague.id)
-                    .add(clubIds);
-            }
-
-            savedLeague.clubs = league.clubs;
-            savedLeague.promotesTo = league.promotesTo ? oldToSaved.get(league.promotesTo) ?? null : null;
-            oldToSaved.set(league, savedLeague);
-        }
-
-        return newSeasonLeagues
-            .map((league) => oldToSaved.get(league))
-            .filter((league): league is League => league !== undefined);
-    });
+    return leagueService.persistSeasonTransition(previousSeasonLeagues, newSeasonLeagues);
 }
 
 /** Finds all leagues for a given season */
 export const findLeaguesBySeason = async (season: number): Promise<League[]> => {
-    const leagueEntities = await leagueRepository.find({
-        where: { season },
-        relations: ["clubs"]
-    });
-
-    return leagueEntities.map(entity => fromLeagueEntity(entity));
+    return leagueService.findLeaguesBySeason(season);
 }
 
 /** Finds a league by season number and divisional position (division level and serial number on that division level) */
@@ -111,22 +150,14 @@ export const findLeagueBySeasonAndDivionalPosition = async (
         divisionLevel: number,
         serialNumberOnDivisionLevel: number
 ): Promise<League|null> => {
-    const leagueEntity = await leagueRepository.findOne({
-        where: {
-            season,
-            divisionLevel,
-            serialNumberOnDivisionLevel
-        }
-    });
-
-    return leagueEntity ? fromLeagueEntity(leagueEntity) : null;
+    return leagueService.findLeagueBySeasonAndDivionalPosition(
+        season,
+        divisionLevel,
+        serialNumberOnDivisionLevel
+    );
 }
 
 /** Returns the children Leagues for a given league (i.e., Leagues that promote to the given League) */
 export const findChildrenForLeague = async (leagueId: number): Promise<League[]> => {
-    const leagueEntities = await leagueRepository.find({
-        where: { promotesToId: leagueId }
-    });
-
-    return leagueEntities.map(entity => fromLeagueEntity(entity));
+    return leagueService.findChildrenForLeague(leagueId);
 }
