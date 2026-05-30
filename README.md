@@ -22,7 +22,7 @@ Algorithms and orchestrating functions that typically involve multiple Domain Ob
 - FixtureGenerator
 - (StandingsOrderer)
 
-## 3. Data Access Interface
+## 3. Data Access Interface (/dataAccess)
 Access to persistent data, defined as abtract Ports left to be implemented further out. 
 - TimeService
 - LeagueService
@@ -37,7 +37,7 @@ Concrete implementation of Data Access Interface. Uses TypeORM framework.
 - Repositories for accessing database.
 - Mappers to transform entity data <-> Domain Objects
 
-## 5. Application Controllers
+## 5. Application Controllers (/controllers)
 Define and handle application behavior by reacting to requests from API and Scheduler. Use Data Access Interface for data needs and Domain Engine for performing domain operations.
 - SeasonController: nykyinen LeagueFactory, varmaan ottaa asioita SeasonRunnerilta?
 - AuthController
