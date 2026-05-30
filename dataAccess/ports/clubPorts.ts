@@ -1,5 +1,5 @@
 import Club from "../../domainCore/club/Club";
-import Player from "../../domainCore/player/Player";
+import Player from "../../domainCore/Player";
 
 export interface ClubStorePort {
     save(club: Club): Promise<Club>;

@@ -1,4 +1,4 @@
-import Player from "../domainCore/player/Player";
+import Player from "../domainCore/Player";
 import { AuthenticatedUser } from "./authService";
 import { createDefaultPlayerServicePorts } from "./composition/playerServiceComposition";
 import { PlayerStorePort } from "./ports/playerPorts";

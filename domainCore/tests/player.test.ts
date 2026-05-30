@@ -1,5 +1,5 @@
 import Player from "../Player"
-import { PLAYER_MIN_AGE } from "../../domainProperties";
+import { PLAYER_MIN_AGE } from "../domainProperties";
 
 test('player factory', () => {
     const testPlayer = new Player();

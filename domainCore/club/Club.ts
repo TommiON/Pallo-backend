@@ -1,4 +1,4 @@
-import Player from "../player/Player";
+import Player from "../Player";
 import League from "../league/League";
 import { hashPassword } from "../../utils/passwordUtils";
 import { getRandomNumberInRange } from "../../utils/randomizer";
