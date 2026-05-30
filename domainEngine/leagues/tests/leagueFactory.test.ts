@@ -1,8 +1,8 @@
 import League from "../../../domainModel/league/League";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../../domainProperties/domainProperties";
 import { createLeaguesForSeason } from "../leagueFactory";
-import * as leagueService from "../../../services/leagueService";
-import * as clubService from "../../../services/clubService";
+import * as leagueService from "../../../dataAccess/leagueService";
+import * as clubService from "../../../dataAccess/clubService";
 
 const createLeague = (season: number, divisionLevel: number, serialNumber: number, promotesTo: League | null = null): League => {
     return new League(season, divisionLevel, serialNumber, promotesTo);

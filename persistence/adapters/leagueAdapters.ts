@@ -1,7 +1,7 @@
 import { EntityManager, Repository } from "typeorm";
 
 import appDataSource from "../../config/datasource";
-import { LeagueStorePort, LeagueTransactionalStorePort, LeagueTransactionPort } from "../../services/ports/leaguePorts";
+import { LeagueStorePort, LeagueTransactionalStorePort, LeagueTransactionPort } from "../../dataAccess/ports/leaguePorts";
 import { LeagueEntity, LeagueEntityData } from "../entities/LeagueEntity";
 import { fromLeagueEntity, toLeagueEntityData } from "../mappers/leagueMapper";
 import { leagueRepository } from "../repositories/repositories";

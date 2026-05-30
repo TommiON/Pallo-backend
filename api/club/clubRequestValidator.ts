@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { ValidationError } from "../ValidationError";
 import { sendErrorResponse } from "../ApiResponse";
 import { CreateClubRequest, ClubByIdRequest } from "./ClubRequestResponseTypes";
-import { clubExistsForName } from "../../services/clubService";
+import { clubExistsForName } from "../../dataAccess/clubService";
 
 export const createClubRequestValidator: RequestHandler<any, any, CreateClubRequest> = async (req, res, next) => {
     const errors: ValidationError[] = [];

@@ -3,13 +3,13 @@ import { EntityManager, Repository } from "typeorm";
 import appDataSource from "../../config/datasource";
 import Club from "../../domainModel/club/Club";
 import Player from "../../domainModel/player/Player";
-import { eventNotifications } from "../../services/eventNotifications";
+import { eventNotifications } from "../../dataAccess/eventNotifications";
 import {
     ClubEventsPort,
     ClubStorePort,
     ClubTransactionalStorePort,
     ClubTransactionPort
-} from "../../services/ports/clubPorts";
+} from "../../dataAccess/ports/clubPorts";
 import { ClubEntity, ClubEntityData } from "../entities/ClubEntity";
 import { PlayerEntity, PlayerEntityData } from "../entities/PlayerEntity";
 import { fromClubEntity, toClubEntityData } from "../mappers/clubMapper";

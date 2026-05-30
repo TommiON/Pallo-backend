@@ -3,7 +3,7 @@ import express, {Request, Response} from 'express';
 import { ApiResponse, sendSuccessResponse, sendErrorResponse } from '../ApiResponse';
 import { TimeResponse } from './TimeResponseTypes';
 import { authValidator } from '../authValidator';
-import { getCurrentTime, getWeeklyEvents } from '../../services/timeService';
+import { getCurrentTime, getWeeklyEvents } from '../../dataAccess/timeService';
 
 const baseUrl = '/api/time';
 const timeRouter = express.Router();

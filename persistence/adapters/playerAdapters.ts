@@ -1,6 +1,6 @@
 import { In, Repository } from "typeorm";
 
-import { PlayerStorePort } from "../../services/ports/playerPorts";
+import { PlayerStorePort } from "../../dataAccess/ports/playerPorts";
 import { PlayerEntityData } from "../entities/PlayerEntity";
 import { fromPlayerEntity } from "../mappers/playerMapper";
 import { playerRepository } from "../repositories/repositories";

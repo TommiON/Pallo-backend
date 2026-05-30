@@ -4,7 +4,7 @@ import { ApiResponse, sendSuccessResponse } from '../ApiResponse';
 import { PlayersByIdsRequest, PlayerResponse } from './PlayerRequestResponseTypes';
 import { getPlayersByIdsRequestValidator } from './playerRequestValidator';
 import { authValidator } from '../authValidator';
-import { findPlayersByIds } from '../../services/playerService';
+import { findPlayersByIds } from '../../dataAccess/playerService';
 
 const baseUrl = '/api/player';
 const playerRouter = express.Router();

@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { ValidationError } from "../ValidationError";
 import { sendErrorResponse } from "../ApiResponse";
 import { LoginRequest } from "./LoginRequestResponseTypes";
-import { authenticateLogin } from "../../services/authService";
+import { authenticateLogin } from "../../dataAccess/authService";
 
 export const loginRequestValidator: RequestHandler<any, any, LoginRequest> = async (req, res, next) => {
     const errors: ValidationError[] = [];

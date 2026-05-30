@@ -2,8 +2,8 @@ import { EntityManager, Repository } from "typeorm";
 
 import appDataSource from "../../config/datasource";
 import Time from "../../domainModel/time/Time";
-import { eventNotifications } from "../../services/eventNotifications";
-import { TimeEventsPort, TimeStorePort, TimeTransactionPort } from "../../services/ports/timePorts";
+import { eventNotifications } from "../../dataAccess/eventNotifications";
+import { TimeEventsPort, TimeStorePort, TimeTransactionPort } from "../../dataAccess/ports/timePorts";
 import { TimeEntity, TimeEntityData } from "../entities/TimeEntity";
 import { fromTimeEntity, toTimeEntityData } from "../mappers/timeMapper";
 import { timeRepository } from "../repositories/repositories";

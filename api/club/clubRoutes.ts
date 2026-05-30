@@ -4,7 +4,7 @@ import { ApiResponse, sendSuccessResponse, sendErrorResponse } from '../ApiRespo
 import { CreateClubRequest, ClubByIdRequest, ClubResponse } from './ClubRequestResponseTypes';
 import { createClubRequestValidator, getClubByIdRequestValidator } from './clubRequestValidator';
 import { authValidator } from '../authValidator';
-import { createClub, findClubById} from '../../services/clubService';
+import { createClub, findClubById} from '../../dataAccess/clubService';
 
 const baseUrl = '/api/club';
 const clubRouter = express.Router();
