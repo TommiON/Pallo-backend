@@ -112,16 +112,9 @@ describe("leagueFactory.createLeaguesForSeason", () => {
     });
 
     it("preserves previous-season club memberships through the full season transition chain", async () => {
-        const previousSeasonLeague = League.fromEntity({
-            id: 101,
-            season: 4,
-            divisionLevel: 0,
-            serialNumberOnDivisionLevel: 0,
-            promotesToId: undefined,
-            started: false,
-            finished: false,
-            clubs: [{ id: 11 }, { id: 12 }, { id: 13 }, { id: 14 }]
-        } as any);
+        const previousSeasonLeague = createLeague(4, 0, 0, null);
+        previousSeasonLeague.id = 101;
+        previousSeasonLeague.clubs = [{ id: 11 }, { id: 12 }, { id: 13 }, { id: 14 }] as any;
 
         findLeaguesBySeasonSpy.mockResolvedValue([previousSeasonLeague]);
         findNonAttachedUserClubsSpy.mockResolvedValue([]);
