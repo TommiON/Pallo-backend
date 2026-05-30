@@ -2,7 +2,7 @@ import { advanceTime, initializeTime } from "../dataAccess/timeService"
 import { eventNotifications } from "../dataAccess/eventNotifications";
 import SeasonRunner from "./runners/SeasonRunner";
 import WeekRunner from "./runners/WeekRunner";
-import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainProperties/domainProperties";
+import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainCore/domainProperties";
 
 export const initializeDomain = async () => {
     eventNotifications.on("time.changed", (newTime) => SeasonRunner.runSeason(newTime));

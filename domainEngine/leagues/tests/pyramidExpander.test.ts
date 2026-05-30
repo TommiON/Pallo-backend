@@ -1,6 +1,6 @@
 import League from "../../../domainCore/league/League";
 import { expandPyramid } from "../pyramidExpander";
-import { LEAGUE_NUMBER_OF_TEAMS } from "../../../domainProperties/domainProperties";
+import { LEAGUE_NUMBER_OF_TEAMS } from "../../../domainCore/domainProperties";
 
 const createWaitingClubs = (numberOfFullLeagues: number, surplus: number = 0): number[] => {
     const total = (numberOfFullLeagues * LEAGUE_NUMBER_OF_TEAMS) + surplus;

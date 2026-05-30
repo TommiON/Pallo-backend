@@ -1,4 +1,4 @@
-import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties";
+import { LEAGUE_NUMBER_OF_TEAMS } from "../domainProperties";
 
 const weeksInSeason = (LEAGUE_NUMBER_OF_TEAMS - 1) * 2;
 

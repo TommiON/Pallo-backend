@@ -2,7 +2,7 @@ import Club from "../../../domainCore/club/Club";
 import League from "../../../domainCore/league/League";
 import { createLeaguePyramidFixture, findLeagueInFixture } from "./testFixtures";
 import { promoteAndRelegate } from "../promotorRelegator";
-import { LEAGUE_PROMOTED_FROM_TOP } from "../../../domainProperties/domainProperties";
+import { LEAGUE_PROMOTED_FROM_TOP } from "../../../domainCore/domainProperties";
 
 describe("PromoRelegator", () => {
     it("handles 0-based division levels (child level 1 promotes to top level 0)", () => {

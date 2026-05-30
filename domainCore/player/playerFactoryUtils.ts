@@ -1,5 +1,5 @@
 import { getRandomElement } from "../../utils/randomizer";
-import { PLAYER_MIN_AGE, PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH } from "../../domainProperties/domainProperties";
+import { PLAYER_MIN_AGE, PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH } from "../domainProperties";
 import Footedness from "./Footedness";
 
 export const generatePlayerName = (): string => {

@@ -1,6 +1,6 @@
 import Club from "../domainCore/club/Club";
 import Player from "../domainCore/player/Player";
-import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../domainProperties/domainProperties";
+import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../domainCore/domainProperties";
 import { createDefaultClubServicePorts } from "./composition/clubServiceComposition";
 import { ClubEventsPort, ClubStorePort, ClubTransactionPort } from "./ports/clubPorts";
 

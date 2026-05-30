@@ -1,6 +1,6 @@
 import Club from "../../domainCore/club/Club";
 import League from "../../domainCore/league/League";
-import { LEAGUE_PROMOTED_FROM_TOP } from "../../domainProperties/domainProperties";
+import { LEAGUE_PROMOTED_FROM_TOP } from "../../domainCore/domainProperties";
 
 export const promoteAndRelegate = (
     oldLeagues: League[],
