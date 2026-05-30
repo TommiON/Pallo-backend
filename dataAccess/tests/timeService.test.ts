@@ -1,4 +1,4 @@
-import Time from "../../domainModel/time/Time";
+import Time from "../../domainCore/time/Time";
 import appDataSource from "../../config/datasource";
 import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
 import { timeRepository } from "../../persistence/repositories/repositories";

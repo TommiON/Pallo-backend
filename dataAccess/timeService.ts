@@ -1,5 +1,5 @@
-import Time from "../domainModel/time/Time";
-import { WeeklyEvent } from "../domainModel/time/WeeklyEvent";
+import Time from "../domainCore/time/Time";
+import { WeeklyEvent } from "../domainCore/time/WeeklyEvent";
 import WeekRunner from "../domainEngine/runners/WeekRunner";
 import { TimeEventsPort, TimeStorePort, TimeTransactionPort } from "./ports/timePorts";
 import { createDefaultTimeServicePorts } from "./composition/timeServiceComposition";

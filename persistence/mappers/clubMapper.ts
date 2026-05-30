@@ -1,4 +1,4 @@
-import Club from "../../domainModel/club/Club";
+import Club from "../../domainCore/club/Club";
 import type { ClubEntityData } from "../entities/ClubEntity";
 
 export const fromClubEntity = (entity: ClubEntityData): Club => {

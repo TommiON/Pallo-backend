@@ -1,4 +1,4 @@
-import Club from "../../domainModel/club/Club";
+import Club from "../../domainCore/club/Club";
 import { ClubEntity } from "../../persistence/entities/ClubEntity";
 import { PlayerEntity } from "../../persistence/entities/PlayerEntity";
 import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../../domainProperties/domainProperties";

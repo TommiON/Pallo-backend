@@ -1,4 +1,4 @@
-import League from "../../../domainModel/league/League";
+import League from "../../../domainCore/league/League";
 import { expandPyramid } from "../pyramidExpander";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../../domainProperties/domainProperties";
 

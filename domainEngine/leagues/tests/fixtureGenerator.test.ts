@@ -1,4 +1,4 @@
-import Club from "../../../domainModel/club/Club";
+import Club from "../../../domainCore/club/Club";
 import { generateFixtures } from "../fixtureGenerator";
 
 const createDummyClubs = async (): Promise<Club[]> => {

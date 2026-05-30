@@ -1,5 +1,5 @@
-import Club from "../../domainModel/club/Club";
-import League from "../../domainModel/league/League";
+import Club from "../../domainCore/club/Club";
+import League from "../../domainCore/league/League";
 import { LEAGUE_PROMOTED_FROM_TOP } from "../../domainProperties/domainProperties";
 
 export const promoteAndRelegate = (

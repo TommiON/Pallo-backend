@@ -1,4 +1,4 @@
-import League from "../../domainModel/league/League";
+import League from "../../domainCore/league/League";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties"
 import { findLeaguesBySeason } from "../../dataAccess/leagueService";
 import { findNonAttachedUserClubs } from "../../dataAccess/clubService";

@@ -1,5 +1,5 @@
-import Player from "../../domainModel/player/Player";
-import Footedness from "../../domainModel/player/Footedness";
+import Player from "../../domainCore/player/Player";
+import Footedness from "../../domainCore/player/Footedness";
 import type { PlayerEntityData } from "../entities/PlayerEntity";
 
 export const fromPlayerEntity = (entity: PlayerEntityData): Player => {

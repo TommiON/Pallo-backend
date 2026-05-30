@@ -1,4 +1,4 @@
-import League from "../../domainModel/league/League";
+import League from "../../domainCore/league/League";
 import appDataSource from "../../config/datasource";
 import { leagueRepository } from "../../persistence/repositories/repositories";
 import { findLeaguesBySeason } from "../leagueService";

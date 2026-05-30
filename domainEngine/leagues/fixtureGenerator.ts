@@ -1,6 +1,6 @@
-import Match from "../../domainModel/match/Match";
-import Club from "../../domainModel/club/Club";
-import League from "../../domainModel/league/League";
+import Match from "../../domainCore/match/Match";
+import Club from "../../domainCore/club/Club";
+import League from "../../domainCore/league/League";
 import { shuffleCollectionRandomly } from "../../utils/randomizer";
 
 /**

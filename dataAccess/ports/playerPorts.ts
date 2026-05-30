@@ -1,4 +1,4 @@
-import Player from "../../domainModel/player/Player";
+import Player from "../../domainCore/player/Player";
 
 export interface PlayerStorePort {
     findByIds(ids: number[]): Promise<Player[]>;

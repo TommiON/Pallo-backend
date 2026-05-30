@@ -1,4 +1,4 @@
-import Time from "../../domainModel/time/Time";
+import Time from "../../domainCore/time/Time";
 
 export interface TimeStorePort {
     getCurrent(): Promise<Time | null>;

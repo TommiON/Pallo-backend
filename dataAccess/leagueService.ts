@@ -1,4 +1,4 @@
-import League from "../domainModel/league/League";
+import League from "../domainCore/league/League";
 import { createDefaultLeagueServicePorts } from "./composition/leagueServiceComposition";
 import { LeagueStorePort, LeagueTransactionPort } from "./ports/leaguePorts";
 
