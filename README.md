@@ -1,58 +1,69 @@
 # Pallo-backend
 
-Dependencies point inwards, inner levels know nothing about outer levels.
+Pallo-backend's architecture can be pictured as seven nested spheres where dependencies point inwards, i.e. inner spheres know nothing about the oute.
 
-## 1 Domain Core
+## 1. Domain Core (/domainCore)
 Domain Objects that represent foundational game concepts.
-- Time
-- WeeklyEvent
-- Player
 - Club
-- League
+- Time: a point (season, week, day, hour) in game's time.
+- WeeklyEvent: a weekly recurring event in game.
+- Player
 - Match
 - MatchEvent
+- Standing
+- League
+
 Also contain Domain Properties.
 
-## 2 Domain Engine
+## 2. Domain Engine (/domainEngine)
 Algorithms and orchestrating functions that typically involve multiple Domain Objects. Actual workings of the game start taking shape here, but this is purely domain logic that knows nothing about persistence, user interaction, or wider application flow-of-control.
 - PyramidExpander
 - PromoRelegator
 - FixtureGenerator
 - (StandingsOrderer)
 
-## 3 Data Access
-Access to persistent data, defined as abtract Ports.
+## 3. Data Access Interface (/dataAccess)
+Access to persistent data, defined as abtract Ports left to be implemented further out. 
 - TimeService
+- LeagueService
 - PlayerService
 - ClubService
 - AuthService
 
-## 4 Persistence Implementation
-Concrete implementation of Data Access.
-- entities
-- repositories
-- adapters
-- mappers: entity data <-> Domain Objects
+## 4. Persistence Implementation (/persistence)
+Concrete implementation of Data Access Interface. Uses TypeORM framework.
+- Adapters implement the Ports of level 3.
+- Entities define database tables.
+- Repositories for accessing database.
+- Mappers to transform entity data <-> Domain Objects
 
-## 5 Application Controllers
-Define and handle application behavior by reacting to requests from API and Scheduler. Use Data Access for data needs and Domain Engine for performing domain operations.
+## 5. Application Controllers (/controllers)
+Define and handle application behavior by reacting to requests from API and Scheduler. Use Data Access Interface for data needs and Domain Engine for performing domain operations.
 - SeasonController: nykyinen LeagueFactory, varmaan ottaa asioita SeasonRunnerilta?
+- AuthController
 - EventNotifications
 
-## 6 Interactors
+## 6. Interactors
 - REST API
 - Scheduler
-- Datasource
+- Datasource (nykyinen services/composition lopulta tänne?)
 
-## 7 The outside
+## 7. The outside
 - index.ts
 - (e2e tests)
 
 
 
 case study, mieti miten menee jos halutaan...
-- muuttaa sitä laukaiseeko riittävä määrä klubeja ensimmäisen kauden automaattisesti (Scheduler?)
-- kauden alussa määriteltävä ManCity-vähennys (DomainEngine?)
+- muuttaa sitä laukaiseeko riittävä määrä klubeja ensimmäisen kauden automaattisesti
+- kauden alussa määriteltävä ManCity-vähennys
+- tehdä erilliset mies- ja naisliigat
+- tehdä alueelliset liigat
+- tehdä Mestereiden liiga alueiden välille
+- tehdä kansallinen cup
+- mahdollistaa klubien poistuminen pelistä
+- mahdollistaa zombit
+- pelaajille vapaasti päätettävät pelinumerot
 
 ----
 

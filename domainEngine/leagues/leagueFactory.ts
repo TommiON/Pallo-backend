@@ -1,10 +1,10 @@
 import League from "../../domainModel/league/League";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties"
-import { findLeaguesBySeason } from "../../services/leagueService";
-import { findNonAttachedUserClubs } from "../../services/clubService";
+import { findLeaguesBySeason } from "../../dataAccess/leagueService";
+import { findNonAttachedUserClubs } from "../../dataAccess/clubService";
 import { promoteAndRelegate } from "./promotorRelegator";
 import { expandPyramid } from "./pyramidExpander";
-import { persistSeasonTransition } from "../../services/leagueService";
+import { persistSeasonTransition } from "../../dataAccess/leagueService";
 
 /** This module is responsible for creating leagues for a given season. */
 export const createLeaguesForSeason = async (season: number) => {

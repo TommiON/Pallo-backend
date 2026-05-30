@@ -2,7 +2,6 @@ import Club from "../club/Club";
 import League from "../league/League";
 import MatchEvent from "./MatchEvent";
 import { getRandomNumberInRange } from "../../utils/randomizer";
-import type { MatchEntityData } from "../../persistence/entities/MatchEntity";
 
 export default class Match {
     id?: number;
@@ -28,43 +27,6 @@ export default class Match {
         this.started = false;
         this.finished = false;
         this.events = [];
-    }
-
-    static fromEntity(entity: MatchEntityData): Match {
-        const homeClub = { id: entity.homeClubId } as Club;
-        const awayClub = { id: entity.awayClubId } as Club;
-        const league = { id: entity.leagueId } as League;
-
-        const match = new Match(homeClub, awayClub, entity.week, league);
-        match.id = entity.id;
-        match.started = entity.started;
-        match.finished = entity.finished;
-
-        return match;
-    }
-
-    toEntity(): MatchEntityData {
-        if (!this.homeClubId && this.homeClub?.id) {
-            this.homeClubId = this.homeClub.id;
-        }
-
-        if (!this.awayClubId && this.awayClub?.id) {
-            this.awayClubId = this.awayClub.id;
-        }
-
-        if (!this.leagueId && this.league?.id) {
-            this.leagueId = this.league.id;
-        }
-
-        return {
-            id: this.id,
-            leagueId: this.leagueId!,
-            homeClubId: this.homeClubId!,
-            awayClubId: this.awayClubId!,
-            week: this.week,
-            started: this.started,
-            finished: this.finished
-        };
     }
 
     play() {

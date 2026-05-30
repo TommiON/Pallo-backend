@@ -1,9 +1,10 @@
 import Club from "../../domainModel/club/Club";
+import { ClubEntity } from "../../persistence/entities/ClubEntity";
+import { PlayerEntity } from "../../persistence/entities/PlayerEntity";
 import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../../domainProperties/domainProperties";
 import appDataSource from "../../config/datasource";
 import { createClub } from "../clubService";
 import { eventNotifications } from "../eventNotifications";
-import { getTransactionalRepositories } from "../../persistence/repositories/repositories";
 
 jest.mock("../../config/datasource", () => ({
     __esModule: true,
@@ -19,9 +20,9 @@ jest.mock("../../persistence/repositories/repositories", () => ({
         createQueryBuilder: jest.fn()
     },
     playerRepository: {
-        save: jest.fn()
-    },
-    getTransactionalRepositories: jest.fn()
+        save: jest.fn(),
+        find: jest.fn()
+    }
 }));
 
 jest.mock("../eventNotifications", () => ({
@@ -33,7 +34,6 @@ jest.mock("../eventNotifications", () => ({
 describe("clubService.createClub", () => {
     const transactionMock = appDataSource.transaction as jest.Mock;
     const emitMock = eventNotifications.emit as jest.Mock;
-    const getTransactionalRepositoriesMock = getTransactionalRepositories as jest.Mock;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -43,13 +43,21 @@ describe("clubService.createClub", () => {
         const clubEntitySaveMock = jest.fn();
         const playerEntitySaveMock = jest.fn();
 
-        const managerMock = {};
+        const managerMock = {
+            getRepository: jest.fn((entity: unknown) => {
+                if (entity === ClubEntity) {
+                    return { save: clubEntitySaveMock };
+                }
+
+                if (entity === PlayerEntity) {
+                    return { save: playerEntitySaveMock };
+                }
+
+                throw new Error("Unexpected repository request");
+            })
+        };
 
         transactionMock.mockImplementation(async (callback) => callback(managerMock));
-        getTransactionalRepositoriesMock.mockReturnValue({
-            clubRepository: { save: clubEntitySaveMock },
-            playerRepository: { save: playerEntitySaveMock }
-        });
 
         const clubToCreate = {
             toEntity: () => ({
@@ -94,13 +102,21 @@ describe("clubService.createClub", () => {
         const clubEntitySaveMock = jest.fn();
         const playerEntitySaveMock = jest.fn();
 
-        const managerMock = {};
+        const managerMock = {
+            getRepository: jest.fn((entity: unknown) => {
+                if (entity === ClubEntity) {
+                    return { save: clubEntitySaveMock };
+                }
+
+                if (entity === PlayerEntity) {
+                    return { save: playerEntitySaveMock };
+                }
+
+                throw new Error("Unexpected repository request");
+            })
+        };
 
         transactionMock.mockImplementation(async (callback) => callback(managerMock));
-        getTransactionalRepositoriesMock.mockReturnValue({
-            clubRepository: { save: clubEntitySaveMock },
-            playerRepository: { save: playerEntitySaveMock }
-        });
 
         const clubToCreate = {
             toEntity: () => ({
