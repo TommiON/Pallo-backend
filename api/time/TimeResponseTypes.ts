@@ -1,5 +1,5 @@
-import { TimeData } from "../../domainCore/time/TimeData";
-import { WeeklyEventData } from "../../domainCore/time/WeeklyEventData";
+import { TimeData } from "../../domainCore/Time";
+import { WeeklyEventData } from "../../domainCore/WeeklyEvent";
 
 export type TimeResponse = {
     currentTime: TimeData,

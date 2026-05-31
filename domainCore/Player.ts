@@ -1,4 +1,4 @@
-import Club from "./club/Club";
+import Club from "./Club";
 import { getRandomElement } from "../utils/randomizer";
 import { PLAYER_MIN_AGE, PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH } from "./domainProperties";
 

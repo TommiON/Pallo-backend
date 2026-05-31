@@ -1,5 +1,5 @@
-import Club from "../../../domainCore/club/Club";
-import League from "../../../domainCore/league/League";
+import Club from "../../../domainCore/Club";
+import League from "../../../domainCore/League";
 import { createLeaguePyramidFixture, findLeagueInFixture } from "./testFixtures";
 import { promoteAndRelegate } from "../promotorRelegator";
 import { LEAGUE_PROMOTED_FROM_TOP } from "../../../domainCore/domainProperties";

@@ -1,4 +1,4 @@
-import Time from "../domainCore/Time";
+import Time from "../domainCore/time/Time";
 import { WeeklyEvent } from "../domainCore/WeeklyEvent";
 import WeekRunner from "../domainEngine/runners/WeekRunner";
 import { TimeEventsPort, TimeStorePort, TimeTransactionPort } from "./ports/timePorts";

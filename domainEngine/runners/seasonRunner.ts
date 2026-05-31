@@ -1,4 +1,4 @@
-import Time from "../../domainCore/time/Time";
+import Time from "../../domainCore/Time";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainCore/domainProperties";
 import { findAttachedUserClubs, findNonAttachedUserClubs, findZombieClubs } from "../../dataAccess/clubService";
 import { createLeaguesForSeason } from "../leagues/leagueFactory";

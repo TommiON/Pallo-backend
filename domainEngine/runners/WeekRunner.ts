@@ -1,5 +1,5 @@
-import { WeeklyEvent } from "../../domainCore/time/WeeklyEvent";
-import Time from "../../domainCore/time/Time";
+import { WeeklyEvent } from "../../domainCore/WeeklyEvent";
+import Time from "../../domainCore/Time";
 
 export default class WeekRunner {
     private static weeklyTimetable: WeeklyEvent[];

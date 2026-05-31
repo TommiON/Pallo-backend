@@ -1,4 +1,4 @@
-import League from "../../domainCore/league/League";
+import League from "../../domainCore/League";
 import type { LeagueEntityData } from "../entities/LeagueEntity";
 
 export const fromLeagueEntity = (entity: LeagueEntityData): League => {

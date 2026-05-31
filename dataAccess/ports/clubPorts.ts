@@ -1,4 +1,4 @@
-import Club from "../../domainCore/club/Club";
+import Club from "../../domainCore/Club";
 import Player from "../../domainCore/Player";
 
 export interface ClubStorePort {

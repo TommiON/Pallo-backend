@@ -1,6 +1,14 @@
-import { LEAGUE_NUMBER_OF_TEAMS } from "../domainProperties";
+import { LEAGUE_NUMBER_OF_TEAMS } from "./domainProperties";
 
 const weeksInSeason = (LEAGUE_NUMBER_OF_TEAMS - 1) * 2;
+
+// Core data contract for Time - defines what's exposed externally
+export interface TimeData {
+    season: number;
+    week: number;
+    day: number;
+    hour: number
+}
 
 export default class Time {
     // Time is a singleton, only ever one exists
