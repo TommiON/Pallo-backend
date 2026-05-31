@@ -1,6 +1,16 @@
-import Club from "../club/Club";
-import { getRandomNumberInRange } from "../../domainCore/domainUtils";
-import type { LeagueData } from "./LeagueData";
+import Club from "./Club";
+import { getRandomNumberInRange } from "./domainUtils";
+
+// Core data contract for League - defines what's exposed externally
+export interface LeagueData {
+    id?: number;
+    season: number;
+    divisionLevel: number;
+    serialNumberOnDivisionLevel: number;
+    promotesToId?: number;
+    started: boolean;
+    finished: boolean;
+}
 
 export default class League implements LeagueData {
     id?: number;

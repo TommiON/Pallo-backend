@@ -1,4 +1,4 @@
-import League from "../../domainModel/league/League";
+import League from "../../domainCore/League";
 
 export interface LeagueStorePort {
     save(league: League): Promise<League>;

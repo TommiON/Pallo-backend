@@ -1,5 +1,5 @@
-import Time from "../../domainModel/time/Time";
-import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties";
+import Time from "../../domainCore/Time";
+import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainCore/domainProperties";
 import { findAttachedUserClubs, findNonAttachedUserClubs, findZombieClubs } from "../../dataAccess/clubService";
 import { createLeaguesForSeason } from "../leagues/leagueFactory";
 import { startScheduler } from "../main";

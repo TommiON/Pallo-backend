@@ -1,8 +1,8 @@
-import Club from "../../../domainModel/club/Club";
-import League from "../../../domainModel/league/League";
+import Club from "../../../domainCore/Club";
+import League from "../../../domainCore/League";
 import { createLeaguePyramidFixture, findLeagueInFixture } from "./testFixtures";
 import { promoteAndRelegate } from "../promotorRelegator";
-import { LEAGUE_PROMOTED_FROM_TOP } from "../../../domainProperties/domainProperties";
+import { LEAGUE_PROMOTED_FROM_TOP } from "../../../domainCore/domainProperties";
 
 describe("PromoRelegator", () => {
     it("handles 0-based division levels (child level 1 promotes to top level 0)", () => {

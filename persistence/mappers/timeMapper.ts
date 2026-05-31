@@ -1,4 +1,4 @@
-import Time from "../../domainModel/time/Time";
+import Time from "../../domainCore/Time";
 import type { TimeEntityData } from "../entities/TimeEntity";
 
 export const fromTimeEntity = (entity: TimeEntityData): Time => {

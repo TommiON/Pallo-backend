@@ -1,5 +1,5 @@
-import Club from "../../../domainModel/club/Club";
-import League from "../../../domainModel/league/League";
+import Club from "../../../domainCore/Club";
+import League from "../../../domainCore/League";
 
 type PyramidFixtureParams = {
     numberOfLevels: number;

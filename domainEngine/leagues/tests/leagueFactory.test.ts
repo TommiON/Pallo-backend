@@ -1,5 +1,5 @@
-import League from "../../../domainModel/league/League";
-import { LEAGUE_NUMBER_OF_TEAMS } from "../../../domainProperties/domainProperties";
+import League from "../../../domainCore/League";
+import { LEAGUE_NUMBER_OF_TEAMS } from "../../../domainCore/domainProperties";
 import { createLeaguesForSeason } from "../leagueFactory";
 import * as leagueService from "../../../dataAccess/leagueService";
 import * as clubService from "../../../dataAccess/clubService";

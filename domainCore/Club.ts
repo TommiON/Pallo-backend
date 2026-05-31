@@ -1,8 +1,16 @@
-import Player from "../player/Player";
-import League from "../league/League";
-import { hashPassword } from "../../utils/passwordUtils";
-import { getRandomNumberInRange } from "../../domainCore/domainUtils";
-import type { ClubData } from "./ClubData";
+import Player from "./Player";
+import League from "./League";
+import { hashPassword } from "../utils/passwordUtils";
+import { getRandomNumberInRange } from "./domainUtils";
+
+// Core data contract for Club - defines what's exposed externally
+export interface ClubData {
+    id?: number;
+    name: string;
+    passwordHash?: string;
+    established: Date;
+    zombie: boolean;
+}
 
 export default class Club implements ClubData {
     id?: number;
@@ -34,5 +42,4 @@ export default class Club implements ClubData {
 
         return club;
     }
-
 }

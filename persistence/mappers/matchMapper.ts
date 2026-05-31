@@ -1,6 +1,6 @@
-import Club from "../../domainModel/club/Club";
-import League from "../../domainModel/league/League";
-import Match from "../../domainModel/match/Match";
+import Club from "../../domainCore/Club";
+import League from "../../domainCore/League";
+import Match from "../../domainCore/Match";
 import type { MatchEntityData } from "../entities/MatchEntity";
 
 export const fromMatchEntity = (entity: MatchEntityData): Match => {

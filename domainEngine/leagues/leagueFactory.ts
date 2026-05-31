@@ -1,5 +1,5 @@
-import League from "../../domainModel/league/League";
-import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainProperties/domainProperties"
+import League from "../../domainCore/League";
+import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainCore/domainProperties"
 import { findLeaguesBySeason } from "../../dataAccess/leagueService";
 import { findNonAttachedUserClubs } from "../../dataAccess/clubService";
 import { promoteAndRelegate } from "./promotorRelegator";

@@ -1,5 +1,11 @@
 import Time from "./Time";
 
+//Core data contract for WeeklyEvent - defines what's exposed externally
+export interface WeeklyEventData {
+    type: WeeklyEventType;
+    deadline: WeeklyDeadline;
+}
+
 export type WeeklyDeadline = {
     day: number;
     hour: number;

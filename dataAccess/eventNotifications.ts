@@ -1,5 +1,5 @@
-import Club from "../domainModel/club/Club";
-import Time from "../domainModel/time/Time";
+import Club from "../domainCore/Club";
+import Time from "../domainCore/Time";
 
 export type AppEventNotifications = {
     "time.changed": Time;
