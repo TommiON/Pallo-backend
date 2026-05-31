@@ -1,5 +1,5 @@
 import Club from "./Club";
-import { getRandomElement } from "../utils/randomizer";
+import { getRandomElement } from "./domainUtils";
 import { PLAYER_MIN_AGE, PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH } from "./domainProperties";
 
 // Core data contract for Player - defines what's exposed externally

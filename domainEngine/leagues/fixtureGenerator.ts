@@ -1,7 +1,7 @@
 import Match from "../../domainCore/Match";
 import Club from "../../domainCore/Club";
 import League from "../../domainCore/League";
-import { shuffleCollectionRandomly } from "../../utils/randomizer";
+import { shuffleCollectionRandomly } from "../../domainCore/domainUtils";
 
 /**
  * Generates a fixture list for a league using the circle method for round-robin tournaments.

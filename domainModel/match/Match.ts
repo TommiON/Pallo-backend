@@ -1,7 +1,7 @@
-import Club from "./Club";
-import League from "./League";
+import Club from "../club/Club";
+import League from "../league/League";
 import MatchEvent from "./MatchEvent";
-import { getRandomNumberInRange } from "./domainUtils";
+import { getRandomNumberInRange } from "../../domainCore/domainUtils";
 
 export default class Match {
     id?: number;
