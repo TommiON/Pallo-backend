@@ -1,4 +1,4 @@
-import { shuffleCollectionRandomly, getRandomNumberInRange, getRandomElement, getRandomElementFromSet } from "../../domainCore/domainUtils";
+import { shuffleCollectionRandomly, getRandomNumberInRange, getRandomElement, getRandomElementFromSet } from "../domainUtils";
 
 const testArray = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
