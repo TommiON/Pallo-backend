@@ -1,5 +1,6 @@
 import Player from "../domainCore/Player";
-import { AuthenticatedUser } from "./authService";
+// tässä on nyt riippuvuussuuntien konflikti!
+import { AuthenticatedUser } from "../controllers/AuthController";
 import { createDefaultPlayerServicePorts } from "./composition/playerServiceComposition";
 import { PlayerStorePort } from "./ports/playerPorts";
 

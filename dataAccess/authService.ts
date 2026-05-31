@@ -1,52 +1,18 @@
-import jsonwebtoken from 'jsonwebtoken';
+import { createDefaultAuthServicePorts } from "./composition/authServiceComposition";
+import { AuthClubRecord, AuthStorePort } from "./ports/authPorts";
 
-import environment from '../config/environment';
-import { clubRepository } from '../persistence/repositories/repositories';
-import { passwordMatches } from '../utils/passwordUtils';
+export type AuthServicePorts = {
+    authStore: AuthStorePort;
+};
 
-type AuthenticationResult = {
-    usernameFound: boolean;
-    passwordMatches?: boolean;
-    authenticatedClubId?: number;
-    token?: string;
-}
-
-export const authenticateLogin = async (clubname: string, password: string): Promise<AuthenticationResult> => {
-    const club = await clubRepository.findOneBy({ name: clubname });
-
-    if (!club) {
-        return {
-            usernameFound: false,
-            passwordMatches: undefined,
-            authenticatedClubId: undefined,
-            token: undefined
-        }
+export const createAuthService = ({ authStore }: AuthServicePorts) => ({
+    findClubForAuthentication: async (clubName: string): Promise<AuthClubRecord | null> => {
+        return authStore.findClubForAuthentication(clubName);
     }
+});
 
-    const passwordMatch = await passwordMatches(password, club.passwordHash as string);
+const authService = createAuthService(createDefaultAuthServicePorts());
 
-    if (!passwordMatch) {
-        return {
-            usernameFound: true,
-            passwordMatches: false,
-            authenticatedClubId: undefined,
-            token: undefined
-        }
-    } else {
-        return {
-            usernameFound: true,
-            passwordMatches: true,
-            authenticatedClubId: club.id,
-            token: generateToken({ clubName: club.name, clubId: club.id! })
-        }
-    }
-}
-
-export type AuthenticatedUser = {
-    clubName: string;
-    clubId: number;
-}
-
-export const generateToken = (user: AuthenticatedUser): string => {
-    return jsonwebtoken.sign(user, environment.tokenSecret as string);
-}
+export const findClubForAuthentication = async (clubName: string): Promise<AuthClubRecord | null> => {
+    return authService.findClubForAuthentication(clubName);
+};
