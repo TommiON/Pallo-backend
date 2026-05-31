@@ -1,0 +1,27 @@
+name: Path Guard
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  guard-legacy-paths:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fail on legacy folders
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          legacy_files="$(git ls-files 'services/**' 'domainModel/**')"
+
+          if [[ -n "$legacy_files" ]]; then
+            echo "Legacy paths detected. Use dataAccess/ and domainCore/ instead:"
+            echo "$legacy_files"
+            exit 1
+          fi
+
+          echo "Path guard passed: no tracked files under services/ or domainModel/."
