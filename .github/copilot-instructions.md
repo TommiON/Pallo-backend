@@ -56,6 +56,14 @@ Use this section only when designing for possible horizontal scaling (multiple b
 - Orchestration handlers are retry-safe: repeated execution does not duplicate leagues/seasons/matches.
 - Operational check exists: a test or runbook verifies no duplicate clock ticks under two running instances.
 
+## Optional: Domain identity vs persistence identity (future architecture)
+- Treat domain identity and persistence identity as separate concepts.
+  - Domain identity: used by domainCore entities (Club, League, Player, Match, MatchEvent, possibly Time).
+  - Persistence identity: DB row id and foreign key columns used only in persistence and adapters.
+- Do not let domainCore depend on DB id shape (`id`, `*_id`) when it is not domain-significant.
+- Keep entity/foreign-key translation in persistence mappers and adapters.
+- Prefer dataAccess ports that expose domain concepts; adapter implementations may use DB ids internally.
+
 ## API conventions specific to this codebase
 - Response envelope is always `ApiResponse<T>` via `sendSuccessResponse()` / `sendErrorResponse()` from [api/ApiResponse.ts](../api/ApiResponse.ts).
 - Validation is middleware-first; validators collect `ValidationError[]` string unions from [api/ValidationError.ts](../api/ValidationError.ts).

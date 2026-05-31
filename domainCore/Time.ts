@@ -11,16 +11,12 @@ export interface TimeData {
 }
 
 export default class Time {
-    // Time is a singleton, only ever one exists
-    id: number = 1;
-
     season: number;
     week: number;
     day: number;
     hour: number;
 
-    constructor(season: number = 0, week: number = 0, day: number = 0, hour: number = 0, id: number = 1) {
-        this.id = id;
+    constructor(season: number = 0, week: number = 0, day: number = 0, hour: number = 0) {
         this.season = season;
         this.week = week;
         this.day = day;
