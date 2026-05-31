@@ -3,7 +3,15 @@
 export type MatchEventType = 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'substitution';
 export type MatchEventInitiator = 'home' | 'away';
 
-export default class MatchEvent {
+export interface MatchEventData {
+    id?: number;
+    matchId?: number;
+    type: string;
+    initiator: string;
+    minute: number;
+}
+
+export default class MatchEvent implements MatchEventData {
     id?: number;
     matchId?: number;
     type: MatchEventType;

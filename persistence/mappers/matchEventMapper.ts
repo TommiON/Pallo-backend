@@ -1,4 +1,4 @@
-import MatchEvent, { MatchEventType, MatchEventInitiator } from "../../domainCore/match/MatchEvent";
+import MatchEvent, { MatchEventType, MatchEventInitiator } from "../../domainCore/MatchEvent";
 import type { MatchEventEntityData } from "../entities/MatchEventEntity";
 
 export const fromMatchEventEntity = (entity: MatchEventEntityData): MatchEvent => {
