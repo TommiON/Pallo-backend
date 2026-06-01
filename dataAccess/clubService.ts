@@ -1,8 +1,6 @@
 import Club from "../domainCore/Club";
-import Player from "../domainCore/Player";
-import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../domainCore/domainProperties";
 import { createDefaultClubServicePorts } from "./composition/clubServiceComposition";
-import { ClubEventsPort, ClubStorePort, ClubTransactionPort } from "./ports/clubPorts";
+import { ClubEventsPort, ClubCreationPersistenceInput, ClubStorePort, ClubTransactionPort } from "./ports/clubPorts";
 
 export type ClubServicePorts = {
     clubStore: ClubStorePort;
@@ -11,19 +9,14 @@ export type ClubServicePorts = {
 };
 
 export const createClubService = ({ clubStore, clubTransaction, clubEvents }: ClubServicePorts) => ({
-    createClub: async (name: string, password: string): Promise<Club> => {
-        const club = await Club.create(name, password);
-
+    persistNewClub: async (newClub: ClubCreationPersistenceInput): Promise<Club> => {
         const savedClub = await clubTransaction.runInTransaction(async (transactionalStore) => {
-            const persistedClub = await transactionalStore.save(club);
-
-            const players: Player[] = [];
-            for (let i = 0; i < CLUB_NUMBER_OF_PLAYERS_AT_START; i++) {
-                const player = new Player();
-                player.clubId = persistedClub.id;
-                player.club = persistedClub;
-                players.push(player);
-            }
+            const persistedClub = await transactionalStore.saveCreatedClub(newClub.club, newClub.passwordHash);
+            const players = newClub.players.map((player) => ({
+                ...player,
+                clubId: persistedClub.id,
+                club: persistedClub
+            }));
 
             await transactionalStore.savePlayers(players);
             return persistedClub;
@@ -71,9 +64,8 @@ export const createClubService = ({ clubStore, clubTransaction, clubEvents }: Cl
 
 const clubService = createClubService(createDefaultClubServicePorts());
 
-/** Creates a new club, and also creates the starting players for that club. */
-export const createClub = async(name: string, password: string): Promise<Club> => {
-    return clubService.createClub(name, password);
+export const persistNewClub = async (newClub: ClubCreationPersistenceInput): Promise<Club> => {
+    return clubService.persistNewClub(newClub);
 };
 
 /**

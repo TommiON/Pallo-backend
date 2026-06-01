@@ -1,9 +1,10 @@
 import Club from "../../domainCore/Club";
+import Player from "../../domainCore/Player";
 import { ClubEntity } from "../../persistence/entities/ClubEntity";
 import { PlayerEntity } from "../../persistence/entities/PlayerEntity";
 import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../../domainCore/domainProperties";
 import appDataSource from "../../config/datasource";
-import { createClub } from "../clubService";
+import { persistNewClub } from "../clubService";
 import { eventNotifications } from "../eventNotifications";
 
 jest.mock("../../config/datasource", () => ({
@@ -31,13 +32,26 @@ jest.mock("../eventNotifications", () => ({
     }
 }));
 
-describe("clubService.createClub", () => {
+describe("clubService.persistNewClub", () => {
     const transactionMock = appDataSource.transaction as jest.Mock;
     const emitMock = eventNotifications.emit as jest.Mock;
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
+
+    const createNewClubInput = () => {
+        const club = new Club("Fc Unit");
+        const players: Player[] = [];
+
+        for (let i = 0; i < CLUB_NUMBER_OF_PLAYERS_AT_START; i++) {
+            const player = new Player();
+            player.club = club;
+            players.push(player);
+        }
+
+        return { club, players };
+    };
 
     it("creates club and players inside one transaction and emits after commit", async () => {
         const clubEntitySaveMock = jest.fn();
@@ -59,16 +73,9 @@ describe("clubService.createClub", () => {
 
         transactionMock.mockImplementation(async (callback) => callback(managerMock));
 
-        const clubToCreate = {
-            toEntity: () => ({
-                name: "Fc Unit",
-                passwordHash: "hash",
-                established: new Date("2026-01-01T00:00:00.000Z"),
-                zombie: false
-            })
-        } as unknown as Club;
-
-        jest.spyOn(Club, "create").mockResolvedValue(clubToCreate);
+        const newClub = createNewClubInput();
+        newClub.club.established = new Date("2026-01-01T00:00:00.000Z");
+        newClub.club.zombie = false;
 
         const savedClubEntity = {
             id: 123,
@@ -81,7 +88,10 @@ describe("clubService.createClub", () => {
         clubEntitySaveMock.mockResolvedValue(savedClubEntity);
         playerEntitySaveMock.mockResolvedValue([]);
 
-        const result = await createClub("Fc Unit", "secret");
+        const result = await persistNewClub({
+            ...newClub,
+            passwordHash: "hash"
+        });
 
         expect(transactionMock).toHaveBeenCalledTimes(1);
         expect(clubEntitySaveMock).toHaveBeenCalledTimes(1);
@@ -118,16 +128,9 @@ describe("clubService.createClub", () => {
 
         transactionMock.mockImplementation(async (callback) => callback(managerMock));
 
-        const clubToCreate = {
-            toEntity: () => ({
-                name: "Fc Unit",
-                passwordHash: "hash",
-                established: new Date("2026-01-01T00:00:00.000Z"),
-                zombie: false
-            })
-        } as unknown as Club;
-
-        jest.spyOn(Club, "create").mockResolvedValue(clubToCreate);
+        const newClub = createNewClubInput();
+        newClub.club.established = new Date("2026-01-01T00:00:00.000Z");
+        newClub.club.zombie = false;
 
         clubEntitySaveMock.mockResolvedValue({
             id: 123,
@@ -138,7 +141,10 @@ describe("clubService.createClub", () => {
         });
         playerEntitySaveMock.mockRejectedValue(new Error("player insert failed"));
 
-        await expect(createClub("Fc Unit", "secret")).rejects.toThrow("player insert failed");
+        await expect(persistNewClub({
+            ...newClub,
+            passwordHash: "hash"
+        })).rejects.toThrow("player insert failed");
         expect(emitMock).not.toHaveBeenCalled();
     });
 });

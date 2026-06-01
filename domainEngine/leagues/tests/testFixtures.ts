@@ -9,9 +9,8 @@ type PyramidFixtureParams = {
 };
 
 const makeClub = (id: number, name: string): Club => {
-    const club = new Club();
+    const club = new Club(name);
     club.id = id;
-    club.name = name;
     club.established = new Date("2020-01-01");
     club.zombie = false;
     return club;

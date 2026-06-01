@@ -15,31 +15,21 @@ export interface ClubData {
 export default class Club implements ClubData {
     id?: number;
     name: string;
-    passwordHash?: string;
     established: Date;
     zombie: boolean;
     players?: Player[];
     leagues?: League[];
+    // there will be more properties that are other DomainObjects (WeeklyBudget) or list of other DomainObjects
 
-    // must use factory method instead of constructor because of async password hashing
-    static create = async (name: string, password: string): Promise<Club> => {
-        const club = new Club();
-
-        club.name = name;
-        club.passwordHash = await hashPassword(password);
-        club.established = new Date();
-        club.zombie = false;
-
-        return club;
-    }
-
-    static createZombie = (): Club => {
-        const club = new Club();
-
-        club.name = 'FC Zombie ' + getRandomNumberInRange(1, 10000000000);
-        club.established = new Date();
-        club.zombie = true;
-
-        return club;
+    constructor(name: string, zombie: boolean = false) {
+       if (zombie) {
+           this.name = 'FC Zombie ' + getRandomNumberInRange(1, 10000000000);
+           this.established = new Date();
+           this.zombie = true;
+       } else {
+           this.name = name;
+           this.established = new Date();
+           this.zombie = false;
+       }
     }
 }

@@ -7,9 +7,8 @@ import { LEAGUE_PROMOTED_FROM_TOP } from "../../../domainCore/domainProperties";
 describe("PromoRelegator", () => {
     it("handles 0-based division levels (child level 1 promotes to top level 0)", () => {
         const createClub = (id: number, name: string): Club => {
-            const club = new Club();
+            const club = new Club(name);
             club.id = id;
-            club.name = name;
             club.established = new Date("2026-01-01T00:00:00.000Z");
             club.zombie = false;
             return club;

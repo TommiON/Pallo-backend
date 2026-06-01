@@ -1,7 +1,7 @@
 import Club from "../../../domainCore/Club";
 import { generateFixtures } from "../fixtureGenerator";
 
-const createDummyClubs = async (): Promise<Club[]> => {
+const createDummyClubs = (): Club[] => {
     const clubNames = [
         "Aster Albion",
         "Boreal Borough",
@@ -20,7 +20,7 @@ const createDummyClubs = async (): Promise<Club[]> => {
     const clubs: Club[] = [];
 
     for (const name of clubNames) {
-        clubs.push(await Club.create(name, "password123"));
+        clubs.push(new Club(name));
     }
 
     return clubs;
@@ -29,7 +29,7 @@ const createDummyClubs = async (): Promise<Club[]> => {
 describe('Fixture Generator', () => {
     it('assert structural correctness of generated fixtures as a whole', async () => {
         // Given: 12 clubs and a league
-        const clubs = await createDummyClubs();
+        const clubs = createDummyClubs();
         const league = { id: 1, name: 'Testiliiga' } as any;
 
         // When: we generate fixtures for these clubs and the league
@@ -66,7 +66,7 @@ describe('Fixture Generator', () => {
 
     it('assert correct fixtures for two clubs', async () => {
         // Given: 12 clubs and a league
-        const clubs = await createDummyClubs();
+        const clubs = createDummyClubs();
         const clubA = clubs[0];
         const clubB = clubs[7];
         const league = { id: 1, name: 'Testiliiga' } as any;
@@ -118,7 +118,7 @@ describe('Fixture Generator', () => {
 
     it('assert each pair appears exactly once as home and once as away', async () => {
         // Given: 12 clubs and a league
-        const clubs = await createDummyClubs();
+        const clubs = createDummyClubs();
         const league = { id: 1, name: 'Testiliiga' } as any;
 
         // When: we generate fixtures for these clubs
@@ -136,7 +136,7 @@ describe('Fixture Generator', () => {
 
     it('assert second leg is exact mirror of first leg with shifted weeks', async () => {
         // Given: 12 clubs and a league
-        const clubs = await createDummyClubs();
+        const clubs = createDummyClubs();
         const league = { id: 1, name: 'Testiliiga' } as any;
 
         // When: we generate fixtures for these clubs
@@ -160,7 +160,7 @@ describe('Fixture Generator', () => {
 
     it('assert every match is assigned to the correct league', async () => {
         // Given: 12 clubs and a league
-        const clubs = await createDummyClubs();
+        const clubs = createDummyClubs();
         const league = { id: 1, name: 'Testiliiga' } as any;
 
         // When: we generate fixtures for these clubs

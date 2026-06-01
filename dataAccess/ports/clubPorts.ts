@@ -1,5 +1,10 @@
 import Club from "../../domainCore/Club";
 import Player from "../../domainCore/Player";
+import type { ClubCreationResult } from "../../domainEngine/clubs/ClubCreator";
+
+export type ClubCreationPersistenceInput = ClubCreationResult & {
+    passwordHash: string;
+};
 
 export interface ClubStorePort {
     save(club: Club): Promise<Club>;
@@ -12,6 +17,7 @@ export interface ClubStorePort {
 
 export interface ClubTransactionalStorePort extends ClubStorePort {
     savePlayers(players: Player[]): Promise<void>;
+    saveCreatedClub(club: Club, passwordHash: string): Promise<Club>;
     removeZombieClubsGraph(zombieClubIds: number[]): Promise<void>;
 }
 

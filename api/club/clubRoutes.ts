@@ -4,7 +4,8 @@ import { ApiResponse, sendSuccessResponse, sendErrorResponse } from '../ApiRespo
 import { CreateClubRequest, ClubByIdRequest, ClubResponse } from './ClubRequestResponseTypes';
 import { createClubRequestValidator, getClubByIdRequestValidator } from './clubRequestValidator';
 import { authValidator } from '../authValidator';
-import { createClub, findClubById} from '../../dataAccess/clubService';
+import { findClubById } from '../../dataAccess/clubService';
+import { newUserClub } from '../../controllers/newClubController';
 
 const baseUrl = '/api/club';
 const clubRouter = express.Router();
@@ -13,9 +14,7 @@ const clubRouter = express.Router();
 clubRouter.post(`${baseUrl}/`,
     createClubRequestValidator,
     async (req: Request<any, any, CreateClubRequest>, res: Response<ApiResponse<ClubResponse>>) => {
-        const newClub = await createClub(req.body.name, req.body.password);
-
-        delete newClub.passwordHash;
+        const newClub = await newUserClub(req.body.name, req.body.password);
 
         res.json(sendSuccessResponse(newClub));
     }
@@ -29,7 +28,6 @@ clubRouter.get(`${baseUrl}/`,
         const result = await findClubById(req.body.id);
 
         if (result) {
-            delete result.passwordHash;
             res.json(sendSuccessResponse(result));
         } else {
             res.json(sendSuccessResponse(null));
