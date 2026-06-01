@@ -1,29 +1,29 @@
 # Pallo-backend
 
-Pallo-backend's architecture can be pictured as seven nested spheres where dependencies point inwards, i.e. inner spheres know nothing about the oute.
+Pallo-backend's architecture can be pictured as seven nested spheres where dependencies point inwards, i.e. inner spheres know nothing about the outer.
 
 ## 1. Domain Core (/domainCore)
 Domain Objects that represent foundational game concepts.
-- Club
-- Time: a point (season, week, day, hour) in game's time.
-- WeeklyEvent: a weekly recurring event in game.
+- Club:
+- Time: the current moment (season, week, day, hour) in gametime.
+- WeeklyEvent: a recurring event in game's weekly cycle.
 - Player
 - Match
 - MatchEvent
 - Standing
 - League
 
-Also contain Domain Properties.
+Also contain Domain Properties, the core settings of the gameworld.
 
 ## 2. Domain Engine (/domainEngine)
-Algorithms and orchestrating functions that typically involve multiple Domain Objects. Actual workings of the game start taking shape here, but this is purely domain logic that knows nothing about persistence, user interaction, or wider application flow-of-control.
+Algorithms and orchestrating functions that typically involve multiple Domain Objects. Actual workings of the game start taking shape here.
 - PyramidExpander
 - PromoRelegator
 - FixtureGenerator
 - (StandingsOrderer)
 
 ## 3. Data Access Interface (/dataAccess)
-Access to persistent data, defined as abtract Ports left to be implemented further out. 
+Access to persistent data. Consists of services, each of which generally handle a database entity. This layer is just an interface, defined as abtract Ports left to be implemented further out. 
 - TimeService
 - LeagueService
 - PlayerService
