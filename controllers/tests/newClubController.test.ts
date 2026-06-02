@@ -1,5 +1,5 @@
 import { createNewUserClub } from "../../domainEngine/clubs/ClubCreator";
-import { hashPassword } from "../passwordUtils";
+import { hashPassword } from "../controllerUtils";
 import { persistNewClub } from "../../dataAccess/clubService";
 import { newUserClub } from "../newClubController";
 

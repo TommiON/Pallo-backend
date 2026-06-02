@@ -1,8 +1,10 @@
 import { ClubCreationResult, createNewUserClub } from "../domainEngine/clubs/ClubCreator";
-import { hashPassword } from "./passwordUtils";
+import { hashPassword } from "./controllerUtils";
 import { persistNewClub } from "../dataAccess/clubService";
+// onko hyvä palauttaa DomainObjecteja täältä?
+import Club, { ClubData } from "../domainCore/Club";
 
-export const newUserClub = async (name: string, password: string) => {
+export const newUserClub = async (name: string, password: string): Promise<ClubData> => {
     const createdClub: ClubCreationResult = createNewUserClub(name);
 
     const createdClubWithPassword = {
@@ -11,5 +13,4 @@ export const newUserClub = async (name: string, password: string) => {
     };
 
     return persistNewClub(createdClubWithPassword);
-
 };
