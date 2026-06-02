@@ -28,7 +28,7 @@ config/                 # Application configuration
 ├── datasource.ts       # TypeORM DataSource setup
 └── environment.ts      # Environment variables
 
-domainModel/            # Core business logic (domain-driven design)
+domainCore/             # Core business logic (domain-driven design)
 ├── player/
 │   ├── Player.ts       # Domain entity
 │   ├── PlayerData.ts   # API contract interface
@@ -58,12 +58,8 @@ persistence/            # Data access layer
 └── repositories/       # Repository instances with explicit typing
     └── repositories.ts
 
-services/               # Business logic / use case orchestration
-├── playerService.ts
-├── clubService.ts
-├── leagueService.ts
-├── timeService.ts
-└── ...
+controllers/            # Application/controller orchestration
+dataAccess/             # Service facade + ports (application data access)
 
 utils/                  # Utility functions and helpers
 ├── randomizer.ts
@@ -111,7 +107,7 @@ The application follows **Clean Architecture** principles with strict separation
 
 **Dependency Rule**: Inner layers don't depend on outer layers. Data flows through adapters.
 
-### 1. Domain Model Layer (`domainModel/`)
+### 1. Domain Model Layer (`domainCore/`)
 
 Pure business logic with no database or framework dependencies.
 
@@ -384,7 +380,7 @@ const players = await playerRepository.find({
 - Test service layer with mocked repositories
 
 ```typescript
-// Example: domainModel/player/tests/player.test.ts
+// Example: domainCore/player/tests/player.test.ts
 describe('Player', () => {
     it('should create a player with generated properties', () => {
         const player = new Player();
@@ -398,11 +394,11 @@ describe('Player', () => {
 
 ### Adding a New Domain Entity
 
-1. **Create data contracts** in `domainModel/{feature}/{Entity}Data.ts` and `persistence/entities/{Entity}EntityData.ts`
-2. **Create the domain model** in `domainModel/{feature}/{Entity}.ts` implementing `{Entity}Data` interface
+1. **Create data contracts** in `domainCore/{feature}/{Entity}Data.ts` and `persistence/entities/{Entity}EntityData.ts`
+2. **Create the domain model** in `domainCore/{feature}/{Entity}.ts` implementing `{Entity}Data` interface
 3. **Create the TypeORM entity** in `persistence/entities/{Entity}Entity.ts` implementing `{Entity}EntityData` interface
 4. **Register the repository** in `persistence/repositories/repositories.ts` with explicit typing
-5. **Create service functions** in `services/{feature}Service.ts` using domain objects and conversions
+5. **Create application functions** in `dataAccess/{feature}Service.ts` or `controllers/{feature}Controller.ts` using domain objects and conversions
 6. **Create request/response types** in `api/{feature}/{Feature}RequestResponseTypes.ts` using data contracts
 7. **Create validators** in `api/{feature}/{feature}RequestValidator.ts` (if needed)
 8. **Create routes** in `api/{feature}/{feature}Routes.ts` converting between domain and data contracts

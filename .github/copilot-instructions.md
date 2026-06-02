@@ -2,8 +2,8 @@
 
 ## Big picture (read this first)
 - Stack: Express + TypeScript + TypeORM + PostgreSQL. App entry is [index.ts](../index.ts).
-- Layering is intentional: `api -> services -> domainModel -> persistence`.
-- Domain objects are not TypeORM entities. Mapping is explicit via `fromEntity()` / `toEntity()` (example: [domainModel/player/Player.ts](../domainModel/player/Player.ts)).
+- Layering is intentional: `api -> controllers -> dataAccess -> domainCore -> persistence`.
+- Domain objects are not TypeORM entities. Mapping is explicit in persistence mappers (example: [persistence/mappers/playerMapper.ts](../persistence/mappers/playerMapper.ts)).
 - Repositories are centralized in [persistence/repositories/repositories.ts](../persistence/repositories/repositories.ts); services should use those exports.
 
 ## Runtime flow and important side effects
@@ -12,7 +12,7 @@
   - Initializes `SeasonRunner` and `WeekRunner`.
   - Registers in-process handlers on `eventNotifications`.
   - Calls `initializeTime()` and may start scheduler (`setInterval`) based on domain properties.
-- `Time` is effectively a singleton persisted row (`id = 1`), see [domainModel/time/Time.ts](../domainModel/time/Time.ts) and [services/timeService.ts](../services/timeService.ts).
+- `Time` is effectively a singleton persisted row (`id = 1`), with singleton identity handled in persistence adapters/mappers.
 
 ## Optional: Multi-instance readiness (future architecture)
 

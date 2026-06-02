@@ -18,9 +18,23 @@ jobs:
 
           legacy_files="$(git ls-files 'services/**' 'domainModel/**')"
 
+          legacy_dirs=""
+          if [[ -d services ]]; then
+            legacy_dirs+="services\n"
+          fi
+          if [[ -d domainModel ]]; then
+            legacy_dirs+="domainModel\n"
+          fi
+
           if [[ -n "$legacy_files" ]]; then
             echo "Legacy paths detected. Use dataAccess/ and domainCore/ instead:"
             echo "$legacy_files"
+            exit 1
+          fi
+
+          if [[ -n "$legacy_dirs" ]]; then
+            echo "Legacy directories detected in repository root. Remove services/ and domainModel/."
+            printf '%b' "$legacy_dirs"
             exit 1
           fi
 
