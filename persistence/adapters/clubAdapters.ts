@@ -5,6 +5,7 @@ import Club from "../../domainCore/Club";
 import Player from "../../domainCore/Player";
 import { eventNotifications } from "../../dataAccess/eventNotifications";
 import {
+    ClubCreationPersistenceInput,
     ClubEventsPort,
     ClubStorePort,
     ClubTransactionalStorePort,
@@ -121,6 +122,11 @@ const createTransactionalClubStore = (
     savePlayers: async (players: Player[]): Promise<void> => {
         const playerEntities = players.map((player) => toPlayerEntityData(player));
         await playerRepo.save(playerEntities as any);
+    },
+
+    saveCreatedClub: async (club: Club, passwordHash: string): Promise<Club> => {
+        const savedEntity = await clubRepo.save(toClubEntityData(club, passwordHash) as any);
+        return fromClubEntity(savedEntity);
     },
 
     removeZombieClubsGraph: async (zombieClubIds: number[]): Promise<void> => {

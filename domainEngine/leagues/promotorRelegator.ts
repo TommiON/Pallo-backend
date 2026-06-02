@@ -148,12 +148,9 @@ const getLeagueClubs = (league: League): Club[] => {
 };
 
 const cloneClub = (oldClub: Club): Club => {
-    const clonedClub = new Club();
+    const clonedClub = new Club(oldClub.name, oldClub.zombie);
     clonedClub.id = oldClub.id;
-    clonedClub.name = oldClub.name;
-    clonedClub.passwordHash = oldClub.passwordHash;
     clonedClub.established = oldClub.established;
-    clonedClub.zombie = oldClub.zombie;
     clonedClub.players = oldClub.players;
     clonedClub.leagues = oldClub.leagues;
     return clonedClub;

@@ -4,7 +4,7 @@ Pallo-backend's architecture can be pictured as seven nested spheres where depen
 
 ## 1. Domain Core (/domainCore)
 Domain Objects that represent foundational game concepts.
-- Club:
+- Club: 
 - Time: the current moment (season, week, day, hour) in gametime.
 - WeeklyEvent: a recurring event in game's weekly cycle.
 - Player
@@ -17,6 +17,7 @@ Also contain Domain Properties, the core settings of the gameworld.
 
 ## 2. Domain Engine (/domainEngine)
 Algorithms and orchestrating functions that typically involve multiple Domain Objects. Actual workings of the game start taking shape here.
+- ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander
 - PromoRelegator
 - FixtureGenerator

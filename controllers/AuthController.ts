@@ -1,5 +1,5 @@
 import jsonwebtoken from 'jsonwebtoken';
-import { passwordMatches } from './passwordUtils';
+import { passwordMatches } from './controllerUtils';
 import { findClubForAuthentication } from '../dataAccess/authService';
 
 import environment from '../config/environment';
