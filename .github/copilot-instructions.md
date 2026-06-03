@@ -64,6 +64,44 @@ Use this section only when designing for possible horizontal scaling (multiple b
 - Keep entity/foreign-key translation in persistence mappers and adapters.
 - Prefer dataAccess ports that expose domain concepts; adapter implementations may use DB ids internally.
 
+## Optional: Finalizing dependency purity (persistence/dataAccess)
+
+Use this section when completing the ports/adapters architecture so dependency direction is strict:
+`api/controllers/domainEngine -> dataAccess ports/use-cases -> persistence adapters`.
+
+### Goal state
+- dataAccess exposes interfaces and use-case factories only; no default self-wiring to persistence.
+- persistence implements dataAccess ports.
+- Wiring happens in one composition root at app startup (not inside dataAccess modules).
+- domainEngine runners and `main.ts` receive dependencies as injected collaborators instead of importing concrete dataAccess singletons.
+
+### Why this is postponed
+- `domainEngine/main.ts` and runner structure are expected to change; complete purity work should happen after those refactors to avoid duplicate churn.
+
+### Target composition approach
+- Keep factory exports like `createAuthService`, `createClubService`, `createLeagueService`, `createPlayerService`, `createTimeService`.
+- Remove module-level singleton instances from dataAccess service files.
+- Replace dataAccess `composition/*` defaults with an app-level composition root (for example startup wiring near `index.ts`).
+- Pass wired dependencies to route/controller/domain initialization functions.
+
+### Migration order (recommended)
+1. Refactor `domainEngine/main.ts` and runners to dependency-injected initialization APIs.
+2. Convert API route modules to router factories that accept use-cases/controllers.
+3. Migrate one vertical slice first (Auth), then Club, then Time/League/Player.
+4. Remove remaining dataAccess self-wiring and delete/relocate `dataAccess/composition`.
+
+### Guardrails while migrating
+- Avoid controller-type imports in dataAccess (define shared DTO/identity types in dataAccess or neutral layer).
+- Keep persistence details (`Repository`, TypeORM-specific entities) out of dataAccess ports.
+- Emit side effects/events only after successful transactional persistence.
+- Preserve public API behavior while changing internals.
+
+### Done criteria
+- No dataAccess file imports from persistence.
+- Exactly one composition root wires adapters to use-cases.
+- `main.ts` and runners accept injected dependencies.
+- Tests can instantiate use-cases with in-memory or mocked ports without touching persistence modules.
+
 ## API conventions specific to this codebase
 - Response envelope is always `ApiResponse<T>` via `sendSuccessResponse()` / `sendErrorResponse()` from [api/ApiResponse.ts](../api/ApiResponse.ts).
 - Validation is middleware-first; validators collect `ValidationError[]` string unions from [api/ValidationError.ts](../api/ValidationError.ts).
