@@ -17,6 +17,7 @@ Also contain Domain Properties, the core settings of the gameworld.
 
 ## 2. Domain Engine (/domainEngine)
 Algorithms and orchestrating functions that typically involve multiple Domain Objects. Actual workings of the game start taking shape here.
+- DomainInitializer: initializes the state of domain on startup.
 - ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander
 - PromoRelegator
@@ -51,7 +52,8 @@ Define and handle application behavior by reacting to requests from API and Sche
 
 ## 7. The outside
 - index.ts
-- (e2e tests)
+- environment.ts?
+- (e2e tests when ready)
 
 
 
