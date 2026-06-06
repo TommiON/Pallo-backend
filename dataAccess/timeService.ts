@@ -4,6 +4,35 @@ import WeekRunner from "../domainEngine/runners/WeekRunner";
 import { TimeEventsPort, TimeStorePort, TimeTransactionPort } from "./ports/timePorts";
 import { createDefaultTimeServicePorts } from "./composition/timeServiceComposition";
 
+/**
+ * Gets the current time from the database.
+ */
+export const getCurrentTime = async (): Promise<Time|null> => {
+    return timeService.getCurrentTime();
+}
+
+/**
+ * Initializes the starting point of time in the database, if not initialized already.
+ */
+export const initializeTime = async (): Promise<Time> => {
+    return timeService.initializeTime();
+}
+
+/**
+ * Updates time in the database
+ */
+export const advanceTime = async (): Promise<Time> => {
+    return timeService.advanceTime();
+}
+
+// Tämä toki helvettiin täältä
+/**
+ * Gets current Weekly Events
+ */
+export const getWeeklyEvents = (): WeeklyEvent[] => {
+    return WeekRunner.getEvents();
+}
+
 export type TimeServicePorts = {
     timeStore: TimeStorePort;
     timeTransaction: TimeTransactionPort;
@@ -53,35 +82,3 @@ export const createTimeService = ({ timeStore, timeTransaction, timeEvents }: Ti
 });
 
 const timeService = createTimeService(createDefaultTimeServicePorts());
-
-/**
- * Gets the current time from the database.
- * @returns 
- */
-export const getCurrentTime = async (): Promise<Time|null> => {
-    return timeService.getCurrentTime();
-}
-
-/**
- * Initializes the starting point of time in the database, if not initialized already.
- * @returns 
- */
-export const initializeTime = async (): Promise<Time> => {
-    return timeService.initializeTime();
-}
-
-/**
- * Updates time in the database
- * @param timeUpdate 
- * @returns 
- */
-export const advanceTime = async (): Promise<Time> => {
-    return timeService.advanceTime();
-}
-
-/**
- * Gets current Weekly Events
- */
-export const getWeeklyEvents = (): WeeklyEvent[] => {
-    return WeekRunner.getEvents();
-}

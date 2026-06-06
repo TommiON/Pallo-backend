@@ -45,12 +45,12 @@ Define and handle application behavior by reacting to requests from API and Sche
 - AuthController
 - EventNotifications
 
-## 6. Interactors
+## 6. Interactors (/api, /scheduler)
 - REST API
 - Scheduler
 - Datasource (nykyinen services/composition lopulta tänne?)
 
-## 7. The outside
+## 7. The outside (/)
 - index.ts
 - environment.ts?
 - (e2e tests when ready)
