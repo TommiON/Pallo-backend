@@ -1,6 +1,6 @@
-import { advanceTime, initializeTime } from "../dataAccess/timeService"
+import { getCurrentTime, initializeTime, updateTime } from "../dataAccess/timeService";
 import { eventNotifications } from "../dataAccess/eventNotifications";
-import SeasonRunner from "./runners/SeasonRunner";
+import SeasonRunner from "./runners/seasonRunner";
 import WeekRunner from "./runners/WeekRunner";
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainCore/domainProperties";
 
@@ -22,7 +22,13 @@ export const startScheduler = async () => {
         const interval = hourInMilliseconds / TIME_SPEEDUP_FACTOR;
 
         setInterval(async () => {
-            await advanceTime();
+            const currentTime = await getCurrentTime();
+            if (!currentTime) {
+                return;
+            }
+
+            currentTime.advanceByAnHour();
+            await updateTime(currentTime);
         }, interval);
 
         SeasonRunner.schedulerHasStarted = true;

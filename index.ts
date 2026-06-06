@@ -9,7 +9,7 @@ import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
 import timeRouter from "./api/time/timeRoutes";
 
-import { initializeDomain } from "./domainEngine/main";
+import { initializeScheduler, startScheduler } from "./scheduler/scheduler";
 
 const app = express();
 
@@ -25,7 +25,8 @@ app.use(timeRouter);
 const start = async () => {
     try {
         await appDataSource.initialize();
-        await initializeDomain();
+        await initializeScheduler();
+        startScheduler();
         app.listen(environment.port);
         
         console.log(`Sovellus käynnissä, kuuntelee porttia ${environment.port}.`);

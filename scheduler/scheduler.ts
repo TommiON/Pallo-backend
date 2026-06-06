@@ -1,6 +1,7 @@
 import { WeeklyEvent } from "../domainCore/WeeklyEvent";
 import { initializeDomain } from "../domainEngine/initialization/DomainInitializer";
-import { initializeTime, getCurrentTime } from "../dataAccess/timeService";
+import { initializeTime, getCurrentTime, updateTime } from "../dataAccess/timeService";
+import { startNewSeason, NotEnoughClubsForSeasonStartError } from "../controllers/startNewSeason";
 // TODO: nämä eivät ole DomainPropertyja, laita enviin ja mietin envin sijainti
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainCore/domainProperties";
 
@@ -32,10 +33,21 @@ const tick = async () => {
     // Myöhemmin kehitettävä niin että klubeja voi myös passivoitua.
     // Myös: ClubCreated-messaging pois käytöstä -> kun klubeja tarpeeksi, vaatii sovelluksen uudelleenkäynnistyksen
 
-    if (currentTime.isTheVeryBeginningOfTime()) {
-
-    } else if (currentTime.isTheStartOfASeason()) {
-
-    }
+    if (currentTime.isTheStartOfASeason()) {
+        try {
+            await startNewSeason(currentTime.season);
+        } catch (error: unknown) {
+            if (error instanceof NotEnoughClubsForSeasonStartError) {
+                console.log('Kausi ei voi alkaa, ei tarpeeksi joukkueita.');
+                return;
+            } else {
+                throw error;
+            }
+        }
     
+        console.log('Juhuu, kausi alkaa!')
+    }
+
+    currentTime.advanceByAnHour();
+    await updateTime(currentTime);
 }

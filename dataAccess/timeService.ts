@@ -21,8 +21,8 @@ export const initializeTime = async (): Promise<Time> => {
 /**
  * Updates time in the database
  */
-export const advanceTime = async (): Promise<Time> => {
-    return timeService.advanceTime();
+export const updateTime = async (updatedTime: Time): Promise<Time> => {
+    return timeService.updateTime(updatedTime);
 }
 
 // Tämä toki helvettiin täältä
@@ -64,20 +64,13 @@ export const createTimeService = ({ timeStore, timeTransaction, timeEvents }: Ti
         return time;
     },
 
-    advanceTime: async (): Promise<Time> => {
-        const updatedTime = await timeTransaction.runInTransaction(async (transactionalStore) => {
-            const currentTime = await transactionalStore.getCurrentForUpdate();
-
-            if (!currentTime) {
-                throw new Error("Time not initialized");
-            }
-
-            const advancedTime = currentTime.advanceByAnHour();
-            return transactionalStore.save(advancedTime);
+    updateTime: async (updatedTime: Time): Promise<Time> => {
+        const savedTime = await timeTransaction.runInTransaction(async (transactionalStore) => {
+            return transactionalStore.save(updatedTime);
         });
 
-        timeEvents.emitTimeChanged(updatedTime);
-        return updatedTime;
+        timeEvents.emitTimeChanged(savedTime);
+        return savedTime;
     }
 });
 

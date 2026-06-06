@@ -6,7 +6,7 @@ import { persistSeasonTransition } from "../dataAccess/leagueService";
 import { findLeaguesBySeason } from "../dataAccess/leagueService";
 import { findNonAttachedUserClubs } from "../dataAccess/clubService";
 
-class NotEnoughClubsForSeasonStartError extends Error {
+export class NotEnoughClubsForSeasonStartError extends Error {
     constructor(message: string) {
         super(message);
         this.name = "NotEnoughClubsForSeasonStartError";
