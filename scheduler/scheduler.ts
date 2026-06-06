@@ -1,4 +1,5 @@
 import { WeeklyEvent } from "../domainCore/WeeklyEvent";
+import Time from "../domainCore/Time";
 import { initializeDomain } from "../domainEngine/initialization/DomainInitializer";
 import { initializeTime, getCurrentTime, updateTime } from "../dataAccess/timeService";
 import { startNewSeason, NotEnoughClubsForSeasonStartError } from "../controllers/startNewSeason";
@@ -6,13 +7,22 @@ import { startNewSeason, NotEnoughClubsForSeasonStartError } from "../controller
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainCore/domainProperties";
 
 let weeklySchedule: WeeklyEvent[];
+let currentWeekEvents: WeeklyEvent[] = [];
 
 export const initializeScheduler = async () => {
     const domainState = initializeDomain();
 
     weeklySchedule = domainState.weeklyEvents;
+    currentWeekEvents = [];
 
     await initializeTime();
+
+    const currentTime = await getCurrentTime();
+    if (!currentTime) {
+        throw new Error("Time not initialized");
+    }
+
+    currentWeekEvents = getWeekEventsForCurrentTime(currentTime);
 }
 
 export const startScheduler = () => {
@@ -32,7 +42,6 @@ const tick = async () => {
     // Toistaiseksi oletus: kun klubeja on kerran riittävästi ensimmäisen liigan luomiseen, niitä ei enää katoa.
     // Myöhemmin kehitettävä niin että klubeja voi myös passivoitua.
     // Myös: ClubCreated-messaging pois käytöstä -> kun klubeja tarpeeksi, vaatii sovelluksen uudelleenkäynnistyksen
-
     if (currentTime.isTheStartOfASeason()) {
         try {
             await startNewSeason(currentTime.season);
@@ -44,10 +53,49 @@ const tick = async () => {
                 throw error;
             }
         }
-    
-        console.log('Juhuu, kausi alkaa!')
+    }
+
+    if (currentTime.isTheStartOfAWeek()) {
+        currentWeekEvents = getWeekEventsForCurrentTime(currentTime);
+    }
+
+    currentWeekEvents = currentWeekEvents.filter((e) => !e.hasExpired(currentTime));
+
+    const expiringRightNow: WeeklyEvent | undefined = currentWeekEvents.find((e) => e.isExpiring(currentTime));
+
+    if (expiringRightNow) {
+        expiringRightNow.finish();
+        currentWeekEvents = currentWeekEvents.filter((e) => e !== expiringRightNow);
     }
 
     currentTime.advanceByAnHour();
     await updateTime(currentTime);
+}
+
+const getWeekEventsForCurrentTime = (currentTime: Time): WeeklyEvent[] => {
+    return weeklySchedule.filter((event) => !event.hasExpired(currentTime));
+}
+
+export type AppClock = {
+    season: number;
+    week: number;
+    day: number;
+    hour: number;
+    weeklyEvents: WeeklyEvent[];
+}
+
+export const getCurrentTimeWithEvents = async (): Promise<AppClock> => {
+    const currentTime = await getCurrentTime();
+
+    if (!currentTime) {
+        throw new Error("Time not initialized");
+    }
+
+    return {
+        season: currentTime.season,
+        week: currentTime.week,
+        day: currentTime.day,
+        hour: currentTime.hour,
+        weeklyEvents: currentWeekEvents
+    }
 }

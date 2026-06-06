@@ -25,14 +25,6 @@ export const updateTime = async (updatedTime: Time): Promise<Time> => {
     return timeService.updateTime(updatedTime);
 }
 
-// Tämä toki helvettiin täältä
-/**
- * Gets current Weekly Events
- */
-export const getWeeklyEvents = (): WeeklyEvent[] => {
-    return WeekRunner.getEvents();
-}
-
 export type TimeServicePorts = {
     timeStore: TimeStorePort;
     timeTransaction: TimeTransactionPort;
