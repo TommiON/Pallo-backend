@@ -7,7 +7,7 @@ jest.mock("../../domainEngine/clubs/ClubCreator", () => ({
     createNewUserClub: jest.fn()
 }));
 
-jest.mock("../passwordUtils", () => ({
+jest.mock("../controllerUtils", () => ({
     hashPassword: jest.fn()
 }));
 

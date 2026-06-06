@@ -9,7 +9,7 @@ jest.mock("../../dataAccess/authService", () => ({
     findClubForAuthentication: jest.fn()
 }));
 
-jest.mock("../passwordUtils", () => ({
+jest.mock("../controllerUtils", () => ({
     passwordMatches: jest.fn()
 }));
 
