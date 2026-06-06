@@ -48,9 +48,11 @@ Define and handle application behavior by reacting to requests from API and Sche
 (- EventNotifications???)
 
 ## 6. Interactors (/api, /scheduler)
-- REST API
-- Scheduler
-- Datasource (nykyinen services/composition lopulta tänne?)
+Receives/generates impulses that make the application proceed and do things.
+- Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something, such as to start a new season or remove an expired WeeklyEvent. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
+- API: receives user requests.
+
+(- Datasource (nykyinen services/composition lopulta tänne?))
 
 ## 7. The outside (/)
 - index.ts
