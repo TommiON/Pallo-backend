@@ -17,15 +17,15 @@ Also contain Domain Properties, the core settings of the gameworld.
 
 ## 2. Domain Engine (/domainEngine)
 Algorithms and orchestrating functions that typically involve multiple Domain Objects. Actual workings of the game start taking shape here.
-- DomainInitializer: initializes the state of domain on startup.
+- DomainInitializer: initializes the state of domain.
 - ClubCreator: creates and initializes new user Clubs.
-- PyramidExpander
-- PromoRelegator
-- FixtureGenerator
+- PyramidExpander: creates Leagues and organizes them into pyramid-like structure.
+- PromoRelegator: promotes/relegates Clubs between Leagues at the end of a season.
+- FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
 - (StandingsOrderer)
 
 ## 3. Data Access Interface (/dataAccess)
-Access to persistent data. Consists of services, each of which generally handle a database entity. This layer is just an interface, defined as abtract Ports left to be implemented further out. 
+Access to persistent data. Consists of services, each of which generally handles a database entity. This layer is just an interface, defined as abtract Ports left to be implemented further out. 
 - TimeService
 - LeagueService
 - PlayerService
@@ -40,10 +40,12 @@ Concrete implementation of Data Access Interface. Uses TypeORM framework.
 - Mappers to transform entity data <-> Domain Objects
 
 ## 5. Application Controllers (/controllers)
-Define and handle application behavior by reacting to requests from API and Scheduler. Use Data Access Interface for data needs and Domain Engine for performing domain operations.
-- SeasonController: nykyinen LeagueFactory, varmaan ottaa asioita SeasonRunnerilta?
-- AuthController
-- EventNotifications
+Define and handle application behavior by reacting to requests from API and Scheduler. Use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized as verb-starting functions that describe what is happening, such as:
+- startNewSeason
+- createNewUserClub
+- authenticateLogin
+
+(- EventNotifications???)
 
 ## 6. Interactors (/api, /scheduler)
 - REST API

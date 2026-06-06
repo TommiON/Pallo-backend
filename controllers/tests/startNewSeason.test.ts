@@ -1,14 +1,14 @@
-import League from "../../../domainCore/League";
-import { LEAGUE_NUMBER_OF_TEAMS } from "../../../domainCore/domainProperties";
-import { createLeaguesForSeason } from "../leagueFactory";
-import * as leagueService from "../../../dataAccess/leagueService";
-import * as clubService from "../../../dataAccess/clubService";
+import League from "../../domainCore/League";
+import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainCore/domainProperties";
+import { startNewSeason } from "../startNewSeason";
+import * as leagueService from "../../dataAccess/leagueService";
+import * as clubService from "../../dataAccess/clubService";
 
 const createLeague = (season: number, divisionLevel: number, serialNumber: number, promotesTo: League | null = null): League => {
     return new League(season, divisionLevel, serialNumber, promotesTo);
 };
 
-describe("leagueFactory.createLeaguesForSeason", () => {
+describe("startNewSeason", () => {
     let findLeaguesBySeasonSpy: jest.SpyInstance;
     let persistSeasonTransitionSpy: jest.SpyInstance;
     let findNonAttachedUserClubsSpy: jest.SpyInstance;
@@ -27,17 +27,29 @@ describe("leagueFactory.createLeaguesForSeason", () => {
         findLeaguesBySeasonSpy.mockResolvedValue([]);
         findNonAttachedUserClubsSpy.mockResolvedValue([]);
 
-        await createLeaguesForSeason(5);
+        await startNewSeason(5);
 
         expect(findLeaguesBySeasonSpy).toHaveBeenCalledWith(4);
         expect(findNonAttachedUserClubsSpy).toHaveBeenCalledWith(4);
     });
 
-    it("persists empty transition when no previous leagues and not enough waiting clubs", async () => {
+    it("throws for first season when there are not enough clubs to form one league", async () => {
         findLeaguesBySeasonSpy.mockResolvedValue([]);
         findNonAttachedUserClubsSpy.mockResolvedValue([1, 2, 3]);
 
-        await createLeaguesForSeason(2);
+        await expect(startNewSeason(0)).rejects.toMatchObject({
+            name: "NotEnoughClubsForSeasonStartError"
+        });
+
+        expect(persistSeasonTransitionSpy).not.toHaveBeenCalled();
+        expect(findNonAttachedUserClubsSpy).toHaveBeenCalledWith(0);
+    });
+
+    it("persists empty transition when no previous leagues and not enough waiting clubs for non-first season", async () => {
+        findLeaguesBySeasonSpy.mockResolvedValue([]);
+        findNonAttachedUserClubsSpy.mockResolvedValue([1, 2, 3]);
+
+        await startNewSeason(2);
 
         expect(persistSeasonTransitionSpy).toHaveBeenCalledTimes(1);
         expect(persistSeasonTransitionSpy).toHaveBeenCalledWith([], []);
@@ -48,14 +60,14 @@ describe("leagueFactory.createLeaguesForSeason", () => {
         findLeaguesBySeasonSpy.mockResolvedValue([]);
         findNonAttachedUserClubsSpy.mockResolvedValue(waitingClubs);
 
-        await createLeaguesForSeason(1);
+        await startNewSeason(0);
 
         expect(persistSeasonTransitionSpy).toHaveBeenCalledTimes(1);
 
         const [previousSeasonLeaguesArg, newSeasonLeaguesArg] = persistSeasonTransitionSpy.mock.calls[0];
         expect(previousSeasonLeaguesArg).toEqual([]);
         expect(newSeasonLeaguesArg).toHaveLength(1);
-        expect(newSeasonLeaguesArg[0].season).toBe(1);
+        expect(newSeasonLeaguesArg[0].season).toBe(0);
         expect(newSeasonLeaguesArg[0].divisionLevel).toBe(0);
         expect(newSeasonLeaguesArg[0].serialNumberOnDivisionLevel).toBe(0);
         expect(newSeasonLeaguesArg[0].clubs).toHaveLength(LEAGUE_NUMBER_OF_TEAMS);
@@ -68,7 +80,7 @@ describe("leagueFactory.createLeaguesForSeason", () => {
         findLeaguesBySeasonSpy.mockResolvedValue([previousSeasonLeague]);
         findNonAttachedUserClubsSpy.mockResolvedValue([]);
 
-        await createLeaguesForSeason(4);
+        await startNewSeason(4);
 
         expect(persistSeasonTransitionSpy).toHaveBeenCalledTimes(1);
         const [previousSeasonLeaguesArg, newSeasonLeaguesArg] = persistSeasonTransitionSpy.mock.calls[0];
@@ -91,7 +103,7 @@ describe("leagueFactory.createLeaguesForSeason", () => {
         findLeaguesBySeasonSpy.mockResolvedValue([previousSeasonLeague]);
         findNonAttachedUserClubsSpy.mockResolvedValue(waitingClubs);
 
-        await createLeaguesForSeason(8);
+        await startNewSeason(8);
 
         const [, newSeasonLeaguesArg] = persistSeasonTransitionSpy.mock.calls[0];
 
@@ -108,7 +120,7 @@ describe("leagueFactory.createLeaguesForSeason", () => {
         findNonAttachedUserClubsSpy.mockResolvedValue([]);
         persistSeasonTransitionSpy.mockRejectedValue(new Error("persist failed"));
 
-        await expect(createLeaguesForSeason(3)).rejects.toThrow("persist failed");
+        await expect(startNewSeason(3)).rejects.toThrow("persist failed");
     });
 
     it("preserves previous-season club memberships through the full season transition chain", async () => {
@@ -119,7 +131,7 @@ describe("leagueFactory.createLeaguesForSeason", () => {
         findLeaguesBySeasonSpy.mockResolvedValue([previousSeasonLeague]);
         findNonAttachedUserClubsSpy.mockResolvedValue([]);
 
-        await createLeaguesForSeason(5);
+        await startNewSeason(5);
 
         expect(persistSeasonTransitionSpy).toHaveBeenCalledTimes(1);
         const [previousSeasonLeaguesArg, newSeasonLeaguesArg] = persistSeasonTransitionSpy.mock.calls[0];
