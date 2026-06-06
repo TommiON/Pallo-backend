@@ -2,7 +2,7 @@ import Time from "../../domainCore/Time";
 import appDataSource from "../../config/datasource";
 import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
 import { timeRepository } from "../../persistence/repositories/repositories";
-import { getCurrentTime, initializeTime, advanceTime } from "../timeService";
+import { getCurrentTime, initializeTime, updateTime } from "../timeService";
 import { eventNotifications } from "../eventNotifications";
 
 jest.mock("../../config/datasource", () => ({
@@ -155,24 +155,11 @@ describe("timeService", () => {
         });
     });
 
-    describe("advanceTime", () => {
-        it("should lock singleton, advance one hour and save", async () => {
-            const initialTimeEntity: TimeEntityData = {
-                id: 1,
-                season: 0,
-                week: 0,
-                day: 0,
-                hour: 10
-            };
-
-            const selectQueryBuilderMock = {
-                setLock: jest.fn().mockReturnThis(),
-                where: jest.fn().mockReturnThis(),
-                getOne: jest.fn().mockResolvedValue(initialTimeEntity)
-            };
+    describe("updateTime", () => {
+        it("should save the provided time and emit change event", async () => {
+            const updatedTime = new Time(0, 0, 0, 11);
 
             const transactionalTimeRepositoryMock = {
-                createQueryBuilder: jest.fn().mockReturnValue(selectQueryBuilderMock),
                 save: jest.fn().mockImplementation((entity) => Promise.resolve(entity))
             };
 
@@ -181,10 +168,9 @@ describe("timeService", () => {
             };
             transactionMock.mockImplementation(async (callback) => callback(managerMock));
 
-            const result = await advanceTime();
+            const result = await updateTime(updatedTime);
 
             expect(transactionMock).toHaveBeenCalledTimes(1);
-            expect(selectQueryBuilderMock.getOne).toHaveBeenCalledTimes(1);
             expect(transactionalTimeRepositoryMock.save).toHaveBeenCalledTimes(1);
 
             const savedEntity = transactionalTimeRepositoryMock.save.mock.calls[0][0];
@@ -201,16 +187,9 @@ describe("timeService", () => {
             expect(emitMock).toHaveBeenCalledTimes(1);
         });
 
-        it("should throw if singleton does not exist", async () => {
-            const selectQueryBuilderMock = {
-                setLock: jest.fn().mockReturnThis(),
-                where: jest.fn().mockReturnThis(),
-                getOne: jest.fn().mockResolvedValue(null)
-            };
-
+        it("should propagate save errors and not emit event", async () => {
             const transactionalTimeRepositoryMock = {
-                createQueryBuilder: jest.fn().mockReturnValue(selectQueryBuilderMock),
-                save: jest.fn()
+                save: jest.fn().mockRejectedValue(new Error("save failed"))
             };
 
             const managerMock = {
@@ -218,8 +197,8 @@ describe("timeService", () => {
             };
             transactionMock.mockImplementation(async (callback) => callback(managerMock));
 
-            await expect(advanceTime()).rejects.toThrow("Time not initialized");
-            expect(transactionalTimeRepositoryMock.save).not.toHaveBeenCalled();
+            await expect(updateTime(new Time(0, 0, 0, 1))).rejects.toThrow("save failed");
+            expect(transactionalTimeRepositoryMock.save).toHaveBeenCalledTimes(1);
             expect(emitMock).not.toHaveBeenCalled();
         });
     });

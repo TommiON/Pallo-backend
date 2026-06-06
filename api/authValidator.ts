@@ -4,7 +4,7 @@ import jsonwebtoken from 'jsonwebtoken';
 import environment from '../config/environment';
 import { ValidationError } from "./ValidationError";
 import { sendErrorResponse } from "./ApiResponse";
-import { AuthenticatedUser } from "../controllers/authController";
+import { AuthenticatedUser } from "../controllers/authenticateLogin";
 
 export const authValidator: RequestHandler<{}, any, any, any> = (req, res, next) => {
     const errors: ValidationError[] = [];

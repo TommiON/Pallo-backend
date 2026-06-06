@@ -51,4 +51,8 @@ export default class Time {
     isTheStartOfASeason(): boolean {
         return this.week === 0 && this.day === 0 && this.hour === 0;
     }
+
+    isTheStartOfAWeek(): boolean {
+        return this.day === 0 && this.hour === 0;
+    }
 }

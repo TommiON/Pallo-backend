@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import { ApiResponse, sendSuccessResponse, sendErrorResponse } from '../ApiResponse';
 import { LoginRequest, LoginResponse } from './LoginRequestResponseTypes';
 import { loginRequestValidator } from './loginRequestValidator';
-import { generateToken } from '../../controllers/authController';
+import { generateToken } from '../../controllers/authenticateLogin';
 
 const baseUrl = '/api/login';
 const loginRouter = express.Router();
