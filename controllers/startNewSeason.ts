@@ -2,6 +2,7 @@ import League from "../domainCore/League";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../domainCore/domainProperties";
 import { promoteAndRelegate } from "../domainEngine/leagues/promotorRelegator";
 import { expandPyramid } from "../domainEngine/leagues/pyramidExpander";
+import { generateFixtures } from "../domainEngine/leagues/fixtureGenerator";
 import { persistSeasonTransition } from "../dataAccess/leagueService";
 import { findLeaguesBySeason } from "../dataAccess/leagueService";
 import { findNonAttachedUserClubs } from "../dataAccess/clubService";
