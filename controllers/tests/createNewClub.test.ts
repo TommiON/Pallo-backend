@@ -1,7 +1,7 @@
 import { createNewUserClub } from "../../domainEngine/clubs/ClubCreator";
 import { hashPassword } from "../controllerUtils";
 import { persistNewClub } from "../../dataAccess/clubService";
-import { newUserClub } from "../newClubController";
+import { createNewClub } from "../createNewClub";
 
 jest.mock("../../domainEngine/clubs/ClubCreator", () => ({
     createNewUserClub: jest.fn()
@@ -30,7 +30,7 @@ describe("newClubController", () => {
         hashPasswordMock.mockResolvedValue("hashed-password");
         persistNewClubMock.mockResolvedValue({ id: 123, name: "FC Unit" });
 
-        const result = await newUserClub("FC Unit", "secret");
+        const result = await createNewClub("FC Unit", "secret");
 
         expect(createNewUserClubMock).toHaveBeenCalledWith("FC Unit");
         expect(hashPasswordMock).toHaveBeenCalledWith("secret");

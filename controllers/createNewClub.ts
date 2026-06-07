@@ -3,7 +3,7 @@ import { ClubData } from "../domainCore/Club";
 import { persistNewClub } from "../dataAccess/clubService";
 import { hashPassword } from "./controllerUtils";
 
-export const newUserClub = async (name: string, password: string): Promise<ClubData> => {
+export const createNewClub = async (name: string, password: string): Promise<ClubData> => {
     const createdClub: ClubCreationResult = createNewUserClub(name);
 
     const createdClubWithPassword = {

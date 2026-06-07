@@ -5,7 +5,7 @@ import { CreateClubRequest, ClubByIdRequest, ClubResponse } from './ClubRequestR
 import { createClubRequestValidator, getClubByIdRequestValidator } from './clubRequestValidator';
 import { authValidator } from '../authValidator';
 import { findClubById } from '../../dataAccess/clubService';
-import { newUserClub } from '../../controllers/newClubController';
+import { createNewClub } from '../../controllers/createNewClub';
 
 const baseUrl = '/api/club';
 const clubRouter = express.Router();
@@ -14,7 +14,7 @@ const clubRouter = express.Router();
 clubRouter.post(`${baseUrl}/`,
     createClubRequestValidator,
     async (req: Request<any, any, CreateClubRequest>, res: Response<ApiResponse<ClubResponse>>) => {
-        const newClub = await newUserClub(req.body.name, req.body.password);
+        const newClub = await createNewClub(req.body.name, req.body.password);
 
         res.json(sendSuccessResponse(newClub));
     }
