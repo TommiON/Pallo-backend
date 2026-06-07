@@ -3,6 +3,15 @@ import League from "./League";
 import MatchEvent from "./MatchEvent";
 import { getRandomNumberInRange } from "./domainUtils";
 
+// Tiivistelmätietotyyppi
+export type MatchResult = {
+        id?: number;
+        homeClub: Club;
+        awayClub: Club;
+        homeGoals: number;
+        awayGoals: number;
+}
+
 export default class Match {
     id?: number;
     leagueId?: number;
@@ -49,13 +58,11 @@ export default class Match {
 
     getResult(): MatchResult {
         return {
+            id: this.id,
+            homeClub: this.homeClub,
+            awayClub: this.awayClub,
             homeGoals: this.events.filter(e => e.type === 'goal' && e.initiator === 'home').length,
             awayGoals: this.events.filter(e => e.type === 'goal' && e.initiator === 'away').length
         }
     }
-}
-
-export type MatchResult = {
-        homeGoals: number;
-        awayGoals: number;
 }
