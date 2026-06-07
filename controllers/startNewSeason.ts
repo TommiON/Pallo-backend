@@ -6,13 +6,6 @@ import { persistSeasonTransition } from "../dataAccess/leagueService";
 import { findLeaguesBySeason } from "../dataAccess/leagueService";
 import { findNonAttachedUserClubs } from "../dataAccess/clubService";
 
-export class NotEnoughClubsForSeasonStartError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = "NotEnoughClubsForSeasonStartError";
-    }
-}
-
 export const startNewSeason = async (season: number) => {
         await checkEnoughClubsForSeasonStart(season);
 
@@ -45,6 +38,13 @@ export const startNewSeason = async (season: number) => {
     
         // Persist changes to database.
         await persistSeasonTransition(leaguesLastSeason, leagues);
+}
+
+export class NotEnoughClubsForSeasonStartError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "NotEnoughClubsForSeasonStartError";
+    }
 }
 
 const checkEnoughClubsForSeasonStart = async (season: number): Promise<void> => {
