@@ -1,4 +1,4 @@
-import type { ClubData } from "../../domainCore/club/ClubData";
+import type { ClubData } from "../../domainCore/Club";
 
 export type ClubResponse = Omit<ClubData, "passwordHash"> | null;
 

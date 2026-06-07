@@ -1,4 +1,4 @@
-import type { PlayerData } from "../../domainCore/player/PlayerData";
+import type { PlayerData } from "../../domainCore/Player";
 
 export type PlayerResponse = (PlayerData & { restricted: boolean })[];
 
