@@ -1,15 +1,21 @@
-import { WeeklyEvent } from "../../domainCore/WeeklyEvent";
+import { WeeklyEvent, WeeklyEventCallbackFunctions, WeeklyEventType } from "../../domainCore/WeeklyEvent";
 
-export type DomainState = {
-    weeklyEvents: WeeklyEvent[];
+export type { WeeklyEventCallbackFunctions };
+
+export const initializeWeeklyEvents = (callbacks: WeeklyEventCallbackFunctions): WeeklyEvent[] => {
+    const events: WeeklyEvent[] = generateWeeklyEvents();
+
+    for (const weeklyEventType in callbacks) {
+        const callback = callbacks[weeklyEventType as WeeklyEventType];
+        const event = events.find(e => e.type === weeklyEventType);
+        if (event) {
+            event.finishingCallback = callback;
+        }
+    }
+
+    return events;
 }
-
-export const initializeDomain = (): DomainState => {
-    return {
-        weeklyEvents: generateWeeklyEvents()
-    };
-}
-
+    
 const generateWeeklyEvents = (): WeeklyEvent[] => {
     const events: WeeklyEvent[] = [];
 
@@ -52,7 +58,7 @@ const generateWeeklyEvents = (): WeeklyEvent[] => {
     events.push(new WeeklyEvent(
                     'match',
                     {day: 5, hour: 21},
-                    () => {}
+                    async (season, week) => {}
                 ));
     
     events.push(new WeeklyEvent(
@@ -63,13 +69,3 @@ const generateWeeklyEvents = (): WeeklyEvent[] => {
 
     return events;
 }
-
-
-
- 
-
-
-
-       
-
-      

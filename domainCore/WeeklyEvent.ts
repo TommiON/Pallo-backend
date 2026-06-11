@@ -15,13 +15,26 @@ export type WeeklyEventType =
     'transfersDeadline' | 'matchSetupDeadline' | 'match' | 'trainingSetupDeadline' |
     'training' | 'financesSetupDeadline' | 'financesUpdate' | 'youthAcademyDrawDeadline';
 
+export type WeeklyEventCallbackFunctions = {
+    transfersDeadline: () => void;
+    matchSetupDeadline: () => void;
+    match: (season: number, week: number) => void | Promise<void>;
+    trainingSetupDeadline: () => void;
+    training: () => void;
+    financesSetupDeadline: () => void;
+    financesUpdate: () => void;
+    youthAcademyDrawDeadline: () => void;
+}
+
+export type WeeklyEventCallback = WeeklyEventCallbackFunctions[WeeklyEventType];
+
 export class WeeklyEvent {
     type: WeeklyEventType;
     deadline: WeeklyDeadline;
-    finishingCallback: () => void;
-    interactionFunction?: () => void;
+    finishingCallback: WeeklyEventCallback;
+    interactionFunction?: WeeklyEventCallback;
     
-    constructor(type: WeeklyEventType, deadline: WeeklyDeadline, callback: () => void, interaction?: () => void) {
+    constructor(type: WeeklyEventType, deadline: WeeklyDeadline, callback: WeeklyEventCallback, interaction?: WeeklyEventCallback) {
         this.type = type;
         this.deadline = deadline;
         this.finishingCallback = callback;
@@ -36,7 +49,7 @@ export class WeeklyEvent {
         return this.deadline.day === time.day && this.deadline.hour === time.hour;
     }
 
-    finish(): void {
-        this.finishingCallback();
+    finish(season?: number, week?: number): void | Promise<void> {
+        return (this.finishingCallback as any)(season, week);
     }
 }

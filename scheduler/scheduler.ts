@@ -1,26 +1,34 @@
-import { WeeklyEvent } from "../domainCore/WeeklyEvent";
+import { WeeklyEvent, WeeklyEventType } from "../domainCore/WeeklyEvent";
 import Time from "../domainCore/Time";
-import { initializeDomain } from "../domainEngine/initialization/DomainInitializer";
+import { WeeklyEventCallbackFunctions, initializeWeeklyEvents } from "../domainEngine/initialization/DomainInitializer";
 import { initializeTime, getCurrentTime, updateTime } from "../dataAccess/timeService";
 import { startNewSeason, NotEnoughClubsForSeasonStartError } from "../controllers/startNewSeason";
+import { resolveMatches } from "../controllers/resolveMatches";
 // TODO: nämä eivät ole DomainPropertyja, laita enviin ja mietin envin sijainti
 import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainCore/domainProperties";
 
-let weeklySchedule: WeeklyEvent[];
+let recurringWeeklySchedule: WeeklyEvent[];
 let currentWeekEvents: WeeklyEvent[] = [];
 
 export const initializeScheduler = async () => {
-    const domainState = initializeDomain();
-
-    weeklySchedule = domainState.weeklyEvents;
-    currentWeekEvents = [];
-
     await initializeTime();
-
     const currentTime = await getCurrentTime();
-    if (!currentTime) {
-        throw new Error("Time not initialized");
+    if (!currentTime) { throw new Error("Time not initialized"); }
+
+    const weeklyEventCallbacks: WeeklyEventCallbackFunctions = {
+        transfersDeadline: () => console.log("Transfers deadline reached"),
+        matchSetupDeadline: () => console.log("No matsi nyt!"),
+        match: async (season, week) => await resolveMatches(season, week),
+        trainingSetupDeadline: () => console.log("Training setup deadline reached"),
+        training: () => console.log("Training event reached"),
+        financesSetupDeadline: () => console.log("Finances setup deadline reached"),
+        financesUpdate: () => console.log("Finances update event reached"),
+        youthAcademyDrawDeadline: () => console.log("Youth academy draw deadline reached"),
     }
+    
+    recurringWeeklySchedule = initializeWeeklyEvents(weeklyEventCallbacks);
+
+    currentWeekEvents = [];
 
     currentWeekEvents = getWeekEventsForCurrentTime(currentTime);
 }
@@ -64,7 +72,7 @@ const tick = async () => {
     const expiringRightNow: WeeklyEvent | undefined = currentWeekEvents.find((e) => e.isExpiring(currentTime));
 
     if (expiringRightNow) {
-        expiringRightNow.finish();
+        await expiringRightNow.finish(currentTime.season, currentTime.week);
         currentWeekEvents = currentWeekEvents.filter((e) => e !== expiringRightNow);
     }
 
@@ -73,7 +81,7 @@ const tick = async () => {
 }
 
 const getWeekEventsForCurrentTime = (currentTime: Time): WeeklyEvent[] => {
-    return weeklySchedule.filter((event) => !event.hasExpired(currentTime));
+    return recurringWeeklySchedule.filter((event) => !event.hasExpired(currentTime));
 }
 
 export type AppClock = {
