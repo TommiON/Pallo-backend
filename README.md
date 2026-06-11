@@ -23,6 +23,7 @@ Algorithms and orchestrating functions that typically involve multiple Domain Ob
 - PromoRelegator: promotes/relegates Clubs between Leagues at the end of a season.
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
 - (StandingsOrderer)
+- MatchResolver:
 
 ## 3. Data Access Interface (/dataAccess)
 Access to persistent data. Consists of services, each of which generally handles a database entity. This layer is just an interface, defined as abtract Ports left to be implemented further out. 
@@ -44,13 +45,14 @@ Define and handle application behavior by reacting to requests from API and Sche
 - startNewSeason
 - createNewUserClub
 - authenticateLogin
+- resolveMatches
 
 (- EventNotifications???)
 
 ## 6. Interactors (/api, /scheduler)
 Receives/generates impulses that make the application proceed and do things.
-- Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something, such as to start a new season or remove an expired WeeklyEvent. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
-- API: receives user requests.
+- Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something, such as to start a new season or launch an/or remove an expired WeeklyEvent. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
+- API: provides REST endpoints 
 
 (- Datasource (nykyinen services/composition lopulta tänne?))
 
