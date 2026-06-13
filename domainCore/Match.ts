@@ -38,24 +38,6 @@ export default class Match {
         this.events = [];
     }
 
-    play() {
-        // await DomainEngine.MatchResolver.resolveMatch(this);
-    }
-
-    // dummies just an end result for now
-    dummyPlay() {
-        const numberOfHomeGoals = getRandomNumberInRange(0, 3);
-        const numberOfAwayGoals = getRandomNumberInRange(0, 3);
-
-        for (let i = 0; i < numberOfHomeGoals; i++) {
-            this.events.push(new MatchEvent('goal', 'home', getRandomNumberInRange(1, 90)));
-        }
-
-        for (let i = 0; i < numberOfAwayGoals; i++) {
-            this.events.push(new MatchEvent('goal', 'away', getRandomNumberInRange(1, 90)));
-        }
-    }
-
     getResult(): MatchResult {
         return {
             id: this.id,

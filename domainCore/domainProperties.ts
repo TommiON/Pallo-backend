@@ -8,6 +8,8 @@ export const LEAGUE_NUMBER_OF_TEAMS = 4;
 export const LEAGUE_SPAN_FACTOR = 2;
 export const LEAGUE_PROMOTED_FROM_TOP = 1;
 
+export const MATCH_DUMMY_MODE = true;
+
 // tätä tarvitaan jos tehdään admin-endpoint API:iin
 export const TIME_USE_SCHEDULER = true;
 export const TIME_SPEEDUP_FACTOR = 3000; // 60 = one real minute is one hour in game time; 1 = real time
