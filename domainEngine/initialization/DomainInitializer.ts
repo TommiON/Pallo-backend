@@ -3,22 +3,8 @@ import { WeeklyEvent, WeeklyEventCallbackFunctions, WeeklyEventType } from "../.
 export type { WeeklyEventCallbackFunctions };
 
 export const initializeWeeklyEvents = (callbacks: WeeklyEventCallbackFunctions): WeeklyEvent[] => {
-    const events: WeeklyEvent[] = generateWeeklyEvents();
-
-    for (const weeklyEventType in callbacks) {
-        const callback = callbacks[weeklyEventType as WeeklyEventType];
-        const event = events.find(e => e.type === weeklyEventType);
-        if (event) {
-            event.finishingCallback = callback;
-        }
-    }
-
-    return events;
-}
-    
-const generateWeeklyEvents = (): WeeklyEvent[] => {
     const events: WeeklyEvent[] = [];
-
+    
     events.push(new WeeklyEvent(
                     'youthAcademyDrawDeadline',
                     {day: 0, hour: 21},
@@ -66,6 +52,15 @@ const generateWeeklyEvents = (): WeeklyEvent[] => {
                     {day: 6, hour: 9},
                     () => {}
                 ));
+
+
+    for (const weeklyEventType in callbacks) {
+        const callback = callbacks[weeklyEventType as WeeklyEventType];
+        const event = events.find(e => e.type === weeklyEventType);
+        if (event) {
+            event.finishingCallback = callback;
+        }
+    }
 
     return events;
 }
