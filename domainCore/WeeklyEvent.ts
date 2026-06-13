@@ -32,13 +32,11 @@ export class WeeklyEvent {
     type: WeeklyEventType;
     deadline: WeeklyDeadline;
     finishingCallback: WeeklyEventCallback;
-    interactionFunction?: WeeklyEventCallback;
     
-    constructor(type: WeeklyEventType, deadline: WeeklyDeadline, callback: WeeklyEventCallback, interaction?: WeeklyEventCallback) {
+    constructor(type: WeeklyEventType, deadline: WeeklyDeadline, callback: WeeklyEventCallback) {
         this.type = type;
         this.deadline = deadline;
         this.finishingCallback = callback;
-        this.interactionFunction = interaction;
     }
 
     hasExpired(time: Time): boolean {
