@@ -4,7 +4,7 @@ import type { LeagueEntityData } from "../entities/LeagueEntity";
 export const fromLeagueEntity = (entity: LeagueEntityData): League => {
     const league = new League(entity.season, entity.divisionLevel, entity.serialNumberOnDivisionLevel, null);
     league.id = entity.id;
-    league.promotesToId = entity.promotesToId;
+    // promotesTo is left null here; callers that load a full graph should use wireLeagueGraph
     league.started = entity.started;
     league.finished = entity.finished;
     league.clubs = entity.clubs;
@@ -17,7 +17,7 @@ export const toLeagueEntityData = (league: League): LeagueEntityData => {
         season: league.season,
         divisionLevel: league.divisionLevel,
         serialNumberOnDivisionLevel: league.serialNumberOnDivisionLevel,
-        promotesToId: league.promotesToId,
+        promotesToId: league.promotesTo?.id,
         started: league.started,
         finished: league.finished
     };

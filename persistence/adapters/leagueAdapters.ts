@@ -5,6 +5,25 @@ import { LeagueStorePort, LeagueTransactionalStorePort, LeagueTransactionPort } 
 import { LeagueEntity, LeagueEntityData } from "../entities/LeagueEntity";
 import { fromLeagueEntity, toLeagueEntityData } from "../mappers/leagueMapper";
 import { leagueRepository } from "../repositories/repositories";
+import League from "../../domainCore/League";
+
+// Wires promotesTo object references for a set of leagues that were loaded together.
+// Reads promotesToId from the raw entities (persistence concern) and resolves it to the
+// corresponding domain League object. Only safe to call when all parents are in the same set.
+const wireLeagueGraph = (entities: LeagueEntityData[], leagues: League[]): void => {
+    const byId = new Map<number, League>();
+    leagues.forEach((league) => {
+        if (league.id !== undefined) {
+            byId.set(league.id, league);
+        }
+    });
+
+    entities.forEach((entity, i) => {
+        if (entity.promotesToId !== undefined) {
+            leagues[i].promotesTo = byId.get(entity.promotesToId) ?? null;
+        }
+    });
+};
 
 const createLeagueStoreFromRepository = (repository: Repository<LeagueEntityData>): LeagueStorePort => ({
     save: async (league) => {
@@ -18,7 +37,9 @@ const createLeagueStoreFromRepository = (repository: Repository<LeagueEntityData
             relations: ["clubs"]
         });
 
-        return entities.map((entity) => fromLeagueEntity(entity));
+        const leagues = entities.map((entity) => fromLeagueEntity(entity));
+        wireLeagueGraph(entities, leagues);
+        return leagues;
     },
 
     findBySeasonAndDivisionalPosition: async (season, divisionLevel, serialNumberOnDivisionLevel) => {

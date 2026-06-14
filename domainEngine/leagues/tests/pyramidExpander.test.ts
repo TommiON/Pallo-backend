@@ -730,13 +730,13 @@ describe('expandPyramid — input validation', () => {
 });
 
 describe('expandPyramid — reliability guarantees', () => {
-    it('supports id-only parent linkage when promotesTo object references are missing', () => {
+    it('supports object parent linkage when the parent reference is already present', () => {
         const root = new League(1, 0, 0, null);
         root.id = 100;
 
         const existingChild = new League(1, 1, 0, null);
         existingChild.id = 200;
-        existingChild.promotesToId = 100;
+        existingChild.promotesTo = root;
 
         const waitingClubs = createWaitingClubs(1);
         const result = expandPyramid([root, existingChild], waitingClubs, 1);

@@ -25,7 +25,6 @@ describe("PromoRelegator", () => {
 
         const child = new League(1, 1, 0, top);
         child.id = 2;
-        child.promotesToId = 1;
         child.clubs = [
             createClub(5, "C1"),
             createClub(6, "C2"),

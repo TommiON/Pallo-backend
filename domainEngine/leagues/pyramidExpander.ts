@@ -101,12 +101,7 @@ const findFirstLeagueWithVacantChildPosition = (leagues: League[], leagueSpanFac
             if (l.promotesTo === league) {
                 return true;
             }
-
-            if (league.id === undefined) {
-                return false;
-            }
-
-            return l.promotesToId === league.id;
+            return false;
         }).length;
     }
 

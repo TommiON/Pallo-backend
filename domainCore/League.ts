@@ -7,7 +7,6 @@ export interface LeagueData {
     season: number;
     divisionLevel: number;
     serialNumberOnDivisionLevel: number;
-    promotesToId?: number;
     started: boolean;
     finished: boolean;
 }
@@ -19,7 +18,6 @@ export default class League implements LeagueData {
     divisionLevel: number;
     serialNumberOnDivisionLevel: number;
 
-    promotesToId?: number;
     promotesTo: League | null;  // NOT in ILeagueData - internal only
 
     started: boolean;

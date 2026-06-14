@@ -44,23 +44,26 @@ export const createLeagueService = ({ leagueStore, leagueTransaction }: LeagueSe
             const oldToSaved = new Map<League, League>();
 
             for (const league of sortedNewLeagues) {
-                const previousPromotesToId = league.promotesToId;
+                const previousPromotesTo = league.promotesTo;
 
                 if (league.promotesTo) {
                     const savedParent = oldToSaved.get(league.promotesTo);
                     if (!savedParent || savedParent.id === undefined) {
                         throw new Error("Parent league must be saved before child league");
                     }
-                    league.promotesToId = savedParent.id;
                 } else {
-                    league.promotesToId = undefined;
+                    league.promotesTo = null;
                 }
 
                 const unsavedId = league.id;
+                if (league.promotesTo) {
+                    const savedParent = oldToSaved.get(league.promotesTo);
+                    league.promotesTo = savedParent ?? null;
+                }
                 league.id = undefined;
                 const savedLeague = await transactionalStore.save(league);
                 league.id = unsavedId;
-                league.promotesToId = previousPromotesToId;
+                league.promotesTo = previousPromotesTo;
 
                 const clubIds = (league.clubs ?? [])
                     .map((club) => club.id)
