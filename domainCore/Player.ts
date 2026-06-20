@@ -8,7 +8,6 @@ export interface PlayerData {
     name: string;
     age: number;
     footedness: Footedness;
-    clubId?: number;
 }
 
 export default class Player implements PlayerData {
@@ -16,7 +15,6 @@ export default class Player implements PlayerData {
     name: string;
     age: number;
     footedness: Footedness;
-    clubId?: number;
     club?: Club;
 
     /*

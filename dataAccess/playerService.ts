@@ -18,8 +18,8 @@ export const createPlayerService = ({ playerStore }: PlayerServicePorts) => ({
         const players = await playerStore.findByIds(ids);
 
         return {
-            ownPlayers: players.filter(p => p.clubId === authenticatedUser.clubId),
-            othersPlayers: players.filter(p => p.clubId !== authenticatedUser.clubId)
+            ownPlayers: players.filter(p => p.club?.id === authenticatedUser.clubId),
+            othersPlayers: players.filter(p => p.club?.id !== authenticatedUser.clubId)
         };
     }
 });

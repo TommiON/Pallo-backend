@@ -22,7 +22,7 @@ playerRouter.get(`${baseUrl}/`,
             name: p.name,
             age: p.age,
             footedness: p.footedness,
-            clubId: p.clubId,
+            clubId: p.club?.id,
             restricted: false 
         }));
         const othersPlayers = result.othersPlayers.map(p => ({ 
@@ -30,7 +30,7 @@ playerRouter.get(`${baseUrl}/`,
             name: p.name,
             age: p.age,
             footedness: p.footedness,
-            clubId: p.clubId,
+            clubId: p.club?.id,
             restricted: true 
         }));
     
