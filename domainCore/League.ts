@@ -13,17 +13,14 @@ export interface LeagueData {
 
 export default class League implements LeagueData {
     id?: number;
-
     season: number;
     divisionLevel: number;
     serialNumberOnDivisionLevel: number;
-
-    promotesTo: League | null;  // NOT in ILeagueData - internal only
-
+    promotesTo: League | null;
     started: boolean;
     finished: boolean;
 
-    clubs?: Club[];  // NOT in ILeagueData - internal only
+    clubs?: Club[];
     // matches?: Match[];
     // standings?: Standing[];
 
