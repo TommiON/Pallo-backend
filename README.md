@@ -64,6 +64,7 @@ Receives/generates impulses that make the application proceed and do things.
 
 
 case study, mieti miten menee jos halutaan...
+- laajentuva liifgapyramidi täytetään uusien klubien createTimen perusteella järjestyksessä (nyt taitaa mennä epädeterministisesti?)
 - muuttaa sitä laukaiseeko riittävä määrä klubeja ensimmäisen kauden automaattisesti
 - kauden alussa määriteltävä ManCity-vähennys
 - tehdä erilliset mies- ja naisliigat
