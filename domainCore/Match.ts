@@ -14,10 +14,7 @@ export type MatchResult = {
 
 export default class Match {
     id?: number;
-    leagueId?: number;
     league?: League;
-    homeClubId?: number;
-    awayClubId?: number;
     homeClub: Club;
     awayClub: Club;
     week: number;
@@ -28,10 +25,7 @@ export default class Match {
     constructor(homeClub: Club, awayClub: Club, week: number, league?: League) {
         this.homeClub = homeClub;
         this.awayClub = awayClub;
-        this.homeClubId = homeClub.id;
-        this.awayClubId = awayClub.id;
         this.league = league;
-        this.leagueId = league?.id;
         this.week = week;
         this.started = false;
         this.finished = false;

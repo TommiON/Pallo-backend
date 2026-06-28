@@ -161,10 +161,5 @@ If you are writing code in `domainCore` or `domainEngine` and you reach for a `*
 | `Match` → home/away `Club` | `match.homeClub`, `match.awayClub` (objects) | Id-based joins acceptable at repo boundary | FK `home_club_id`, `away_club_id`; mapper converts | Ids in response are fine |
 | `MatchEvent` → `Match` | Object relation if domain behavior requires it; otherwise no domain need | Id-based writes acceptable at store boundary | FK `match_id`; mapper converts | `matchId` in DTO is fine |
 
-### Current violations (to fix incrementally)
-- `Player.clubId` in [domainCore/Player.ts](../domainCore/Player.ts) — remove, keep only `club`.
-- `League.promotesToId` in [domainCore/League.ts](../domainCore/League.ts) — remove, keep only `promotesTo`.
-- `Match.leagueId`, `Match.homeClubId`, `Match.awayClubId` in [domainCore/Match.ts](../domainCore/Match.ts) — remove, derive from objects in mapper.
-- `MatchEvent.matchId` in [domainCore/MatchEvent.ts](../domainCore/MatchEvent.ts) — remove if no domain behavior uses it.
-- Id fallback branches in [domainEngine/leagues/promotorRelegator.ts](../domainEngine/leagues/promotorRelegator.ts) and [domainEngine/leagues/pyramidExpander.ts](../domainEngine/leagues/pyramidExpander.ts) — remove after domain fields are cleaned up.
-- `player.clubId` comparison in [dataAccess/playerService.ts](../dataAccess/playerService.ts) — replace with `player.club?.id` or pass a domain-level predicate once `club` is always populated.
+### Optional hardening note
+- `expandPyramid` should continue to consume `Club` domain objects, not raw ids. If the waiting-list source is id-based, convert ids to lightweight `Club` references at the outer boundary before entering `domainEngine/`.

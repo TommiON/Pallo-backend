@@ -17,15 +17,19 @@ export const fromMatchEntity = (entity: MatchEntityData): Match => {
 };
 
 export const toMatchEntityData = (match: Match): MatchEntityData => {
-    const homeClubId = match.homeClubId ?? match.homeClub?.id;
-    const awayClubId = match.awayClubId ?? match.awayClub?.id;
-    const leagueId = match.leagueId ?? match.league?.id;
+    const homeClubId = match.homeClub?.id;
+    const awayClubId = match.awayClub?.id;
+    const leagueId = match.league?.id;
+
+    if (homeClubId === undefined) throw new Error("Match.homeClub.id is required for persistence");
+    if (awayClubId === undefined) throw new Error("Match.awayClub.id is required for persistence");
+    if (leagueId === undefined) throw new Error("Match.league.id is required for persistence");
 
     return {
         id: match.id,
-        leagueId: leagueId!,
-        homeClubId: homeClubId!,
-        awayClubId: awayClubId!,
+        leagueId,
+        homeClubId,
+        awayClubId,
         week: match.week,
         started: match.started,
         finished: match.finished

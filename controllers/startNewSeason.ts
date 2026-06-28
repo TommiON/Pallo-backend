@@ -1,3 +1,4 @@
+import Club from "../domainCore/Club";
 import League from "../domainCore/League";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../domainCore/domainProperties";
 import { promoteAndRelegate } from "../domainEngine/leagues/promotorRelegator";
@@ -29,7 +30,7 @@ export const startNewSeason = async (season: number) => {
         const clubsOnWaitingList = await findNonAttachedUserClubs(getReferenceSeasonForWaitingList(season));
     
         if (clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS) {
-            leagues = expandPyramid(leagues, clubsOnWaitingList, season);
+            leagues = expandPyramid(leagues, clubsOnWaitingList.map(createClubReference), season);
         }
     
         // Generate fixtures.
@@ -63,4 +64,10 @@ const checkEnoughClubsForSeasonStart = async (season: number): Promise<void> => 
 
 const getReferenceSeasonForWaitingList = (season: number): number => {
     return season === 0 ? 0 : season - 1;
+};
+
+const createClubReference = (clubId: number): Club => {
+    const club = new Club("");
+    club.id = clubId;
+    return club;
 };

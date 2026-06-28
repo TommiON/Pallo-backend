@@ -1,3 +1,4 @@
+import Club from "../../domainCore/Club";
 import League from "../../domainCore/League";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainCore/domainProperties";
 import { startNewSeason } from "../startNewSeason";
@@ -6,6 +7,14 @@ import * as clubService from "../../dataAccess/clubService";
 
 const createLeague = (season: number, divisionLevel: number, serialNumber: number, promotesTo: League | null = null): League => {
     return new League(season, divisionLevel, serialNumber, promotesTo);
+};
+
+const createClubReferences = (clubIds: number[]): Club[] => {
+    return clubIds.map(clubId => {
+        const club = new Club("");
+        club.id = clubId;
+        return club;
+    });
 };
 
 describe("startNewSeason", () => {
@@ -126,7 +135,7 @@ describe("startNewSeason", () => {
     it("preserves previous-season club memberships through the full season transition chain", async () => {
         const previousSeasonLeague = createLeague(4, 0, 0, null);
         previousSeasonLeague.id = 101;
-        previousSeasonLeague.clubs = [{ id: 11 }, { id: 12 }, { id: 13 }, { id: 14 }] as any;
+        previousSeasonLeague.clubs = createClubReferences([11, 12, 13, 14]);
 
         findLeaguesBySeasonSpy.mockResolvedValue([previousSeasonLeague]);
         findNonAttachedUserClubsSpy.mockResolvedValue([]);
@@ -138,10 +147,10 @@ describe("startNewSeason", () => {
 
         expect(previousSeasonLeaguesArg).toHaveLength(1);
         expect(previousSeasonLeaguesArg[0].clubs).toHaveLength(4);
-        expect(previousSeasonLeaguesArg[0].clubs!.map((club: any) => club.id)).toEqual([11, 12, 13, 14]);
+        expect(previousSeasonLeaguesArg[0].clubs!.map((club: Club) => club.id)).toEqual([11, 12, 13, 14]);
 
         expect(newSeasonLeaguesArg).toHaveLength(1);
         expect(newSeasonLeaguesArg[0].clubs).toHaveLength(4);
-        expect(newSeasonLeaguesArg[0].clubs!.map((club: any) => club.id)).toEqual([11, 12, 13, 14]);
+        expect(newSeasonLeaguesArg[0].clubs!.map((club: Club) => club.id)).toEqual([11, 12, 13, 14]);
     });
 });

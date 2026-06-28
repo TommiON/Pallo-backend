@@ -1,19 +1,30 @@
+import Club from "../../../domainCore/Club";
 import League from "../../../domainCore/League";
 import { expandPyramid } from "../pyramidExpander";
 import { LEAGUE_NUMBER_OF_TEAMS } from "../../../domainCore/domainProperties";
 
-const createWaitingClubs = (numberOfFullLeagues: number, surplus: number = 0): number[] => {
+const createClubReference = (clubId: number): Club => {
+    const club = new Club("");
+    club.id = clubId;
+    return club;
+}
+
+const getClubIds = (clubs: Club[]): number[] => {
+    return clubs.map(club => club.id!);
+}
+
+const createWaitingClubs = (numberOfFullLeagues: number, surplus: number = 0): Club[] => {
     const total = (numberOfFullLeagues * LEAGUE_NUMBER_OF_TEAMS) + surplus;
-    return Array.from({ length: total }, (_, i) => i + 1);
+    return Array.from({ length: total }, (_, i) => createClubReference(i + 1));
 }
 
 const surplus = (desired: number): number => {
     return Math.min(desired, LEAGUE_NUMBER_OF_TEAMS - 1);
 }
 
-const assertSurplusClubsAreUnplaced = (waitingClubs: number[], fullLeaguesUsed: number, result: any[]): void => {
+const assertSurplusClubsAreUnplaced = (waitingClubs: Club[], fullLeaguesUsed: number, result: any[]): void => {
     const placedClubIds = result.flatMap(l => (l.clubs ?? []).map((c: any) => c.id));
-    const surplusClubIds = waitingClubs.slice(fullLeaguesUsed * LEAGUE_NUMBER_OF_TEAMS);
+    const surplusClubIds = getClubIds(waitingClubs.slice(fullLeaguesUsed * LEAGUE_NUMBER_OF_TEAMS));
     surplusClubIds.forEach(id => expect(placedClubIds).not.toContain(id));
 }
 
@@ -40,7 +51,7 @@ const getLeaguesOnLevel = (leagues: League[], divisionLevel: number): League[] =
 
 const expandPyramidWithSpan = (
     leagues: League[],
-    clubsOnWaitingList: number[],
+    clubsOnWaitingList: Club[],
     season: number,
     leagueSpanFactor: number,
 ): League[] => {
@@ -786,18 +797,18 @@ describe('expandPyramid — reliability guarantees', () => {
     });
 
     it('keeps waiting-list club order when slicing into league chunks', () => {
-        const waitingClubs = [42, 5, 9, 100, 8, 7, 6, 11, 13, 15, 1, 3, 999];
+        const waitingClubs = [42, 5, 9, 100, 8, 7, 6, 11, 13, 15, 1, 3, 999].map(createClubReference);
         const result = expandPyramid([], waitingClubs, 1);
         const placedClubIds = getPlacedClubIds(result);
         const fullLeagues = Math.floor(waitingClubs.length / LEAGUE_NUMBER_OF_TEAMS);
         const placedClubCount = LEAGUE_NUMBER_OF_TEAMS * fullLeagues;
 
-        expect(placedClubIds).toEqual(waitingClubs.slice(0, placedClubCount));
+        expect(placedClubIds).toEqual(getClubIds(waitingClubs.slice(0, placedClubCount)));
         expect(result).toHaveLength(fullLeagues);
         result.forEach((league, index) => {
             const start = index * LEAGUE_NUMBER_OF_TEAMS;
             const end = start + LEAGUE_NUMBER_OF_TEAMS;
-            expect(league.clubs!.map((club: any) => club.id)).toEqual(waitingClubs.slice(start, end));
+            expect(league.clubs!.map((club: any) => club.id)).toEqual(getClubIds(waitingClubs.slice(start, end)));
         });
     });
 });
