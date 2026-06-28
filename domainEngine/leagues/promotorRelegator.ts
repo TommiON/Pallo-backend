@@ -82,7 +82,6 @@ const cloneLeagueMap = (leagues: League[]): Map<League, League> => {
         );
 
         clonedLeague.id = oldLeague.id;
-        clonedLeague.promotesToId = oldLeague.promotesToId;
         clonedLeague.started = oldLeague.started;
         clonedLeague.finished = oldLeague.finished;
         clonedLeague.clubs = getLeagueClubs(oldLeague).map(cloneClub);
@@ -94,14 +93,6 @@ const cloneLeagueMap = (leagues: League[]): Map<League, League> => {
 };
 
 const wirePromotesTo = (leagueMap: Map<League, League>, oldLeagues: League[]): void => {
-    const oldById = new Map<number, League>();
-
-    for (const oldLeague of oldLeagues) {
-        if (oldLeague.id !== undefined) {
-            oldById.set(oldLeague.id, oldLeague);
-        }
-    }
-
     for (const oldLeague of oldLeagues) {
         const clonedLeague = leagueMap.get(oldLeague);
         if (!clonedLeague) {
@@ -110,16 +101,9 @@ const wirePromotesTo = (leagueMap: Map<League, League>, oldLeagues: League[]): v
 
         if (oldLeague.promotesTo) {
             clonedLeague.promotesTo = leagueMap.get(oldLeague.promotesTo) ?? null;
-            continue;
+        } else {
+            clonedLeague.promotesTo = null;
         }
-
-        if (oldLeague.promotesToId !== undefined) {
-            const oldPromotesToLeague = oldById.get(oldLeague.promotesToId);
-            clonedLeague.promotesTo = oldPromotesToLeague ? leagueMap.get(oldPromotesToLeague) ?? null : null;
-            continue;
-        }
-
-        clonedLeague.promotesTo = null;
     }
 };
 

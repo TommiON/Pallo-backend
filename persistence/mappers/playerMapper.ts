@@ -1,5 +1,6 @@
 import Player from "../../domainCore/Player";
 import { Footedness } from "../../domainCore/Player";
+import Club from "../../domainCore/Club";
 import type { PlayerEntityData } from "../entities/PlayerEntity";
 
 export const fromPlayerEntity = (entity: PlayerEntityData): Player => {
@@ -8,7 +9,9 @@ export const fromPlayerEntity = (entity: PlayerEntityData): Player => {
     player.name = entity.name;
     player.age = entity.age;
     player.footedness = entity.footedness as Footedness;
-    player.clubId = entity.clubId;
+    if (entity.clubId !== undefined) {
+        player.club = { id: entity.clubId } as Club;
+    }
     return player;
 };
 
@@ -18,6 +21,6 @@ export const toPlayerEntityData = (player: Player): PlayerEntityData => {
         name: player.name,
         age: player.age,
         footedness: player.footedness,
-        clubId: player.clubId
+        clubId: player.club?.id
     };
 };

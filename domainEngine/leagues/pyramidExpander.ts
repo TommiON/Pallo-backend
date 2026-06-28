@@ -1,10 +1,11 @@
+import Club from "../../domainCore/Club";
 import League from "../../domainCore/League";
 import { LEAGUE_NUMBER_OF_TEAMS, LEAGUE_SPAN_FACTOR } from "../../domainCore/domainProperties";
 
 // Luodaan sen verran liigoja kuin saadaan täyteen, ylijäävät joutuvat odottamaan seuraavaa kautta. Muutetaan sitten kun saadaan zombiet toteutettua.
 export const expandPyramid = (
     leagues: League[],
-    clubsOnWaitingList: number[],
+    clubsOnWaitingList: Club[],
     season: number,
     leagueSpanFactor: number = LEAGUE_SPAN_FACTOR,
 ): League[] => {
@@ -14,12 +15,12 @@ export const expandPyramid = (
 
     
     const resultLeagues = [...leagues];
-    const clubChunksForNewLeagues: number[][] = sliceClubsForLeaguePlacement(clubsOnWaitingList);
+    const clubChunksForNewLeagues: Club[][] = sliceClubsForLeaguePlacement(clubsOnWaitingList);
 
     clubChunksForNewLeagues.forEach(clubChunk => {
         const leaguePosition = nextVacantPositionInPyramid(resultLeagues, leagueSpanFactor);
         const newLeague = new League(season, leaguePosition.divisionLevel, leaguePosition.serialNumberOnDivisionLevel, leaguePosition.parentLeague);
-        newLeague.clubs = clubChunk.map(clubId => ({ id: clubId } as any));
+        newLeague.clubs = clubChunk;
 
         resultLeagues.push(newLeague);
     });
@@ -28,11 +29,11 @@ export const expandPyramid = (
     return resultLeagues;
 }
 
-const sliceClubsForLeaguePlacement = (clubsOnWaitingList: number[]): number[][] => {
+const sliceClubsForLeaguePlacement = (clubsOnWaitingList: Club[]): Club[][] => {
     const numberOfFullLeagues = Math.floor(clubsOnWaitingList.length / LEAGUE_NUMBER_OF_TEAMS);
     const clubsForLeaguePlacement = clubsOnWaitingList.slice(0, numberOfFullLeagues * LEAGUE_NUMBER_OF_TEAMS);
 
-    const chunks: number[][] = [];
+    const chunks: Club[][] = [];
 
     for (let i = 0; i < clubsForLeaguePlacement.length; i += LEAGUE_NUMBER_OF_TEAMS) {
         chunks.push(clubsForLeaguePlacement.slice(i, i + LEAGUE_NUMBER_OF_TEAMS));
@@ -101,12 +102,7 @@ const findFirstLeagueWithVacantChildPosition = (leagues: League[], leagueSpanFac
             if (l.promotesTo === league) {
                 return true;
             }
-
-            if (league.id === undefined) {
-                return false;
-            }
-
-            return l.promotesToId === league.id;
+            return false;
         }).length;
     }
 

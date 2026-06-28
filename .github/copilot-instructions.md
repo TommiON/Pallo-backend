@@ -136,3 +136,30 @@ Use this section when completing the ports/adapters architecture so dependency d
 ## When adding features
 - Add/extend domain type contracts first (`*Data.ts`), then domain model, then persistence schema, then service, then API request/response + validator + route.
 - Prefer showing domain intent in services and keep API mappers explicit (example: `restricted` player projection in [api/player/playerRoutes.ts](../api/player/playerRoutes.ts)).
+
+## Domain object vs persistence id rules
+
+Domain objects and persistence entities represent the same data differently. The border is intentional and must not blur.
+
+### The hard rule
+- In `domainCore/` and `domainEngine/`: **use object references for relationships only**. Relation id fields (e.g., `clubId`, `leagueId`, `promotesToId`) must not appear.
+- In `persistence/entities/` and `persistence/adapters/`: **use FK ids**. This is the canonical home for `club_id`, `league_id`, etc.
+- In `persistence/mappers/`: **translate between the two worlds**. This is the primary hard border.
+- In `dataAccess/` (ports and services): a secondary contract border. Ids are acceptable in repository-oriented operations but must not shape domain objects.
+- In `api/` and `controllers/`: ids in transport DTOs are fine. These are not domain internals.
+
+### Mental lint rule
+If you are writing code in `domainCore` or `domainEngine` and you reach for a `*Id` field, stop — pass or receive the object instead. If you are in `persistence`, the reverse applies.
+
+### Relation ownership matrix
+
+| Relationship | domainCore + domainEngine | dataAccess ports/services | persistence (entities/adapters/mappers) | api + controllers |
+|---|---|---|---|---|
+| `Player` → `Club` | `player.club` (object) | May filter/query by id | FK `club_id`; mapper converts | `clubId` in response DTO is fine |
+| `League` → parent `League` (`promotesTo`) | `league.promotesTo` (object) | Orchestration may resolve parent ids during save transaction | FK `promotes_to_id`; mapper converts | Parent id may be exposed if useful |
+| `Match` → `League` | `match.league` (object) | Repository writes may pass `leagueId` | FK `league_id`; mapper converts | `leagueId` in DTO is fine |
+| `Match` → home/away `Club` | `match.homeClub`, `match.awayClub` (objects) | Id-based joins acceptable at repo boundary | FK `home_club_id`, `away_club_id`; mapper converts | Ids in response are fine |
+| `MatchEvent` → `Match` | Object relation if domain behavior requires it; otherwise no domain need | Id-based writes acceptable at store boundary | FK `match_id`; mapper converts | `matchId` in DTO is fine |
+
+### Optional hardening note
+- `expandPyramid` should continue to consume `Club` domain objects, not raw ids. If the waiting-list source is id-based, convert ids to lightweight `Club` references at the outer boundary before entering `domainEngine/`.

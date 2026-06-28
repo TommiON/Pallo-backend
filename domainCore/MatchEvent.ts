@@ -1,3 +1,5 @@
+import Match from "./Match";
+
 // TODO: this is very preliminary, just to enable dummy-playing matches
 
 export type MatchEventType = 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'substitution';
@@ -5,7 +7,7 @@ export type MatchEventInitiator = 'home' | 'away';
 
 export interface MatchEventData {
     id?: number;
-    matchId?: number;
+    match?: Match;
     type: MatchEventType;
     initiator?: MatchEventInitiator;
     minute: number;
@@ -13,7 +15,7 @@ export interface MatchEventData {
 
 export default class MatchEvent implements MatchEventData {
     id?: number;
-    matchId?: number;
+    match?: Match;
     type: MatchEventType;
     initiator?: MatchEventInitiator;
     minute: number;

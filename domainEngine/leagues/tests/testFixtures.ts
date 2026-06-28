@@ -93,7 +93,7 @@ export const createLeaguePyramidFixture = ({
                 const serialNumberOnDivisionLevel = currentLevelLeagues.length + 1;
                 const league = new League(1, divisionLevel, serialNumberOnDivisionLevel, parentLeague);
                 league.id = nextLeagueId++;
-                league.promotesToId = parentLeague.id;
+                league.promotesTo = parentLeague;
                 league.clubs = makeSequentialClubs(
                     nextClubId,
                     clubsPerLeague,
