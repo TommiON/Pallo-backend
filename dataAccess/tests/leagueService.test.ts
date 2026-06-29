@@ -1,7 +1,11 @@
 import League from "../../domainCore/League";
 import appDataSource from "../../config/datasource";
+import {
+    defaultLeagueStorePort,
+    defaultLeagueTransactionPort
+} from "../../persistence/adapters/leagueAdapters";
 import { leagueRepository } from "../../persistence/repositories/repositories";
-import { findLeaguesBySeason } from "../leagueService";
+import { configureLeagueService, findLeaguesBySeason } from "../leagueService";
 
 jest.mock("../../config/datasource", () => ({
     __esModule: true,
@@ -18,6 +22,13 @@ jest.mock("../../persistence/repositories/repositories", () => ({
 }));
 
 describe("leagueService.findLeaguesBySeason", () => {
+    beforeEach(() => {
+        configureLeagueService({
+            leagueStore: defaultLeagueStorePort,
+            leagueTransaction: defaultLeagueTransactionPort
+        });
+    });
+
     it("loads clubs relation for leagues in the requested season", async () => {
         (leagueRepository.find as jest.Mock).mockResolvedValue([
             {

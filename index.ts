@@ -10,6 +10,7 @@ import loginRouter from "./api/login/loginRoutes";
 import timeRouter from "./api/time/timeRoutes";
 import { configureAuthService } from "./dataAccess/authService";
 import { configureClubService } from "./dataAccess/clubService";
+import { configureLeagueService } from "./dataAccess/leagueService";
 import { configurePlayerService } from "./dataAccess/playerService";
 import { configureTimeService } from "./dataAccess/timeService";
 import { defaultAuthStorePort } from "./persistence/adapters/authAdapters";
@@ -18,6 +19,10 @@ import {
     defaultClubStorePort,
     defaultClubTransactionPort
 } from "./persistence/adapters/clubAdapters";
+import {
+    defaultLeagueStorePort,
+    defaultLeagueTransactionPort
+} from "./persistence/adapters/leagueAdapters";
 import { defaultPlayerStorePort } from "./persistence/adapters/playerAdapters";
 import {
     defaultTimeEventsPort,
@@ -47,6 +52,10 @@ const start = async () => {
             clubStore: defaultClubStorePort,
             clubTransaction: defaultClubTransactionPort,
             clubEvents: defaultClubEventsPort
+        });
+        configureLeagueService({
+            leagueStore: defaultLeagueStorePort,
+            leagueTransaction: defaultLeagueTransactionPort
         });
         configurePlayerService({ playerStore: defaultPlayerStorePort });
         configureTimeService({

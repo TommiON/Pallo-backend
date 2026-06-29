@@ -1,5 +1,4 @@
 import League from "../domainCore/League";
-import { createDefaultLeagueServicePorts } from "./composition/leagueServiceComposition";
 import { LeagueStorePort, LeagueTransactionPort } from "./ports/leaguePorts";
 
 export type LeagueServicePorts = {
@@ -105,7 +104,21 @@ export const createLeagueService = ({ leagueStore, leagueTransaction }: LeagueSe
     }
 });
 
-const leagueService = createLeagueService(createDefaultLeagueServicePorts());
+type LeagueService = ReturnType<typeof createLeagueService>;
+
+let leagueService: LeagueService | null = null;
+
+export const configureLeagueService = (ports: LeagueServicePorts): void => {
+    leagueService = createLeagueService(ports);
+};
+
+const getConfiguredLeagueService = (): LeagueService => {
+    if (!leagueService) {
+        throw new Error("League service not configured");
+    }
+
+    return leagueService;
+};
 
 /**
  * Creates a new league for the given season
@@ -121,7 +134,7 @@ export const createLeague = async (
         previousSeasonPredecessor: League | null,
         serialNumberOnDivisionLevel: number | null
 ): Promise<League> => {
-    return leagueService.createLeague(
+    return getConfiguredLeagueService().createLeague(
         season,
         spanningFrom,
         previousSeasonPredecessor,
@@ -139,12 +152,12 @@ export const persistSeasonTransition = async (
         previousSeasonLeagues: League[],
         newSeasonLeagues: League[]
 ): Promise<League[]> => {
-    return leagueService.persistSeasonTransition(previousSeasonLeagues, newSeasonLeagues);
+    return getConfiguredLeagueService().persistSeasonTransition(previousSeasonLeagues, newSeasonLeagues);
 }
 
 /** Finds all leagues for a given season */
 export const findLeaguesBySeason = async (season: number): Promise<League[]> => {
-    return leagueService.findLeaguesBySeason(season);
+    return getConfiguredLeagueService().findLeaguesBySeason(season);
 }
 
 /** Finds a league by season number and divisional position (division level and serial number on that division level) */
@@ -153,7 +166,7 @@ export const findLeagueBySeasonAndDivionalPosition = async (
         divisionLevel: number,
         serialNumberOnDivisionLevel: number
 ): Promise<League|null> => {
-    return leagueService.findLeagueBySeasonAndDivionalPosition(
+    return getConfiguredLeagueService().findLeagueBySeasonAndDivionalPosition(
         season,
         divisionLevel,
         serialNumberOnDivisionLevel
@@ -162,5 +175,5 @@ export const findLeagueBySeasonAndDivionalPosition = async (
 
 /** Returns the children Leagues for a given league (i.e., Leagues that promote to the given League) */
 export const findChildrenForLeague = async (leagueId: number): Promise<League[]> => {
-    return leagueService.findChildrenForLeague(leagueId);
+    return getConfiguredLeagueService().findChildrenForLeague(leagueId);
 }
