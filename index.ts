@@ -8,6 +8,8 @@ import playerRouter from "./api/player/playerRoutes";
 import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
 import timeRouter from "./api/time/timeRoutes";
+import { configureAuthService } from "./dataAccess/authService";
+import { defaultAuthStorePort } from "./persistence/adapters/authAdapters";
 
 import { initializeScheduler, startScheduler } from "./scheduler/scheduler";
 
@@ -25,6 +27,7 @@ app.use(timeRouter);
 const start = async () => {
     try {
         await appDataSource.initialize();
+        configureAuthService({ authStore: defaultAuthStorePort });
         await initializeScheduler();
         startScheduler();
         app.listen(environment.port);
