@@ -26,7 +26,7 @@ Algorithms and orchestrating functions that typically involve multiple Domain Ob
 - MatchResolver:
 
 ## 3. Data Access Interface (/dataAccess)
-Access to persistent data. Consists of services, each of which generally handles a database entity. This layer is just an interface, defined as abtract Ports left to be implemented further out. 
+Access to persistent data, consisting of Services, each of which generally handles persistence of a certain type of Domain Object (corresponds to database entities further out). This layer is an interface, defined as abtract Ports. Each Service exposes a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use this for data access (without knowing about the concerete implementation).
 - TimeService
 - LeagueService
 - PlayerService
@@ -35,10 +35,10 @@ Access to persistent data. Consists of services, each of which generally handles
 
 ## 4. Persistence Implementation (/persistence)
 Concrete implementation of Data Access Interface. Uses TypeORM framework.
-- Adapters implement the Ports of level 3.
 - Entities define database tables.
+- Adapters implement the Ports of level 3.
 - Repositories for accessing database.
-- Mappers to transform entity data <-> Domain Objects
+- Mappers transform entity data <-> Domain Objects
 
 ## 5. Application Controllers (/controllers)
 Define and handle application behavior by reacting to requests from API and Scheduler. Use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized as verb-starting functions that describe what is happening, such as:

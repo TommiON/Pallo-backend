@@ -27,9 +27,12 @@ app.use(timeRouter);
 const start = async () => {
     try {
         await appDataSource.initialize();
+
         configureAuthService({ authStore: defaultAuthStorePort });
+
         await initializeScheduler();
         startScheduler();
+        
         app.listen(environment.port);
         
         console.log(`Sovellus käynnissä, kuuntelee porttia ${environment.port}.`);
