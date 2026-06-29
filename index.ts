@@ -9,9 +9,15 @@ import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
 import timeRouter from "./api/time/timeRoutes";
 import { configureAuthService } from "./dataAccess/authService";
+import { configureClubService } from "./dataAccess/clubService";
 import { configurePlayerService } from "./dataAccess/playerService";
 import { configureTimeService } from "./dataAccess/timeService";
 import { defaultAuthStorePort } from "./persistence/adapters/authAdapters";
+import {
+    defaultClubEventsPort,
+    defaultClubStorePort,
+    defaultClubTransactionPort
+} from "./persistence/adapters/clubAdapters";
 import { defaultPlayerStorePort } from "./persistence/adapters/playerAdapters";
 import {
     defaultTimeEventsPort,
@@ -37,6 +43,11 @@ const start = async () => {
         await appDataSource.initialize();
 
         configureAuthService({ authStore: defaultAuthStorePort });
+        configureClubService({
+            clubStore: defaultClubStorePort,
+            clubTransaction: defaultClubTransactionPort,
+            clubEvents: defaultClubEventsPort
+        });
         configurePlayerService({ playerStore: defaultPlayerStorePort });
         configureTimeService({
             timeStore: defaultTimeStorePort,

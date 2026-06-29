@@ -2,9 +2,14 @@ import Club from "../../domainCore/Club";
 import Player from "../../domainCore/Player";
 import { ClubEntity } from "../../persistence/entities/ClubEntity";
 import { PlayerEntity } from "../../persistence/entities/PlayerEntity";
+import {
+    defaultClubEventsPort,
+    defaultClubStorePort,
+    defaultClubTransactionPort
+} from "../../persistence/adapters/clubAdapters";
 import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../../domainCore/domainProperties";
 import appDataSource from "../../config/datasource";
-import { persistNewClub } from "../clubService";
+import { configureClubService, persistNewClub } from "../clubService";
 import { eventNotifications } from "../eventNotifications";
 
 jest.mock("../../config/datasource", () => ({
@@ -38,6 +43,11 @@ describe("clubService.persistNewClub", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        configureClubService({
+            clubStore: defaultClubStorePort,
+            clubTransaction: defaultClubTransactionPort,
+            clubEvents: defaultClubEventsPort
+        });
     });
 
     const createNewClubInput = () => {
