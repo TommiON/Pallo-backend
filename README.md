@@ -26,7 +26,7 @@ Algorithms and orchestrating functions that typically involve multiple Domain Ob
 - MatchResolver:
 
 ## 3. Data Access Interface (/dataAccess)
-Access to persistent data, consisting of Services, each of which generally handles persistence of a certain type of Domain Object (corresponds to database entities further out). This layer is an interface, defined as abtract Ports. Each Service exposes a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use this for data access (without knowing about the concerete implementation).
+Access to persistent data, consisting of Services, each of which generally handles persistence of a certain type of Domain Object (corresponds to database entities further out). This layer is an interface, defined as abtract Ports. Each Service exposes a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access (without knowing about the concerete implementation).
 - TimeService
 - LeagueService
 - PlayerService

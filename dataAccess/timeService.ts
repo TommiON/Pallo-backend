@@ -1,26 +1,25 @@
 import Time from "../domainCore/Time";
 import { TimeEventsPort, TimeStorePort, TimeTransactionPort } from "./ports/timePorts";
-import { createDefaultTimeServicePorts } from "./composition/timeServiceComposition";
 
 /**
  * Gets the current time from the database.
  */
 export const getCurrentTime = async (): Promise<Time|null> => {
-    return timeService.getCurrentTime();
+    return getConfiguredTimeService().getCurrentTime();
 }
 
 /**
  * Initializes the starting point of time in the database, if not initialized already.
  */
 export const initializeTime = async (): Promise<Time> => {
-    return timeService.initializeTime();
+    return getConfiguredTimeService().initializeTime();
 }
 
 /**
  * Updates time in the database
  */
 export const updateTime = async (updatedTime: Time): Promise<Time> => {
-    return timeService.updateTime(updatedTime);
+    return getConfiguredTimeService().updateTime(updatedTime);
 }
 
 export type TimeServicePorts = {
@@ -64,4 +63,18 @@ export const createTimeService = ({ timeStore, timeTransaction, timeEvents }: Ti
     }
 });
 
-const timeService = createTimeService(createDefaultTimeServicePorts());
+type TimeService = ReturnType<typeof createTimeService>;
+
+let timeService: TimeService | null = null;
+
+export const configureTimeService = (ports: TimeServicePorts): void => {
+    timeService = createTimeService(ports);
+};
+
+const getConfiguredTimeService = (): TimeService => {
+    if (!timeService) {
+        throw new Error("Time service not configured");
+    }
+
+    return timeService;
+};

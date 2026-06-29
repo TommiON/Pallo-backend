@@ -1,7 +1,6 @@
 import Player from "../domainCore/Player";
 // tässä on nyt riippuvuussuuntien konflikti!
 import { AuthenticatedUser } from "../controllers/authenticateLogin";
-import { createDefaultPlayerServicePorts } from "./composition/playerServiceComposition";
 import { PlayerStorePort } from "./ports/playerPorts";
 
 export interface PlayerResult {
@@ -24,8 +23,22 @@ export const createPlayerService = ({ playerStore }: PlayerServicePorts) => ({
     }
 });
 
-const playerService = createPlayerService(createDefaultPlayerServicePorts());
+type PlayerService = ReturnType<typeof createPlayerService>;
+
+let playerService: PlayerService | null = null;
+
+export const configurePlayerService = (ports: PlayerServicePorts): void => {
+    playerService = createPlayerService(ports);
+};
+
+const getConfiguredPlayerService = (): PlayerService => {
+    if (!playerService) {
+        throw new Error("Player service not configured");
+    }
+
+    return playerService;
+};
 
 export const findPlayersByIds = async (ids: number[], authenticatedUser: AuthenticatedUser): Promise<PlayerResult> => {
-    return playerService.findPlayersByIds(ids, authenticatedUser);
+    return getConfiguredPlayerService().findPlayersByIds(ids, authenticatedUser);
 }
