@@ -1,8 +1,13 @@
 import Time from "../../domainCore/Time";
 import appDataSource from "../../config/datasource";
 import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
+import {
+    defaultTimeEventsPort,
+    defaultTimeStorePort,
+    defaultTimeTransactionPort
+} from "../../persistence/adapters/timeAdapters";
 import { timeRepository } from "../../persistence/repositories/repositories";
-import { getCurrentTime, initializeTime, updateTime } from "../timeService";
+import { configureTimeService, getCurrentTime, initializeTime, updateTime } from "../timeService";
 import { eventNotifications } from "../eventNotifications";
 
 jest.mock("../../config/datasource", () => ({
@@ -30,6 +35,11 @@ describe("timeService", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        configureTimeService({
+            timeStore: defaultTimeStorePort,
+            timeTransaction: defaultTimeTransactionPort,
+            timeEvents: defaultTimeEventsPort
+        });
     });
 
     describe("getCurrentTime", () => {

@@ -1,5 +1,4 @@
 import Club from "../domainCore/Club";
-import { createDefaultClubServicePorts } from "./composition/clubServiceComposition";
 import { ClubEventsPort, ClubCreationPersistenceInput, ClubStorePort, ClubTransactionPort } from "./ports/clubPorts";
 
 export type ClubServicePorts = {
@@ -62,10 +61,24 @@ export const createClubService = ({ clubStore, clubTransaction, clubEvents }: Cl
     }
 });
 
-const clubService = createClubService(createDefaultClubServicePorts());
+type ClubService = ReturnType<typeof createClubService>;
+
+let clubService: ClubService | null = null;
+
+export const configureClubService = (ports: ClubServicePorts): void => {
+    clubService = createClubService(ports);
+};
+
+const getConfiguredClubService = (): ClubService => {
+    if (!clubService) {
+        throw new Error("Club service not configured");
+    }
+
+    return clubService;
+};
 
 export const persistNewClub = async (newClub: ClubCreationPersistenceInput): Promise<Club> => {
-    return clubService.persistNewClub(newClub);
+    return getConfiguredClubService().persistNewClub(newClub);
 };
 
 /**
@@ -74,38 +87,38 @@ export const persistNewClub = async (newClub: ClubCreationPersistenceInput): Pro
  * because clubs will have all kinds of stuff related (finances, staff, etc)
  */
 export const findClubById = async (id: number): Promise<Club|null> => {
-    return clubService.findClubById(id);
+    return getConfiguredClubService().findClubById(id);
 }
 
 /** Checks if a club with the given name already exists in the database */
 export const clubExistsForName = async (name: string): Promise<boolean> => {
-    return clubService.clubExistsForName(name);
+    return getConfiguredClubService().clubExistsForName(name);
 }
 
 /** Finds all user clubs that are not attached to any league for the given season
  * @returns An array of club ids
 */
 export const findNonAttachedUserClubs = async (currentSeason: number): Promise<number[]> => {
-    return clubService.findNonAttachedUserClubs(currentSeason);
+    return getConfiguredClubService().findNonAttachedUserClubs(currentSeason);
 }
 
 /** Finds all user clubs that are attached to a league for the given season
  * @returns An array of club ids
  */
 export const findAttachedUserClubs = async (currentSeason: number): Promise<number[]> => {
-    return clubService.findAttachedUserClubs(currentSeason);
+    return getConfiguredClubService().findAttachedUserClubs(currentSeason);
 }
 
 /** Finds all clubs that are marked as zombies
  * @returns An array of club ids
  */
 export const findZombieClubs = async (): Promise<number[]> => {
-    return clubService.findZombieClubs();
+    return getConfiguredClubService().findZombieClubs();
 }
 
 /** Removes all zombie clubs from database together with dependent rows.
  * @returns Number of zombie clubs removed
  */
 export const removeAllZombieClubs = async (): Promise<number> => {
-    return clubService.removeAllZombieClubs();
+    return getConfiguredClubService().removeAllZombieClubs();
 }

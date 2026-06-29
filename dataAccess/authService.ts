@@ -1,4 +1,3 @@
-import { createDefaultAuthServicePorts } from "./composition/authServiceComposition";
 import { AuthClubRecord, AuthStorePort } from "./ports/authPorts";
 
 export type AuthServicePorts = {
@@ -11,8 +10,22 @@ export const createAuthService = ({ authStore }: AuthServicePorts) => ({
     }
 });
 
-const authService = createAuthService(createDefaultAuthServicePorts());
+type AuthService = ReturnType<typeof createAuthService>;
+
+let authService: AuthService | null = null;
+
+export const configureAuthService = (ports: AuthServicePorts): void => {
+    authService = createAuthService(ports);
+};
+
+const getConfiguredAuthService = (): AuthService => {
+    if (!authService) {
+        throw new Error("Auth service not configured");
+    }
+
+    return authService;
+};
 
 export const findClubForAuthentication = async (clubName: string): Promise<AuthClubRecord | null> => {
-    return authService.findClubForAuthentication(clubName);
+    return getConfiguredAuthService().findClubForAuthentication(clubName);
 };
