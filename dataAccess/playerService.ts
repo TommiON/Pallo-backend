@@ -1,6 +1,4 @@
 import Player from "../domainCore/Player";
-// tässä on nyt riippuvuussuuntien konflikti!
-import { AuthenticatedUser } from "../controllers/authenticateLogin";
 import { PlayerStorePort } from "./ports/playerPorts";
 
 export interface PlayerResult {
@@ -13,12 +11,12 @@ export type PlayerServicePorts = {
 };
 
 export const createPlayerService = ({ playerStore }: PlayerServicePorts) => ({
-    findPlayersByIds: async (ids: number[], authenticatedUser: AuthenticatedUser): Promise<PlayerResult> => {
+    findPlayersByIds: async (ids: number[], clubId: number): Promise<PlayerResult> => {
         const players = await playerStore.findByIds(ids);
 
         return {
-            ownPlayers: players.filter(p => p.club?.id === authenticatedUser.clubId),
-            othersPlayers: players.filter(p => p.club?.id !== authenticatedUser.clubId)
+            ownPlayers: players.filter(p => p.club?.id === clubId),
+            othersPlayers: players.filter(p => p.club?.id !== clubId)
         };
     }
 });
@@ -39,6 +37,6 @@ const getConfiguredPlayerService = (): PlayerService => {
     return playerService;
 };
 
-export const findPlayersByIds = async (ids: number[], authenticatedUser: AuthenticatedUser): Promise<PlayerResult> => {
-    return getConfiguredPlayerService().findPlayersByIds(ids, authenticatedUser);
+export const findPlayersByIds = async (ids: number[], clubId: number): Promise<PlayerResult> => {
+    return getConfiguredPlayerService().findPlayersByIds(ids, clubId);
 }

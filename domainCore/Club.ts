@@ -1,6 +1,5 @@
 import Player from "./Player";
 import League from "./League";
-import { hashPassword } from "../controllers/controllerUtils";
 import { getRandomNumberInRange } from "./domainUtils";
 
 // Core data contract for Club - defines what's exposed externally
