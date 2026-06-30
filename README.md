@@ -15,8 +15,16 @@ Domain Objects that represent foundational game concepts.
 
 Also contain Domain Properties, the core settings of the gameworld.
 
-## 2. Domain Engine (/domainEngine)
-Algorithms and orchestrating functions that typically involve multiple Domain Objects. Actual workings of the game start taking shape here.
+## 2. Data Access Interface (/dataAccess)
+Domain Core persisted. Consists of Services, each of which generally handles persistence of a certain type of Domain Object (corresponds to database entities further out). This layer is an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access (without knowing about the concerete implementation).
+- TimeService
+- LeagueService
+- PlayerService
+- ClubService
+- AuthService
+
+## 3. Domain Engine (/domainEngine)
+Algorithms and orchestrating functions that define the fundamental workings of the game. Abstracted: Domain Engine functions work with Domain Objects in isolation and know nothing about the wider flow of the application.
 - DomainInitializer: initializes the state of domain.
 - ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander: creates Leagues and organizes them into pyramid-like structure.
@@ -24,14 +32,6 @@ Algorithms and orchestrating functions that typically involve multiple Domain Ob
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
 - (StandingsOrderer)
 - MatchResolver:
-
-## 3. Data Access Interface (/dataAccess)
-Access to persistent data, consisting of Services, each of which generally handles persistence of a certain type of Domain Object (corresponds to database entities further out). This layer is an interface, defined as abtract Ports. Each Service exposes a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access (without knowing about the concerete implementation).
-- TimeService
-- LeagueService
-- PlayerService
-- ClubService
-- AuthService
 
 ## 4. Persistence Implementation (/persistence)
 Concrete implementation of Data Access Interface. Uses TypeORM framework.
@@ -41,18 +41,19 @@ Concrete implementation of Data Access Interface. Uses TypeORM framework.
 - Mappers transform entity data <-> Domain Objects
 
 ## 5. Application Controllers (/controllers)
-Define and handle application behavior by reacting to requests from API and Scheduler. Use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized as verb-starting functions that describe what is happening, such as:
-- startNewSeason
-- createNewUserClub
-- authenticateLogin
-- resolveMatches
+Defines and handles application behavior by reacting to requests from API and Scheduler. Uses Data Access Interface for data needs and Domain Engine for performing domain operations. Organized as verb-starting functions that describe what is happening, such as:
+- startNewSeason()
+- createNewUserClub()
+- authenticateLogin()
+- resolveMatches()
+- etc.
 
 (- EventNotifications???)
 
 ## 6. Interactors (/api, /scheduler)
-Receives/generates impulses that make the application proceed and do things.
-- Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something, such as to start a new season or launch an/or remove an expired WeeklyEvent. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
-- API: provides REST endpoints 
+Receives or generates impulses that make the application proceed and do things. Contains two major parts:
+- Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
+- API: exposes REST endpoints for frontend.
 
 (- Datasource (nykyinen services/composition lopulta tänne?))
 
