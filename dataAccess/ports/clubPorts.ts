@@ -1,8 +1,9 @@
 import Club from "../../domainCore/Club";
 import Player from "../../domainCore/Player";
-import type { ClubCreationResult } from "../../domainEngine/clubs/ClubCreator";
 
-export type ClubCreationPersistenceInput = ClubCreationResult & {
+export type ClubCreationPersistenceInput = {
+    club: Club;
+    players: Player[];
     passwordHash: string;
 };
 
