@@ -8,27 +8,17 @@ import playerRouter from "./api/player/playerRoutes";
 import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
 import timeRouter from "./api/time/timeRoutes";
+
 import { configureAuthService } from "./dataAccess/authService";
 import { configureClubService } from "./dataAccess/clubService";
 import { configureLeagueService } from "./dataAccess/leagueService";
 import { configurePlayerService } from "./dataAccess/playerService";
 import { configureTimeService } from "./dataAccess/timeService";
 import { defaultAuthStorePort } from "./persistence/adapters/authAdapters";
-import {
-    defaultClubEventsPort,
-    defaultClubStorePort,
-    defaultClubTransactionPort
-} from "./persistence/adapters/clubAdapters";
-import {
-    defaultLeagueStorePort,
-    defaultLeagueTransactionPort
-} from "./persistence/adapters/leagueAdapters";
+import { defaultClubEventsPort, defaultClubStorePort, defaultClubTransactionPort } from "./persistence/adapters/clubAdapters";
+import { defaultLeagueStorePort, defaultLeagueTransactionPort } from "./persistence/adapters/leagueAdapters";
 import { defaultPlayerStorePort } from "./persistence/adapters/playerAdapters";
-import {
-    defaultTimeEventsPort,
-    defaultTimeStorePort,
-    defaultTimeTransactionPort
-} from "./persistence/adapters/timeAdapters";
+import { defaultTimeEventsPort, defaultTimeStorePort, defaultTimeTransactionPort } from "./persistence/adapters/timeAdapters";
 
 import { initializeScheduler, startScheduler } from "./scheduler/scheduler";
 
@@ -48,21 +38,10 @@ const start = async () => {
         await appDataSource.initialize();
 
         configureAuthService({ authStore: defaultAuthStorePort });
-        configureClubService({
-            clubStore: defaultClubStorePort,
-            clubTransaction: defaultClubTransactionPort,
-            clubEvents: defaultClubEventsPort
-        });
-        configureLeagueService({
-            leagueStore: defaultLeagueStorePort,
-            leagueTransaction: defaultLeagueTransactionPort
-        });
+        configureClubService({ clubStore: defaultClubStorePort, clubTransaction: defaultClubTransactionPort, clubEvents: defaultClubEventsPort });
+        configureLeagueService({ leagueStore: defaultLeagueStorePort, leagueTransaction: defaultLeagueTransactionPort });
         configurePlayerService({ playerStore: defaultPlayerStorePort });
-        configureTimeService({
-            timeStore: defaultTimeStorePort,
-            timeTransaction: defaultTimeTransactionPort,
-            timeEvents: defaultTimeEventsPort
-        });
+        configureTimeService({ timeStore: defaultTimeStorePort, timeTransaction: defaultTimeTransactionPort, timeEvents: defaultTimeEventsPort });
 
         await initializeScheduler();
         startScheduler();
