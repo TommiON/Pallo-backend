@@ -6,6 +6,14 @@ export interface PlayerResult {
     othersPlayers: Player[];
 }
 
+/**
+ * Finds players by their IDs and separates them into two groups: those that belong to the specified club and those that do not.
+ */
+export const findPlayersByIds = async (ids: number[], clubId: number): Promise<PlayerResult> => {
+    return getConfiguredPlayerService().findPlayersByIds(ids, clubId);
+}
+
+
 export type PlayerServicePorts = {
     playerStore: PlayerStorePort;
 };
@@ -36,7 +44,3 @@ const getConfiguredPlayerService = (): PlayerService => {
 
     return playerService;
 };
-
-export const findPlayersByIds = async (ids: number[], clubId: number): Promise<PlayerResult> => {
-    return getConfiguredPlayerService().findPlayersByIds(ids, clubId);
-}

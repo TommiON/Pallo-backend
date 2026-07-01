@@ -1,6 +1,71 @@
 import League from "../domainCore/League";
 import { LeagueStorePort, LeagueTransactionPort } from "./ports/leaguePorts";
 
+/**
+ * Creates a new league for the given season
+ * @param season number of the upcoming season
+ * @param spanningFrom upper league, i.e. target of the promotesTo
+ * @param previousSeasonPredecessor 
+ * @param serialNumberOnDivisionLevel needed if previousSeasonPredecessor is null, i.e. there was no League in the previous season at
+ * this position of the pyramid
+ */
+export const createLeague = async (
+        season: number,
+        spanningFrom: League | null,
+        previousSeasonPredecessor: League | null,
+        serialNumberOnDivisionLevel: number | null
+): Promise<League> => {
+    return getConfiguredLeagueService().createLeague(
+        season,
+        spanningFrom,
+        previousSeasonPredecessor,
+        serialNumberOnDivisionLevel
+    );
+}
+
+/**
+ * Persists season transition atomically:
+ * - saves previous season leagues with their current state (caller is responsible for marking them finished)
+ * - inserts new season leagues parent-first
+ * - persists league-club memberships for inserted leagues
+ */
+export const persistSeasonTransition = async (
+        previousSeasonLeagues: League[],
+        newSeasonLeagues: League[]
+): Promise<League[]> => {
+    return getConfiguredLeagueService().persistSeasonTransition(previousSeasonLeagues, newSeasonLeagues);
+}
+
+/** 
+ * Finds all leagues for a given season 
+ */
+export const findLeaguesBySeason = async (season: number): Promise<League[]> => {
+    return getConfiguredLeagueService().findLeaguesBySeason(season);
+}
+
+/** 
+ * Finds a league by season number and divisional position (division level and serial number on that division level) 
+ */
+export const findLeagueBySeasonAndDivionalPosition = async (
+        season: number,
+        divisionLevel: number,
+        serialNumberOnDivisionLevel: number
+): Promise<League|null> => {
+    return getConfiguredLeagueService().findLeagueBySeasonAndDivionalPosition(
+        season,
+        divisionLevel,
+        serialNumberOnDivisionLevel
+    );
+}
+
+/** 
+ * Returns the children Leagues for a given league (i.e., Leagues that promote to the given League) 
+ */
+export const findChildrenForLeague = async (leagueId: number): Promise<League[]> => {
+    return getConfiguredLeagueService().findChildrenForLeague(leagueId);
+}
+
+
 export type LeagueServicePorts = {
     leagueStore: LeagueStorePort;
     leagueTransaction: LeagueTransactionPort;
@@ -119,61 +184,3 @@ const getConfiguredLeagueService = (): LeagueService => {
 
     return leagueService;
 };
-
-/**
- * Creates a new league for the given season
- * @param season number of the upcoming season
- * @param spanningFrom upper league, i.e. target of the promotesTo
- * @param previousSeasonPredecessor 
- * @param serialNumberOnDivisionLevel needed if previousSeasonPredecessor is null, i.e. there was no League in the previous season at
- * this position of the pyramid
- */
-export const createLeague = async (
-        season: number,
-        spanningFrom: League | null,
-        previousSeasonPredecessor: League | null,
-        serialNumberOnDivisionLevel: number | null
-): Promise<League> => {
-    return getConfiguredLeagueService().createLeague(
-        season,
-        spanningFrom,
-        previousSeasonPredecessor,
-        serialNumberOnDivisionLevel
-    );
-}
-
-/**
- * Persists season transition atomically:
- * - saves previous season leagues with their current state (caller is responsible for marking them finished)
- * - inserts new season leagues parent-first
- * - persists league-club memberships for inserted leagues
- */
-export const persistSeasonTransition = async (
-        previousSeasonLeagues: League[],
-        newSeasonLeagues: League[]
-): Promise<League[]> => {
-    return getConfiguredLeagueService().persistSeasonTransition(previousSeasonLeagues, newSeasonLeagues);
-}
-
-/** Finds all leagues for a given season */
-export const findLeaguesBySeason = async (season: number): Promise<League[]> => {
-    return getConfiguredLeagueService().findLeaguesBySeason(season);
-}
-
-/** Finds a league by season number and divisional position (division level and serial number on that division level) */
-export const findLeagueBySeasonAndDivionalPosition = async (
-        season: number,
-        divisionLevel: number,
-        serialNumberOnDivisionLevel: number
-): Promise<League|null> => {
-    return getConfiguredLeagueService().findLeagueBySeasonAndDivionalPosition(
-        season,
-        divisionLevel,
-        serialNumberOnDivisionLevel
-    );
-}
-
-/** Returns the children Leagues for a given league (i.e., Leagues that promote to the given League) */
-export const findChildrenForLeague = async (leagueId: number): Promise<League[]> => {
-    return getConfiguredLeagueService().findChildrenForLeague(leagueId);
-}

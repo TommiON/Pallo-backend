@@ -1,5 +1,13 @@
 import { AuthClubRecord, AuthStorePort } from "./ports/authPorts";
 
+/**
+ * Finds a club for authentication purposes by its name. Returns the club record if found, otherwise returns null.
+ */
+export const findClubForAuthentication = async (clubName: string): Promise<AuthClubRecord | null> => {
+    return getConfiguredAuthService().findClubForAuthentication(clubName);
+};
+
+
 export type AuthServicePorts = {
     authStore: AuthStorePort;
 };
@@ -24,8 +32,4 @@ const getConfiguredAuthService = (): AuthService => {
     }
 
     return authService;
-};
-
-export const findClubForAuthentication = async (clubName: string): Promise<AuthClubRecord | null> => {
-    return getConfiguredAuthService().findClubForAuthentication(clubName);
 };

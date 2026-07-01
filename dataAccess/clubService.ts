@@ -1,6 +1,56 @@
 import Club from "../domainCore/Club";
 import { ClubEventsPort, ClubCreationPersistenceInput, ClubStorePort, ClubTransactionPort } from "./ports/clubPorts";
 
+/** 
+ * Persists a newly created club and its players in the database, and emits a club created event.
+ */
+export const persistNewClub = async (newClub: ClubCreationPersistenceInput): Promise<Club> => {
+    return getConfiguredClubService().persistNewClub(newClub);
+};
+
+/**
+ * Finds a club by its id, including the players that belong to that club
+ * TODO: remove relations from this function and create a separate function for fetching the players of a club,
+ * because clubs will have all kinds of stuff related (finances, staff, etc)
+ */
+export const findClubById = async (id: number): Promise<Club|null> => {
+    return getConfiguredClubService().findClubById(id);
+}
+
+/** Checks if a club with the given name already exists in the database */
+export const clubExistsForName = async (name: string): Promise<boolean> => {
+    return getConfiguredClubService().clubExistsForName(name);
+}
+
+/** Finds all user clubs that are not attached to any league for the given season
+ * @returns An array of club ids
+*/
+export const findNonAttachedUserClubs = async (currentSeason: number): Promise<number[]> => {
+    return getConfiguredClubService().findNonAttachedUserClubs(currentSeason);
+}
+
+/** Finds all user clubs that are attached to a league for the given season
+ * @returns An array of club ids
+ */
+export const findAttachedUserClubs = async (currentSeason: number): Promise<number[]> => {
+    return getConfiguredClubService().findAttachedUserClubs(currentSeason);
+}
+
+/** Finds all clubs that are marked as zombies
+ * @returns An array of club ids
+ */
+export const findZombieClubs = async (): Promise<number[]> => {
+    return getConfiguredClubService().findZombieClubs();
+}
+
+/** Removes all zombie clubs from database together with dependent rows.
+ * @returns Number of zombie clubs removed
+ */
+export const removeAllZombieClubs = async (): Promise<number> => {
+    return getConfiguredClubService().removeAllZombieClubs();
+}
+
+
 export type ClubServicePorts = {
     clubStore: ClubStorePort;
     clubTransaction: ClubTransactionPort;
@@ -76,49 +126,3 @@ const getConfiguredClubService = (): ClubService => {
 
     return clubService;
 };
-
-export const persistNewClub = async (newClub: ClubCreationPersistenceInput): Promise<Club> => {
-    return getConfiguredClubService().persistNewClub(newClub);
-};
-
-/**
- * Finds a club by its id, including the players that belong to that club
- * TODO: remove relations from this function and create a separate function for fetching the players of a club,
- * because clubs will have all kinds of stuff related (finances, staff, etc)
- */
-export const findClubById = async (id: number): Promise<Club|null> => {
-    return getConfiguredClubService().findClubById(id);
-}
-
-/** Checks if a club with the given name already exists in the database */
-export const clubExistsForName = async (name: string): Promise<boolean> => {
-    return getConfiguredClubService().clubExistsForName(name);
-}
-
-/** Finds all user clubs that are not attached to any league for the given season
- * @returns An array of club ids
-*/
-export const findNonAttachedUserClubs = async (currentSeason: number): Promise<number[]> => {
-    return getConfiguredClubService().findNonAttachedUserClubs(currentSeason);
-}
-
-/** Finds all user clubs that are attached to a league for the given season
- * @returns An array of club ids
- */
-export const findAttachedUserClubs = async (currentSeason: number): Promise<number[]> => {
-    return getConfiguredClubService().findAttachedUserClubs(currentSeason);
-}
-
-/** Finds all clubs that are marked as zombies
- * @returns An array of club ids
- */
-export const findZombieClubs = async (): Promise<number[]> => {
-    return getConfiguredClubService().findZombieClubs();
-}
-
-/** Removes all zombie clubs from database together with dependent rows.
- * @returns Number of zombie clubs removed
- */
-export const removeAllZombieClubs = async (): Promise<number> => {
-    return getConfiguredClubService().removeAllZombieClubs();
-}

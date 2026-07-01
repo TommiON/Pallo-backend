@@ -22,6 +22,7 @@ export const updateTime = async (updatedTime: Time): Promise<Time> => {
     return getConfiguredTimeService().updateTime(updatedTime);
 }
 
+
 export type TimeServicePorts = {
     timeStore: TimeStorePort;
     timeTransaction: TimeTransactionPort;
