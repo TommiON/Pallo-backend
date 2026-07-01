@@ -40,6 +40,8 @@ Concrete implementation of Data Access Interface. Uses TypeORM framework.
 - Repositories for accessing database.
 - Mappers transform entity data <-> Domain Objects
 
+- DataSource varmaan myös tänne?
+
 ## 5. Application Controllers (/controllers)
 Defines and handles application behavior by reacting to requests from API and Scheduler. Uses Data Access Interface for data needs and Domain Engine for performing domain operations. Organized as verb-starting functions that describe what is happening, such as:
 - startNewSeason()
@@ -55,10 +57,8 @@ Receives or generates impulses that make the application proceed and do things. 
 - Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
 - API: exposes REST endpoints for frontend.
 
-(- Datasource (nykyinen services/composition lopulta tänne?))
-
 ## 7. The outside (/)
-- index.ts
+- index.ts performs the init and startup sequence: sets up REST routes, sets up datasource, provides dataAccess Ports with Adapter implementations, lauches Scheduler.
 - environment.ts?
 - (e2e tests when ready)
 
