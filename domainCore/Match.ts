@@ -12,6 +12,18 @@ export type MatchResult = {
         awayGoals: number;
 }
 
+// Core data contract for League - defines what's exposed externally
+export interface MatchData {
+    id?: number;
+    league?: League;
+    homeClub: Club;
+    awayClub: Club;
+    week: number;
+    started: boolean;
+    finished: boolean;
+    events: MatchEvent[];
+}
+
 export default class Match {
     id?: number;
     league?: League;
