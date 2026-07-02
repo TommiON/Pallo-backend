@@ -45,7 +45,7 @@ export const startNewSeason = async (season: number) => {
             league.fixtures = generateFixtures(league.clubs!, league);
         });
 
-        // Persist matches.
+        // Persist fixtures.
         await saveMatchesInBatch(leagues.flatMap(league => league.fixtures!));
 }
 
