@@ -7,6 +7,7 @@ import { generateFixtures } from "../domainEngine/leagues/fixtureGenerator";
 import { persistSeasonTransition } from "../dataAccess/leagueService";
 import { findLeaguesBySeason } from "../dataAccess/leagueService";
 import { findNonAttachedUserClubs } from "../dataAccess/clubService";
+import { saveMatchesInBatch } from "../dataAccess/matchService";
 
 export const startNewSeason = async (season: number) => {
         await checkEnoughClubsForSeasonStart(season);
@@ -23,8 +24,8 @@ export const startNewSeason = async (season: number) => {
             leaguesLastSeason.forEach(league => { league.finished = true; });
         }
     
-        // New season begins...
-        // Expand pyramid if there are enough clubs on the waiting list; for the first season, this will create the initial leagues.
+        // New season begins... Expand pyramid if there are enough clubs on the waiting list;
+        // for the first season, this will create the initial leagues.
         leagues.forEach(league => { league.season = season; });
     
         const clubsOnWaitingList = await findNonAttachedUserClubs(getReferenceSeasonForWaitingList(season));
@@ -32,14 +33,20 @@ export const startNewSeason = async (season: number) => {
         if (clubsOnWaitingList.length >= LEAGUE_NUMBER_OF_TEAMS) {
             leagues = expandPyramid(leagues, clubsOnWaitingList.map(createClubReference), season);
         }
-    
-        // Generate fixtures.
-    
+
         // Mark leagues as started.
         leagues.forEach(league => { league.started = true; });
+
+        // Persist the pyramid.
+        leagues = await persistSeasonTransition(leaguesLastSeason, leagues);
     
-        // Persist changes to database.
-        await persistSeasonTransition(leaguesLastSeason, leagues);
+        // Generate fixtures.
+        leagues.forEach(league => {
+            league.fixtures = generateFixtures(league.clubs!, league);
+        });
+
+        // Persist matches.
+        await saveMatchesInBatch(leagues.flatMap(league => league.fixtures!));
 }
 
 export class NotEnoughClubsForSeasonStartError extends Error {
