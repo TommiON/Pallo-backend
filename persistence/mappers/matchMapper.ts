@@ -4,8 +4,14 @@ import Match from "../../domainCore/Match";
 import type { MatchEntityData } from "../entities/MatchEntity";
 
 export const fromMatchEntity = (entity: MatchEntityData): Match => {
-    const homeClub = { id: entity.homeClubId } as Club;
-    const awayClub = { id: entity.awayClubId } as Club;
+    const homeClub = {
+        id: entity.homeClubId,
+        name: entity.homeClub?.name
+    } as Club;
+    const awayClub = {
+        id: entity.awayClubId,
+        name: entity.awayClub?.name
+    } as Club;
     const league = { id: entity.leagueId } as League;
 
     const match = new Match(homeClub, awayClub, entity.week, league);

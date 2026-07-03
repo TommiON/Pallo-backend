@@ -34,7 +34,7 @@ const createLeagueStoreFromRepository = (repository: Repository<LeagueEntityData
     findBySeason: async (season) => {
         const entities = await repository.find({
             where: { season },
-            relations: ["clubs", "matches"]
+            relations: ["clubs", "matches", "matches.homeClub", "matches.awayClub"]
         });
 
         const leagues = entities.map((entity) => fromLeagueEntity(entity));
@@ -49,10 +49,21 @@ const createLeagueStoreFromRepository = (repository: Repository<LeagueEntityData
                 divisionLevel,
                 serialNumberOnDivisionLevel
             },
-            relations: ["clubs", "matches"]
+            relations: ["clubs", "matches", "matches.homeClub", "matches.awayClub"]
         });
 
-        return entity ? fromLeagueEntity(entity) : null;
+        if (!entity) {
+            return null;
+        }
+
+        const league = fromLeagueEntity(entity);
+
+        // Keep promotesTo id available even in single-league queries where graph wiring is not used.
+        if (entity.promotesToId !== undefined) {
+            league.promotesTo = { id: entity.promotesToId } as League;
+        }
+
+        return league;
     },
 
     findChildrenForLeague: async (leagueId) => {
