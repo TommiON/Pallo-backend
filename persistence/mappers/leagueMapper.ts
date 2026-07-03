@@ -8,6 +8,7 @@ export const fromLeagueEntity = (entity: LeagueEntityData): League => {
     league.started = entity.started;
     league.finished = entity.finished;
     league.clubs = entity.clubs;
+    league.fixtures = entity.matches;
     return league;
 };
 

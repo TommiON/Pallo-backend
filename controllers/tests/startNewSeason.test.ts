@@ -4,6 +4,11 @@ import { LEAGUE_NUMBER_OF_TEAMS } from "../../domainCore/domainProperties";
 import { startNewSeason } from "../startNewSeason";
 import * as leagueService from "../../dataAccess/leagueService";
 import * as clubService from "../../dataAccess/clubService";
+import * as matchService from "../../dataAccess/matchService";
+
+jest.mock("../../dataAccess/matchService", () => ({
+    saveMatchesInBatch: jest.fn()
+}));
 
 const createLeague = (season: number, divisionLevel: number, serialNumber: number, promotesTo: League | null = null): League => {
     return new League(season, divisionLevel, serialNumber, promotesTo);
@@ -21,6 +26,7 @@ describe("startNewSeason", () => {
     let findLeaguesBySeasonSpy: jest.SpyInstance;
     let persistSeasonTransitionSpy: jest.SpyInstance;
     let findNonAttachedUserClubsSpy: jest.SpyInstance;
+    let saveMatchesInBatchMock: jest.Mock;
 
     beforeEach(() => {
         jest.restoreAllMocks();
@@ -28,8 +34,10 @@ describe("startNewSeason", () => {
         findLeaguesBySeasonSpy = jest.spyOn(leagueService, "findLeaguesBySeason");
         persistSeasonTransitionSpy = jest.spyOn(leagueService, "persistSeasonTransition");
         findNonAttachedUserClubsSpy = jest.spyOn(clubService, "findNonAttachedUserClubs");
+        saveMatchesInBatchMock = matchService.saveMatchesInBatch as jest.Mock;
 
         persistSeasonTransitionSpy.mockResolvedValue([]);
+        saveMatchesInBatchMock.mockResolvedValue(undefined);
     });
 
     it("loads previous season and waiting list with correct season parameters", async () => {
