@@ -32,7 +32,6 @@ const createLeagueStoreFromRepository = (repository: Repository<LeagueEntityData
     },
 
     findBySeason: async (season) => {
-        console.log("* Finding leagues by season:", season);
         const entities = await repository.find({
             where: { season },
             relations: ["clubs", "matches"]
@@ -44,7 +43,6 @@ const createLeagueStoreFromRepository = (repository: Repository<LeagueEntityData
     },
 
     findBySeasonAndDivisionalPosition: async (season, divisionLevel, serialNumberOnDivisionLevel) => {
-        console.log("* Finding league by season and divisional position:", season, divisionLevel, serialNumberOnDivisionLevel);
         const entity = await repository.findOne({
             where: {
                 season,

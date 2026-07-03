@@ -10,6 +10,9 @@ export interface LeagueData {
     serialNumberOnDivisionLevel: number;
     started: boolean;
     finished: boolean;
+    promotesTo: League | null;
+    clubs?: Club[];
+    fixtures?: Match[];
 }
 
 export default class League implements LeagueData {
