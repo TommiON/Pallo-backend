@@ -4,6 +4,7 @@ export type ValidationError =
     'MISSING_PARAMETERS'            |
     'MALFORMATTED_PARAMETERS'       |
     'NON_NUMERIC_IDS'               |
+    'INTERNAL_SERVER_ERROR'         |
 
     // adding new user
     'CLUBNAME_INSUFFICIENT'         |

@@ -3,11 +3,13 @@ import cors from "cors";
 
 import environment from "./config/environment";
 import appDataSource from "./config/datasource";
+
 import healthCheckRouter from "./api/healthCheck/healthCheckRoutes";
 import playerRouter from "./api/player/playerRoutes";
 import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
 import timeRouter from "./api/time/timeRoutes";
+import leagueRouter from "./api/league/leagueRoutes";
 
 import { configureAuthService } from "./dataAccess/authService";
 import { configureClubService } from "./dataAccess/clubService";
@@ -35,6 +37,7 @@ app.use(loginRouter);
 app.use(playerRouter);
 app.use(clubRouter);
 app.use(timeRouter);
+app.use(leagueRouter);
 
 const start = async () => {
     try {
