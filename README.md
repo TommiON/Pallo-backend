@@ -10,7 +10,7 @@ Domain Objects that represent foundational game concepts.
 - Player
 - Match
 - MatchEvent
-- Standing
+- Standing: a Club's situation in a Leagua (points, goal difference) at a given moment (season, week).
 - League
 
 Also contain Domain Properties, the core settings of the gameworld.
