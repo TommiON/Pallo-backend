@@ -15,12 +15,14 @@ export const resolveMatches = async (season: number, week: number) => {
 
     matches.forEach((match) => {
         match.started = true;
+
         match.events = resolveMatch();
-        match.events.forEach((event) => {
-            event.match = match;
-        });
+        match.events.forEach((event) => { event.match = match; });
+        
         saveMatchEventsInBatch(match.events);
+        
         match.finished = true;
+        
         saveMatch(match);
 
         const tulos = match.getResult();
