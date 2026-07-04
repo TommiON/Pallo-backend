@@ -20,7 +20,7 @@ export const toMatchEventEntityData = (event: MatchEvent): MatchEventEntityData 
         id: event.id,
         matchId: event.match?.id,
         type: event.type,
-        initiator: event.initiator,
+        initiator: event.initiator ? event.initiator : "",
         minute: event.minute
     };
 };

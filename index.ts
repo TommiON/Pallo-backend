@@ -17,6 +17,7 @@ import { configureLeagueService } from "./dataAccess/leagueService";
 import { configurePlayerService } from "./dataAccess/playerService";
 import { configureTimeService } from "./dataAccess/timeService";
 import { configureMatchService } from "./dataAccess/matchService";
+import { configureMatchEventService } from "./dataAccess/matchEventService";
 
 import { defaultAuthStorePort } from "./persistence/adapters/authAdapters";
 import { defaultClubEventsPort, defaultClubStorePort, defaultClubTransactionPort } from "./persistence/adapters/clubAdapters";
@@ -24,6 +25,7 @@ import { defaultLeagueStorePort, defaultLeagueTransactionPort } from "./persiste
 import { defaultPlayerStorePort } from "./persistence/adapters/playerAdapters";
 import { defaultTimeEventsPort, defaultTimeStorePort, defaultTimeTransactionPort } from "./persistence/adapters/timeAdapters";
 import { defaultMatchStorePort, defaultMatchTransactionPort } from "./persistence/adapters/matchAdapters";
+import { defaultMatchEventStorePort, defaultMatchEventTransactionPort } from "./persistence/adapters/matchEventAdapters";
 
 import { initializeScheduler, startScheduler } from "./scheduler/scheduler";
 
@@ -49,6 +51,7 @@ const start = async () => {
         configurePlayerService({ playerStore: defaultPlayerStorePort });
         configureTimeService({ timeStore: defaultTimeStorePort, timeTransaction: defaultTimeTransactionPort, timeEvents: defaultTimeEventsPort });
         configureMatchService({ matchStore: defaultMatchStorePort, matchTransaction: defaultMatchTransactionPort });
+        configureMatchEventService({ matchEventStore: defaultMatchEventStorePort, matchEventTransaction: defaultMatchEventTransactionPort });
 
         await initializeScheduler();
         startScheduler();
