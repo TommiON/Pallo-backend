@@ -29,7 +29,7 @@ const findNonAttachedUserClubIdsWithRepository = async (
             const subQuery = qb
                 .subQuery()
                 .select("1")
-                .from("league_clubs", "lc")
+                .from("league_club", "lc")
                 .innerJoin("league", "league", "league.id = lc.league_id")
                 .where("lc.club_id = club.id")
                 .andWhere("league.season = :currentSeason")
@@ -55,7 +55,7 @@ const findAttachedUserClubIdsWithRepository = async (
             const subQuery = qb
                 .subQuery()
                 .select("1")
-                .from("league_clubs", "lc")
+                .from("league_club", "lc")
                 .innerJoin("league", "league", "league.id = lc.league_id")
                 .where("lc.club_id = club.id")
                 .andWhere("league.season = :currentSeason")

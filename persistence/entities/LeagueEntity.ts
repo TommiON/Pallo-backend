@@ -50,7 +50,7 @@ export const LeagueEntity = new EntitySchema<LeagueEntityData>({
             target: "club",
             type: "many-to-many",
             joinTable: {
-                name: "league_clubs",
+                name: "league_club",
                 joinColumn: { name: "league_id" },
                 inverseJoinColumn: { name: "club_id" }
             }
