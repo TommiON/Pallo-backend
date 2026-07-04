@@ -50,7 +50,7 @@ export const generateFixtures = (teams: Club[], forLeague: League): Match[] => {
 
     // luodaan kauden ensimmäisen puoliskon ottelut
     firstLegRounds.forEach((roundPairs, roundIndex) => {
-        const week = roundIndex + 1;
+        const week = roundIndex;
         roundPairs.forEach(([home, away]) => {
             fixtures.push(new Match(home, away, week, forLeague));
         });
@@ -58,7 +58,7 @@ export const generateFixtures = (teams: Club[], forLeague: League): Match[] => {
 
     // luodaan kauden toisen puoliskon ottelut, lähtömateriaali sama mutta vaihdetaan koti <-> vieras
     firstLegRounds.forEach((roundPairs, roundIndex) => {
-        const week = roundsPerLeg + roundIndex + 1;
+        const week = roundsPerLeg + roundIndex;
         roundPairs.forEach(([home, away]) => {
             fixtures.push(new Match(away, home, week, forLeague));
         });

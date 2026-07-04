@@ -48,6 +48,7 @@ describe('Fixture Generator', () => {
         // And: there should be 22 rounds (11 home + 11 away) for each team, and each team should play only once per round
         const rounds = new Set(fixtures.map(f => f.week));
         expect(rounds.size).toEqual(22);
+        expect(Math.min(...fixtures.map(f => f.week))).toEqual(0);
 
         for (const round of rounds) {
             const matchesInRound = fixtures.filter(f => f.week === round);
@@ -151,8 +152,8 @@ describe('Fixture Generator', () => {
 
         // Then: the second leg should be an exact mirror of the first leg with shifted weeks
         const roundsPerLeg = clubs.length - 1;
-        const firstLeg  = fixtures.filter(f => f.week <= roundsPerLeg);
-        const secondLeg = fixtures.filter(f => f.week > roundsPerLeg);
+        const firstLeg  = fixtures.filter(f => f.week < roundsPerLeg);
+        const secondLeg = fixtures.filter(f => f.week >= roundsPerLeg);
 
         expect(firstLeg.length).toEqual(secondLeg.length);
 

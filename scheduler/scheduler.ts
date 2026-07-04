@@ -16,14 +16,14 @@ export const initializeScheduler = async () => {
     if (!currentTime) { throw new Error("Time not initialized"); }
 
     const weeklyEventCallbacks: WeeklyEventCallbackFunctions = {
-        transfersDeadline: () => console.log("Transfers deadline reached"),
-        matchSetupDeadline: () => console.log("No matsi nyt!"),
+        transfersDeadline: () => {},
+        matchSetupDeadline: () => {},
         match: async (season, week) => await resolveMatches(season, week),
-        trainingSetupDeadline: () => console.log("Training setup deadline reached"),
-        training: () => console.log("Training event reached"),
-        financesSetupDeadline: () => console.log("Finances setup deadline reached"),
-        financesUpdate: () => console.log("Finances update event reached"),
-        youthAcademyDrawDeadline: () => console.log("Youth academy draw deadline reached"),
+        trainingSetupDeadline: () => {},
+        training: () => {},
+        financesSetupDeadline: () => {},
+        financesUpdate: () => {},
+        youthAcademyDrawDeadline: () => {},
     }
     
     recurringWeeklySchedule = initializeWeeklyEvents(weeklyEventCallbacks);
