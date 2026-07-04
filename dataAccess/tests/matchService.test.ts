@@ -6,6 +6,7 @@ import {
     findMatchById,
     findMatchesByLeagueId,
     findMatchesByLeagueIdAndWeek,
+    findMatchesBySeasonAndWeek,
     saveMatch,
     saveMatchesInBatch
 } from "../matchService";
@@ -33,6 +34,7 @@ describe("matchService delegation", () => {
             findById: jest.fn(),
             findByLeagueId: jest.fn(),
             findByLeagueIdAndWeek: jest.fn(),
+            findBySeasonAndWeek: jest.fn(),
             findByLeagueIdAndRound: jest.fn()
         };
         const matchTransaction = {
@@ -53,6 +55,7 @@ describe("matchService delegation", () => {
             findById: jest.fn(),
             findByLeagueId: jest.fn(),
             findByLeagueIdAndWeek: jest.fn(),
+            findBySeasonAndWeek: jest.fn(),
             findByLeagueIdAndRound: jest.fn()
         };
 
@@ -61,6 +64,7 @@ describe("matchService delegation", () => {
             findById: jest.fn(),
             findByLeagueId: jest.fn(),
             findByLeagueIdAndWeek: jest.fn(),
+            findBySeasonAndWeek: jest.fn(),
             findByLeagueIdAndRound: jest.fn(),
             saveMatches: jest.fn().mockResolvedValue(undefined)
         };
@@ -83,6 +87,7 @@ describe("matchService delegation", () => {
             findById: jest.fn().mockResolvedValue(match),
             findByLeagueId: jest.fn(),
             findByLeagueIdAndWeek: jest.fn(),
+            findBySeasonAndWeek: jest.fn(),
             findByLeagueIdAndRound: jest.fn()
         };
         const matchTransaction = {
@@ -103,6 +108,7 @@ describe("matchService delegation", () => {
             findById: jest.fn(),
             findByLeagueId: jest.fn().mockResolvedValue(matches),
             findByLeagueIdAndWeek: jest.fn(),
+            findBySeasonAndWeek: jest.fn(),
             findByLeagueIdAndRound: jest.fn()
         };
         const matchTransaction = {
@@ -123,6 +129,7 @@ describe("matchService delegation", () => {
             findById: jest.fn(),
             findByLeagueId: jest.fn(),
             findByLeagueIdAndWeek: jest.fn().mockResolvedValue(matches),
+            findBySeasonAndWeek: jest.fn(),
             findByLeagueIdAndRound: jest.fn()
         };
         const matchTransaction = {
@@ -136,6 +143,27 @@ describe("matchService delegation", () => {
         expect(result).toBe(matches);
     });
 
+    it("delegates findMatchesBySeasonAndWeek to matchStore.findBySeasonAndWeek", async () => {
+        const matches = [createMatchFixture(1), createMatchFixture(2)];
+        const matchStore = {
+            save: jest.fn(),
+            findById: jest.fn(),
+            findByLeagueId: jest.fn(),
+            findByLeagueIdAndWeek: jest.fn(),
+            findBySeasonAndWeek: jest.fn().mockResolvedValue(matches),
+            findByLeagueIdAndRound: jest.fn()
+        };
+        const matchTransaction = {
+            runInTransaction: jest.fn()
+        };
+
+        const matchService = createMatchService({ matchStore, matchTransaction });
+        const result = await matchService.findMatchesBySeasonAndWeek(5, 7);
+
+        expect(matchStore.findBySeasonAndWeek).toHaveBeenCalledWith(5, 7);
+        expect(result).toBe(matches);
+    });
+
     describe("transaction behavior contract", () => {
         it("runs saveMatches through the transaction-scoped store provided by runInTransaction", async () => {
             const matches = [createMatchFixture(1), createMatchFixture(2)];
@@ -144,6 +172,7 @@ describe("matchService delegation", () => {
                 findById: jest.fn(),
                 findByLeagueId: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
+                findBySeasonAndWeek: jest.fn(),
                 findByLeagueIdAndRound: jest.fn()
             };
 
@@ -152,6 +181,7 @@ describe("matchService delegation", () => {
                 findById: jest.fn(),
                 findByLeagueId: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
+                findBySeasonAndWeek: jest.fn(),
                 findByLeagueIdAndRound: jest.fn(),
                 saveMatches: jest.fn().mockResolvedValue(undefined)
             };
@@ -176,6 +206,7 @@ describe("matchService delegation", () => {
                 findById: jest.fn(),
                 findByLeagueId: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
+                findBySeasonAndWeek: jest.fn(),
                 findByLeagueIdAndRound: jest.fn()
             };
 
@@ -184,6 +215,7 @@ describe("matchService delegation", () => {
                 findById: jest.fn(),
                 findByLeagueId: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
+                findBySeasonAndWeek: jest.fn(),
                 findByLeagueIdAndRound: jest.fn(),
                 saveMatches: jest.fn().mockResolvedValue(undefined)
             };
@@ -208,6 +240,7 @@ describe("matchService delegation", () => {
                 findById: jest.fn(),
                 findByLeagueId: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
+                findBySeasonAndWeek: jest.fn(),
                 findByLeagueIdAndRound: jest.fn()
             };
             const matchTransaction = {
@@ -227,6 +260,7 @@ describe("matchService delegation", () => {
                 findById: jest.fn(),
                 findByLeagueId: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
+                findBySeasonAndWeek: jest.fn(),
                 findByLeagueIdAndRound: jest.fn()
             };
 
@@ -235,6 +269,7 @@ describe("matchService delegation", () => {
                 findById: jest.fn(),
                 findByLeagueId: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
+                findBySeasonAndWeek: jest.fn(),
                 findByLeagueIdAndRound: jest.fn(),
                 saveMatches: jest.fn().mockRejectedValue(new Error("batch save failed"))
             };
@@ -256,6 +291,7 @@ describe("matchService delegation", () => {
                 findById: jest.fn(),
                 findByLeagueId: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
+                findBySeasonAndWeek: jest.fn(),
                 findByLeagueIdAndRound: jest.fn()
             };
 
@@ -285,6 +321,7 @@ describe("matchService delegation", () => {
             await expect(findMatchById(1)).rejects.toThrow("Match service not configured");
             await expect(findMatchesByLeagueId(100)).rejects.toThrow("Match service not configured");
             await expect(findMatchesByLeagueIdAndWeek(100, 3)).rejects.toThrow("Match service not configured");
+            await expect(findMatchesBySeasonAndWeek(5, 3)).rejects.toThrow("Match service not configured");
         });
     });
 });

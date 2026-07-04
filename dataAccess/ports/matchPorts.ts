@@ -5,6 +5,7 @@ export interface MatchStorePort {
     findById(id: number): Promise<Match | null>;
     findByLeagueId(leagueId: number): Promise<Match[]>;
     findByLeagueIdAndWeek(leagueId: number, week: number): Promise<Match[]>;
+    findBySeasonAndWeek(season: number, week: number): Promise<Match[]>;
 }
 
 export interface MatchTransactionalStorePort extends MatchStorePort {

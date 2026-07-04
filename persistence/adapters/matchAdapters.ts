@@ -27,6 +27,17 @@ const createMatchStoreFromRepository = (repository: Repository<MatchEntityData>)
     findByLeagueIdAndWeek: async (leagueId: number, week: number) => {
         const entities = await repository.find({ where: { leagueId, week } });
         return entities.map((entity) => fromMatchEntity(entity));
+    },
+
+    findBySeasonAndWeek: async (season: number, week: number) => {
+        const entities = await repository
+            .createQueryBuilder("match")
+            .innerJoin("match.league", "league")
+            .where("league.season = :season", { season })
+            .andWhere("match.week = :week", { week })
+            .getMany();
+
+        return entities.map((entity) => fromMatchEntity(entity));
     }
 });
 

@@ -15,16 +15,32 @@ export const saveMatchesInBatch = async (matches: Match[]): Promise<void> => {
     return getConfiguredMatchService().saveMatchesInBatch(matches);
 };
 
+/**
+ * Finds a match by its ID.
+ */
 export const findMatchById = async (id: number): Promise<Match | null> => {
     return getConfiguredMatchService().findMatchById(id);
 };
 
+/**
+ * Finds a match by the ID of the League the Match it is part of.
+ */
 export const findMatchesByLeagueId = async (leagueId: number): Promise<Match[]> => {
     return getConfiguredMatchService().findMatchesByLeagueId(leagueId);
 };
 
+/**
+ * Finds matches by the ID of the Leaguet the Match it is part of, and week number.
+ */
 export const findMatchesByLeagueIdAndWeek = async (leagueId: number, week: number): Promise<Match[]> => {
     return getConfiguredMatchService().findMatchesByLeagueIdAndWeek(leagueId, week);
+};
+
+/**
+ * Finds matches by the season and week number.
+ */
+export const findMatchesBySeasonAndWeek = async (season: number, week: number): Promise<Match[]> => {
+    return getConfiguredMatchService().findMatchesBySeasonAndWeek(season, week);
 };
 
 
@@ -54,6 +70,10 @@ export const createMatchService = ({ matchStore, matchTransaction }: MatchServic
 
     findMatchesByLeagueIdAndWeek: async (leagueId: number, week: number): Promise<Match[]> => {
         return matchStore.findByLeagueIdAndWeek(leagueId, week);
+    },
+
+    findMatchesBySeasonAndWeek: async (season: number, week: number): Promise<Match[]> => {
+        return matchStore.findBySeasonAndWeek(season, week);
     }
 });
 
