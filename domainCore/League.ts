@@ -1,5 +1,6 @@
 import Club from "./Club";
 import Match from "./Match";
+import Standing from "./Standing";
 import { getRandomNumberInRange } from "./domainUtils";
 
 // Core data contract for League - defines what's exposed externally
@@ -13,6 +14,7 @@ export interface LeagueData {
     promotesTo: League | null;
     clubs?: Club[];
     fixtures?: Match[];
+    standings?: Standing[];
 }
 
 export default class League implements LeagueData {
@@ -26,7 +28,7 @@ export default class League implements LeagueData {
 
     clubs?: Club[];
     fixtures?: Match[];
-    // standings?: Standing[];
+    standings?: Standing[];
 
     constructor(season: number, divisionLevel: number, serialNumberOnDivisionLevel: number, promotesTo: League | null) {
         this.season = season;

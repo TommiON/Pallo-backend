@@ -13,6 +13,7 @@ export interface LeagueEntityData {
     promotesTo?: any;
     clubs?: any;
     matches?: any;
+    standings?: any;
 }
 
 export const LeagueEntity = new EntitySchema<LeagueEntityData>({
@@ -57,6 +58,11 @@ export const LeagueEntity = new EntitySchema<LeagueEntityData>({
         },
         matches: {
             target: "match",
+            type: "one-to-many",
+            inverseSide: "league"
+        },
+        standings: {
+            target: "standing",
             type: "one-to-many",
             inverseSide: "league"
         }
