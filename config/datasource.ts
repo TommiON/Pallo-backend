@@ -7,6 +7,7 @@ import { LeagueEntity } from "../persistence/entities/LeagueEntity";
 import { MatchEntity } from "../persistence/entities/MatchEntity";
 import { MatchEventEntity } from "../persistence/entities/MatchEventEntity";
 import { TimeEntity } from "../persistence/entities/TimeEntity";
+import { StandingEntity } from "../persistence/entities/StandingEntity";
 
 const appDataSource = new DataSource({
     type:           'postgres',
@@ -22,7 +23,8 @@ const appDataSource = new DataSource({
         LeagueEntity,
         MatchEntity,
         MatchEventEntity,
-        TimeEntity
+        TimeEntity,
+        StandingEntity
     ],
     subscribers:    [],
     migrations:     []
