@@ -20,11 +20,15 @@ export const matchEventRepository: Repository<MatchEventEntityData> = appDataSou
 import { TimeEntity, TimeEntityData } from "../entities/TimeEntity";
 export const timeRepository: Repository<TimeEntityData> = appDataSource.getRepository(TimeEntity);
 
+import { StandingEntity, StandingEntityData } from "../entities/StandingEntity";
+export const standingRepository: Repository<StandingEntityData> = appDataSource.getRepository(StandingEntity);
+
 export const getTransactionalRepositories = (manager: EntityManager) => ({
 	playerRepository: manager.getRepository<PlayerEntityData>(PlayerEntity),
 	clubRepository: manager.getRepository<ClubEntityData>(ClubEntity),
 	leagueRepository: manager.getRepository<LeagueEntityData>(LeagueEntity),
 	matchRepository: manager.getRepository<MatchEntityData>(MatchEntity),
 	matchEventRepository: manager.getRepository<MatchEventEntityData>(MatchEventEntity),
-	timeRepository: manager.getRepository<TimeEntityData>(TimeEntity)
+	timeRepository: manager.getRepository<TimeEntityData>(TimeEntity),
+	standingRepository: manager.getRepository<StandingEntityData>(StandingEntity)
 });
