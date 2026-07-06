@@ -3,30 +3,14 @@ import { findMatchesBySeasonAndWeek, saveMatch, saveMatchesInBatch } from "../da
 import { saveMatchEventsInBatch } from "../dataAccess/matchEventService";
 import Match from "../domainCore/Match";
 import Standing from "../domainCore/Standing";
-import { saveStanding, findStandingByLeagueIdAndClubId } from "../dataAccess/standingService";
+import { saveStanding, findStandingByLeagueIdAndClubIdAndWeek } from "../dataAccess/standingService";
+import { updateStandingsAfterMatch, UpdatedStandings } from "../domainEngine/leagues/standingsManager";
 
 export const resolveMatches = async (season: number, week: number) => {
     // Haetaan viikon ottelut ratkaistaviksi
     const matches = await findMatchesBySeasonAndWeek(season, week);
 
-    const updateStandings = async (match: Match) => {
-        const result = match.getResult();
-        
-        const newHomeStanding = new Standing();
-        newHomeStanding.league = match.league!;
-        newHomeStanding.club = match.homeClub;
-        newHomeStanding.week = match.week;
-
-        const previousHomeStanding = await findStandingByLeagueIdAndClubId(match.league!.id!, match.homeClub.id!);
-        console.log(`previousHomeStanding: ${previousHomeStanding}`);
-
-        const newAwayStanding = new Standing();
-        newAwayStanding.league = match.league!;
-        newAwayStanding.club = match.awayClub;
-        newAwayStanding.week = match.week;
-    };
-
-    // 2. palastellaan batcheiksi täällä?
+    // 2. palastellaan batcheiksi täällä? Huom. concurrency?
 
     // 3. lähetetään DomainEnginen MatchResolveriin, joka palauttaa MatchEvent[]?
     // 4. assosioidaan MatchEventit Matcheihin
@@ -44,15 +28,14 @@ export const resolveMatches = async (season: number, week: number) => {
         
         await saveMatch(match);
 
-        await updateStandings(match);
+        const { homeStanding, awayStanding }: UpdatedStandings = await updateStandingsAfterMatch(match);
 
-        const tulos = match.getResult();
-        console.log(`Ottelu ${match.id}, lopputulos: ${tulos.homeGoals} - ${tulos.awayGoals}`);
+        await saveStanding(homeStanding);
+        await saveStanding(awayStanding);
+
+        console.log(`Resolvoitiin matsi ${match.id}`);
     }
 
     
     // Ei paluudataa, heittää Erroreita jos tarpeen?
-
-
-
 }
