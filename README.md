@@ -16,7 +16,7 @@ Domain Objects that represent foundational game concepts.
 Also contain Domain Properties, the core settings of the gameworld.
 
 ## 2. Data Access Interface (/dataAccess)
-Domain Core persisted. Consists of Services, each of which generally handles persistence of a certain type of Domain Object (corresponds to database entities further out). This layer is an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access (without knowing about the concerete implementation).
+Domain Core persisted. Consists of Services, each of which generally handles persistence of a certain type of Domain Object (corresponds to database entities further out). This layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access, without knowing about the concerete implementation.
 - TimeService
 - LeagueService
 - PlayerService
@@ -24,17 +24,17 @@ Domain Core persisted. Consists of Services, each of which generally handles per
 - AuthService
 
 ## 3. Domain Engine (/domainEngine)
-Algorithms and orchestrating functions that define the fundamental workings of the game. Abstracted: Domain Engine functions work with Domain Objects in isolation and know nothing about the wider flow of the application.
+Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine functions work with Domain Objects in isolation and know nothing about the wider flow of the application.
 - DomainInitializer: initializes the state of domain.
 - ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander: creates Leagues and organizes them into pyramid-like structure.
-- PromoRelegator: promotes/relegates Clubs between Leagues at the end of a season.
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
-- (StandingsOrderer)
+- PromoRelegator: promotes/relegates Clubs between Leagues at the end of a season.
+- StandingsManager: updates Standings after Matches, and compares Standings for sorting purposes.
 - MatchResolver:
 
 ## 4. Persistence Implementation (/persistence)
-Concrete implementation of Data Access Interface. Uses TypeORM framework.
+Concrete implementation of Data Access Interface. Uses TypeORM framework and PostgreSQL database.
 - Entities define database tables.
 - Adapters implement the Ports of level 3.
 - Repositories for accessing database.
