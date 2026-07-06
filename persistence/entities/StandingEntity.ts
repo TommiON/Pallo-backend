@@ -20,6 +20,12 @@ export interface StandingEntityData {
 
 export const StandingEntity = new EntitySchema<StandingEntityData>({
     name: "standing",
+    uniques: [
+        {
+            name: "UQ_standing_league_club_week",
+            columns: ["leagueId", "clubId", "week"]
+        }
+    ],
     columns: {
         ...sharedEntityBaseColumns,
         leagueId: {

@@ -18,8 +18,8 @@ export const findStandingsByLeagueIdAndWeek = async (leagueId: number, week: num
 /**
  * Finds a Standing by the League ID and Club ID.
  */
-export const findStandingByLeagueIdAndClubId = async (leagueId: number, clubId: number): Promise<Standing | null> => {
-    return getConfiguredStandingService().findStandingByLeagueIdAndClubId(leagueId, clubId);
+export const findStandingByLeagueIdAndClubIdAndWeek = async (leagueId: number, clubId: number, week: number): Promise<Standing | null> => {
+    return getConfiguredStandingService().findStandingByLeagueIdAndClubIdAndWeek(leagueId, clubId, week);
 };
 
 
@@ -36,8 +36,8 @@ export const createStandingService = ({ standingStore }: StandingServicePorts) =
         return standingStore.findByLeagueIdAndWeek(leagueId, week);
     },
 
-    findStandingByLeagueIdAndClubId: async (leagueId: number, clubId: number): Promise<Standing | null> => {
-        return standingStore.findByLeagueIdAndClubId(leagueId, clubId);
+    findStandingByLeagueIdAndClubIdAndWeek: async (leagueId: number, clubId: number, week: number): Promise<Standing | null> => {
+        return standingStore.findByLeagueIdAndClubIdAndWeek(leagueId, clubId, week);
     }
 });
 

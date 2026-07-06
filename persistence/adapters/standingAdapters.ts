@@ -19,9 +19,9 @@ const createStandingStoreFromRepository = (repository: Repository<StandingEntity
         return entities.map(fromStandingEntity);
     },
     
-    findByLeagueIdAndClubId: async (leagueId, clubId) => {
+    findByLeagueIdAndClubIdAndWeek: async (leagueId, clubId, week) => {
         const entity = await repository.findOne({
-            where: { leagueId, clubId }
+            where: { leagueId, clubId, week }
         });
 
         return entity ? fromStandingEntity(entity) : null;

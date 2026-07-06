@@ -3,7 +3,7 @@ import League from "../../domainCore/League";
 import Standing from "../../domainCore/Standing";
 import {
     createStandingService,
-    findStandingByLeagueIdAndClubId,
+    findStandingByLeagueIdAndClubIdAndWeek,
     findStandingsByLeagueIdAndWeek,
     saveStanding
 } from "../standingService";
@@ -37,7 +37,7 @@ describe("standingService", () => {
             const standingStore = {
                 save: jest.fn().mockResolvedValue(standing),
                 findByLeagueIdAndWeek: jest.fn(),
-                findByLeagueIdAndClubId: jest.fn()
+                findByLeagueIdAndClubIdAndWeek: jest.fn()
             };
 
             const service = createStandingService({ standingStore });
@@ -55,7 +55,7 @@ describe("standingService", () => {
             const standingStore = {
                 save: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn().mockResolvedValue(standings),
-                findByLeagueIdAndClubId: jest.fn()
+                findByLeagueIdAndClubIdAndWeek: jest.fn()
             };
 
             const service = createStandingService({ standingStore });
@@ -65,18 +65,18 @@ describe("standingService", () => {
             expect(result).toBe(standings);
         });
 
-        it("delegates findStandingByLeagueIdAndClubId to standingStore.findByLeagueIdAndClubId", async () => {
+        it("delegates findStandingByLeagueIdAndClubIdAndWeek to standingStore.findByLeagueIdAndClubIdAndWeek", async () => {
             const standing = createStandingFixture(100, 10, 3);
             const standingStore = {
                 save: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn(),
-                findByLeagueIdAndClubId: jest.fn().mockResolvedValue(standing)
+                findByLeagueIdAndClubIdAndWeek: jest.fn().mockResolvedValue(standing)
             };
 
             const service = createStandingService({ standingStore });
-            const result = await service.findStandingByLeagueIdAndClubId(100, 10);
+            const result = await service.findStandingByLeagueIdAndClubIdAndWeek(100, 10, 3);
 
-            expect(standingStore.findByLeagueIdAndClubId).toHaveBeenCalledWith(100, 10);
+            expect(standingStore.findByLeagueIdAndClubIdAndWeek).toHaveBeenCalledWith(100, 10, 3);
             expect(result).toBe(standing);
         });
     });
@@ -87,7 +87,7 @@ describe("standingService", () => {
             const standingStore = {
                 save: jest.fn().mockRejectedValue(new Error("save failed")),
                 findByLeagueIdAndWeek: jest.fn(),
-                findByLeagueIdAndClubId: jest.fn()
+                findByLeagueIdAndClubIdAndWeek: jest.fn()
             };
 
             const service = createStandingService({ standingStore });
@@ -100,13 +100,13 @@ describe("standingService", () => {
             const standingStore = {
                 save: jest.fn(),
                 findByLeagueIdAndWeek: jest.fn().mockRejectedValue(new Error("find by week failed")),
-                findByLeagueIdAndClubId: jest.fn().mockRejectedValue(new Error("find by club failed"))
+                findByLeagueIdAndClubIdAndWeek: jest.fn().mockRejectedValue(new Error("find by club failed"))
             };
 
             const service = createStandingService({ standingStore });
 
             await expect(service.findStandingsByLeagueIdAndWeek(100, 3)).rejects.toThrow("find by week failed");
-            await expect(service.findStandingByLeagueIdAndClubId(100, 10)).rejects.toThrow("find by club failed");
+            await expect(service.findStandingByLeagueIdAndClubIdAndWeek(100, 10, 3)).rejects.toThrow("find by club failed");
         });
     });
 
@@ -117,7 +117,7 @@ describe("standingService", () => {
 
         it("throws when query functions are called before configureStandingService", async () => {
             await expect(findStandingsByLeagueIdAndWeek(100, 3)).rejects.toThrow("Standing service not configured");
-            await expect(findStandingByLeagueIdAndClubId(100, 10)).rejects.toThrow("Standing service not configured");
+            await expect(findStandingByLeagueIdAndClubIdAndWeek(100, 10, 3)).rejects.toThrow("Standing service not configured");
         });
     });
 });
