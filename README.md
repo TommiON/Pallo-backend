@@ -36,7 +36,7 @@ Algorithms and orchestrating functions that define the fundamental workings of t
 ## 4. Persistence Implementation (/persistence)
 Concrete implementation of Data Access Interface. Uses TypeORM framework and PostgreSQL database.
 - Entities define database tables.
-- Adapters implement the Ports of level 3.
+- Adapters implement the Ports of level 2.
 - Repositories for accessing database.
 - Mappers transform entity data <-> Domain Objects
 
