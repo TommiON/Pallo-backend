@@ -36,6 +36,24 @@ Use this section only when designing for possible horizontal scaling (multiple b
   - Alternative: leader row with lease timestamp updated by heartbeat transaction.
 - Keep orchestration handlers (`SeasonRunner`, future league generation) re-entrant and safe to retry.
 
+### Concurrent match resolution roadmap (future enhancement)
+- Concurrency unit should be explicit: prefer parallelism by `leagueId + week` partition, not unbounded global per-match parallelism.
+- Keep match resolution idempotent: a repeated run must not duplicate events, standings, or state transitions.
+- Use a transaction boundary per match-resolution write set (match status + match events + standing updates), or per league-week batch if lock scope is widened.
+- Guard standing writes with DB constraints and deterministic write shape.
+  - Required: unique standing identity `(league_id, club_id, week)`.
+  - Recommended: upsert/conditional update semantics plus bounded retry on serialization/unique-conflict errors.
+- Prevent competing workers from resolving the same league-week simultaneously.
+  - Option A: PostgreSQL advisory lock keyed by `leagueId + week`.
+  - Option B: DB lease row per `(season, week, leagueId)`.
+- Keep side effects commit-after: emit notifications only after successful commit of match and standing writes.
+- Limit concurrency deliberately (worker pool) to avoid DB saturation; avoid `Promise.all` over all matches when season volume grows.
+- Prefer deterministic resolver inputs (seeded randomness per match id if randomness is used) to keep retries reproducible.
+- Add focused tests before rollout:
+  - same week resolved twice does not duplicate events/standings,
+  - two concurrent workers produce one final standing set,
+  - partial failure retries complete without double-counting.
+
 ### Eventing guidance
 - Keep `eventNotifications` for local in-process reactions only.
 - For cross-instance delivery, move to durable integration events (outbox table + worker, or message broker).
