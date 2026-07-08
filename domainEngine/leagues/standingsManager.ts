@@ -66,13 +66,6 @@ export const updateStandingsAfterMatch = async (match: Match): Promise<UpdatedSt
     };
 }
 
-/*
-Käytetään näin call sitessa, jossa standing on tiedossa:
-export const standingsComparator = createClubStandingComparator(standings);
-tai suoraan:
-clubs.sort(createClubStandingComparator(standings))
-*/
-
 export const createClubStandingComparator = async (standings: Standing[]): Promise<(a: Standing, b: Standing) => number> => {
     const clubIdToStandingMap = new Map<number, Standing>();
 

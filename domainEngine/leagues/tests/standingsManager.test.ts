@@ -219,4 +219,65 @@ describe("standingsManager", () => {
         expect(comparisonResult[2]).toBe(standingA);
     });
 
+    it("sort correctly by goals for", async () => {
+        const standingA = new Standing();
+        standingA.league = createLeague(1);
+        standingA.club = createClub(1, "Club A");
+        standingA.week = 1;
+        standingA.points = 11;
+        standingA.goalsFor = 8;
+        standingA.goalsAgainst = 5;
+
+        const standingB = new Standing();
+        standingB.league = createLeague(1);
+        standingB.club = createClub(2, "Club B");
+        standingB.week = 1;
+        standingB.points = 11;
+        standingB.goalsFor = 8;
+        standingB.goalsAgainst = 5;
+
+        const standingC = new Standing();
+        standingC.league = createLeague(1);
+        standingC.club = createClub(3, "Club C");
+        standingC.week = 1;
+        standingC.points = 12;
+        standingC.goalsFor = 10;
+        standingC.goalsAgainst = 9;
+    });
+
+    it("sorts correctly by wins", async () => {
+        const standingA = new Standing();
+        standingA.league = createLeague(1);
+        standingA.club = createClub(1, "Club A");
+        standingA.week = 1;
+        standingA.points = 11;
+        standingA.wins = 3;
+        standingA.goalsFor = 8;
+        standingA.goalsAgainst = 5;
+
+        const standingB = new Standing();
+        standingB.league = createLeague(1);
+        standingB.club = createClub(2, "Club B");
+        standingB.week = 1;
+        standingB.points = 11;
+        standingB.wins = 4;
+        standingB.goalsFor = 8;
+        standingB.goalsAgainst = 5;
+
+        const standingC = new Standing();
+        standingC.league = createLeague(1);
+        standingC.club = createClub(3, "Club C");
+        standingC.week = 1;
+        standingC.points = 12;
+        standingC.wins = 3;
+        standingC.goalsFor = 10;
+        standingC.goalsAgainst = 9;
+
+        const comparator = createClubStandingComparator([standingA, standingB, standingC]);
+        const comparisonResult = [standingA, standingB, standingC].sort(await comparator);
+
+        expect(comparisonResult[0]).toBe(standingC);
+        expect(comparisonResult[1]).toBe(standingB);
+        expect(comparisonResult[2]).toBe(standingA);
+    });
 });
