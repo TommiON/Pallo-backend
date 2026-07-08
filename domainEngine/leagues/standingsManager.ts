@@ -1,6 +1,7 @@
 import Standing from "../../domainCore/Standing";
 import Match from "../../domainCore/Match";
 import { findStandingByLeagueIdAndClubIdAndWeek } from "../../dataAccess/standingService";
+import Club from "../../domainCore/Club";
 
 export type UpdatedStandings = {
     homeStanding: Standing;
@@ -65,6 +66,58 @@ export const updateStandingsAfterMatch = async (match: Match): Promise<UpdatedSt
     };
 }
 
-export const compareStandings = (a: Standing, b: Standing): number => {
-    return 0;
+/*
+Käytetään näin call sitessa, jossa standing on tiedossa:
+export const standingsComparator = createClubStandingComparator(standings);
+tai suoraan:
+clubs.sort(createClubStandingComparator(standings))
+*/
+
+export const createClubStandingComparator = async (standings: Standing[]): Promise<(a: Standing, b: Standing) => number> => {
+    const clubIdToStandingMap = new Map<number, Standing>();
+
+    for (const standing of standings) {
+        if (standing.club && standing.club.id !== undefined) {
+            clubIdToStandingMap.set(standing.club.id, standing);
+        }
+    }
+
+    return (a: Standing, b: Standing): number => {
+        const standingA = clubIdToStandingMap.get(a.club.id!);
+        const standingB = clubIdToStandingMap.get(b.club.id!);
+        
+        if (!standingA || !standingB) {
+            throw new Error("Standing not found for one of the clubs");
+        }
+
+        // first criteria: points
+        if (standingA.points !== standingB.points) {
+            return standingB.points - standingA.points;
+        }
+
+        // second criteria: goal difference
+        const goalDifferenceA = standingA.goalsFor - standingA.goalsAgainst;
+        const goalDifferenceB = standingB.goalsFor - standingB.goalsAgainst;
+
+        if (goalDifferenceA !== goalDifferenceB) {
+            return goalDifferenceB - goalDifferenceA;
+        }
+
+        // third criteria: goals for
+        if (standingA.goalsFor !== standingB.goalsFor) {
+            return standingB.goalsFor - standingA.goalsFor;
+        }
+
+        // fourt criteria: wins
+        if (standingA.wins !== standingB.wins) {
+            return standingB.wins - standingA.wins;
+        }
+
+        // fifth criteria if ever implemented: disciplinary record (yellow/red cards)
+
+        // sixth criteria: head-to-head results (needs a new matchService)
+
+        // deterministic fallback if all else fails
+        return b.club.id! - a.club.id!; 
+    }
 }

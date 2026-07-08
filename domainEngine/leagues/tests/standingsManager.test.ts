@@ -4,7 +4,7 @@ import Match from "../../../domainCore/Match";
 import MatchEvent from "../../../domainCore/MatchEvent";
 import Standing from "../../../domainCore/Standing";
 import { findStandingByLeagueIdAndClubIdAndWeek } from "../../../dataAccess/standingService";
-import { updateStandingsAfterMatch } from "../standingsManager";
+import { updateStandingsAfterMatch, createClubStandingComparator } from "../standingsManager";
 
 jest.mock("../../../dataAccess/standingService", () => ({
     findStandingByLeagueIdAndClubIdAndWeek: jest.fn()
@@ -152,5 +152,71 @@ describe("standingsManager", () => {
         expect(awayStanding.goalsFor).toBe(4);
         expect(awayStanding.goalsAgainst).toBe(5);
     });
-});
 
+    it("sorts correctly by point difference", async () => {
+        const standingA = new Standing();
+        standingA.league = createLeague(1);
+        standingA.club = createClub(1, "Club A");
+        standingA.week = 1;
+        standingA.points = 11;
+        standingA.goalsFor = 8;
+        standingA.goalsAgainst = 5;
+
+        const standingB = new Standing();
+        standingB.league = createLeague(1);
+        standingB.club = createClub(2, "Club B");
+        standingB.week = 1;
+        standingB.points = 12;
+        standingB.goalsFor = 10;
+        standingB.goalsAgainst = 9;
+
+        const standingC = new Standing();
+        standingC.league = createLeague(1);
+        standingC.club = createClub(3, "Club C");
+        standingC.week = 1;
+        standingC.points = 10;
+        standingC.goalsFor = 10;
+        standingC.goalsAgainst = 9;
+
+        const comparator = createClubStandingComparator([standingA, standingB, standingC]);
+        const comparisonResult = [standingA, standingB, standingC].sort(await comparator);
+
+        expect(comparisonResult[0]).toBe(standingB);
+        expect(comparisonResult[1]).toBe(standingA);
+        expect(comparisonResult[2]).toBe(standingC);
+    });
+
+    it("sorts correctly by goal difference", async () => {
+        const standingA = new Standing();
+        standingA.league = createLeague(1);
+        standingA.club = createClub(1, "Club A");
+        standingA.week = 1;
+        standingA.points = 11;
+        standingA.goalsFor = 8;
+        standingA.goalsAgainst = 5;
+
+        const standingB = new Standing();
+        standingB.league = createLeague(1);
+        standingB.club = createClub(2, "Club B");
+        standingB.week = 1;
+        standingB.points = 11;
+        standingB.goalsFor = 10;
+        standingB.goalsAgainst = 3;
+
+        const standingC = new Standing();
+        standingC.league = createLeague(1);
+        standingC.club = createClub(3, "Club C");
+        standingC.week = 1;
+        standingC.points = 12;
+        standingC.goalsFor = 10;
+        standingC.goalsAgainst = 9;
+
+        const comparator = createClubStandingComparator([standingA, standingB, standingC]);
+        const comparisonResult = [standingA, standingB, standingC].sort(await comparator);
+
+        expect(comparisonResult[0]).toBe(standingC);
+        expect(comparisonResult[1]).toBe(standingB);
+        expect(comparisonResult[2]).toBe(standingA);
+    });
+
+});
