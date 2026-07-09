@@ -1,7 +1,9 @@
 import League from "../../domainCore/League";
 import type { LeagueEntityData } from "../entities/LeagueEntity";
 import type { MatchEntityData } from "../entities/MatchEntity";
+import type { StandingEntityData } from "../entities/StandingEntity";
 import { fromMatchEntity } from "./matchMapper";
+import { fromStandingEntity } from "./standingMapper";
 
 export const fromLeagueEntity = (entity: LeagueEntityData): League => {
     const league = new League(entity.season, entity.divisionLevel, entity.serialNumberOnDivisionLevel, null);
@@ -11,6 +13,7 @@ export const fromLeagueEntity = (entity: LeagueEntityData): League => {
     league.finished = entity.finished;
     league.clubs = entity.clubs;
     league.fixtures = (entity.matches as MatchEntityData[] | undefined)?.map((matchEntity) => fromMatchEntity(matchEntity));
+    league.standings = (entity.standings as StandingEntityData[] | undefined)?.map((standingEntity) => fromStandingEntity(standingEntity));
     return league;
 };
 

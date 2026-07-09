@@ -34,7 +34,7 @@ const createLeagueStoreFromRepository = (repository: Repository<LeagueEntityData
     findBySeason: async (season) => {
         const entities = await repository.find({
             where: { season },
-            relations: ["clubs", "matches", "matches.homeClub", "matches.awayClub"]
+            relations: ["clubs", "matches", "matches.homeClub", "matches.awayClub", "standings"]
         });
 
         const leagues = entities.map((entity) => fromLeagueEntity(entity));
@@ -49,7 +49,7 @@ const createLeagueStoreFromRepository = (repository: Repository<LeagueEntityData
                 divisionLevel,
                 serialNumberOnDivisionLevel
             },
-            relations: ["clubs", "matches", "matches.homeClub", "matches.awayClub"]
+            relations: ["clubs", "matches", "matches.homeClub", "matches.awayClub", "standings"]
         });
 
         if (!entity) {

@@ -12,6 +12,10 @@ export type LeagueByQueryRequest = {
     serialNumberOnDivisionLevel?: number;
 }
 
+export type LeagueByIdResponse = LeaguePayload | null;
+
+export type LeaguesByQueryResponse = LeaguePayload[] | null;
+
 export type LeaguePayload = {
     id: number;
     season: number;
@@ -20,23 +24,48 @@ export type LeaguePayload = {
     started: boolean;
     finished: boolean;
     promotesToId: number | null;
-    clubs: {
-        id: number;
-        name: string;
-        zombie: boolean;
-    }[];
+    clubs: ClubPayload[];
+    // Fixtures are categorized into played, ongoing, and unplayed; mapper returns highest week first for played, lowest for unplayed
     fixtures: {
-        id: number;
-        week: number;
-        started: boolean;
-        finished: boolean;
-        homeClubId: number;
-        homeClubName: string;
-        awayClubId: number;
-        awayClubName: string;
-    }[];
+        played: FixturePayload[];
+        ongoing: FixturePayload[];
+        unplayed: FixturePayload[];
+    };
+    // Standings are returned in week-chunks, highest week first
+    standings: StandingsWeekPayload[];
 }
 
-export type LeagueByIdResponse = LeaguePayload | null;
+type ClubPayload = {
+    id: number;
+    name: string;
+    zombie: boolean;
+}
 
-export type LeaguesByQueryResponse = LeaguePayload[] | null;
+type FixturePayload = {
+    id: number;
+    week: number;
+    started: boolean;
+    finished: boolean;
+    homeClubId: number;
+    homeClubName: string;
+    awayClubId: number;
+    awayClubName: string;
+}
+
+type StandingPayload = {
+    clubId: number;
+    clubName: string;
+    week: number;
+    points: number;
+    won: number;
+    drawn: number;
+    lost: number;
+    goalsFor: number;
+    goalsAgainst: number;
+}
+
+type StandingsWeekPayload = {
+    week: number;
+    standings: StandingPayload[];
+}
+

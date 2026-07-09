@@ -66,7 +66,7 @@ export const updateStandingsAfterMatch = async (match: Match): Promise<UpdatedSt
     };
 }
 
-export const createClubStandingComparator = async (standings: Standing[]): Promise<(a: Standing, b: Standing) => number> => {
+export const createClubStandingComparator = (standings: Standing[]): (a: Standing, b: Standing) => number => {
     const clubIdToStandingMap = new Map<number, Standing>();
 
     for (const standing of standings) {
