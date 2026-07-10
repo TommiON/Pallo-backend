@@ -1,29 +1,26 @@
-# Pallo-backend
+## Architecture: Spheres
 
 Pallo-backend's architecture can be pictured as seven nested spheres where dependencies point inwards, i.e. inner spheres know nothing about the outer.
 
-## 1. Domain Core (/domainCore)
-Domain Objects that represent foundational game concepts.
+### 1. Domain Core (/domainCore)
+Domain Objects that represent foundational game constructs. Most are instantiated and persisted:
 - Club: 
 - Time: the current moment (season, week, day, hour) in gametime.
-- WeeklyEvent: a recurring event in game's weekly cycle.
 - Player
 - Match
 - MatchEvent
 - Standing: a Club's situation in a Leagua (points, goal difference) at a given moment (season, week).
 - League
 
-Also contain Domain Properties, the core settings of the gameworld.
+Some represent overarching concepts that are not instantiated and persisted:
+- WeeklyEvent: a recurring event in game's weekly cycle.
 
-## 2. Data Access Interface (/dataAccess)
-Domain Core persisted. Consists of Services, each of which generally handles persistence of a certain type of Domain Object (corresponds to database entities further out). This layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access, without knowing about the concerete implementation.
-- TimeService
-- LeagueService
-- PlayerService
-- ClubService
-- AuthService
+Also contains Domain Properties, the core settings of the gameworld.
 
-## 3. Domain Engine (/domainEngine)
+### 2. Data Access Interface (/dataAccess)
+Domain Core persisted. Exposes Services, each of which generally handles persistence of a certain type of Domain Object (TimeService, LeagueService, PlayerService, etc). To avoid dependence on specific frameworks, this layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access, without knowing about the concerete implementation.
+
+### 3. Domain Engine (/domainEngine)
 Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine functions work with Domain Objects in isolation and know nothing about the wider flow of the application.
 - DomainInitializer: initializes the state of domain.
 - ClubCreator: creates and initializes new user Clubs.
@@ -31,19 +28,19 @@ Algorithms and orchestrating functions that define the fundamental workings of t
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
 - PromoRelegator: promotes/relegates Clubs between Leagues at the end of a season.
 - StandingsManager: updates Standings after Matches, and compares Standings for sorting purposes.
-- MatchResolver:
+- MatchResolver: resolves Matches into a sequence of MatchEvents.
 
-## 4. Persistence Implementation (/persistence)
+### 4. Persistence Implementation (/persistence)
 Concrete implementation of Data Access Interface. Uses TypeORM framework and PostgreSQL database.
-- Entities define database tables.
-- Adapters implement the Ports of level 2.
-- Repositories for accessing database.
-- Mappers transform entity data <-> Domain Objects
+- /entities define database tables.
+- /adapters implement the Ports of sphere 2.
+- /repositories handle accessing database.
+- /mappers transform entity data <-> Domain Objects
 
 - DataSource varmaan myös tänne?
 
-## 5. Application Controllers (/controllers)
-Defines and handles application behavior by reacting to requests from API and Scheduler. Uses Data Access Interface for data needs and Domain Engine for performing domain operations. Organized as verb-starting functions that describe what is happening, such as:
+### 5. Application Controllers (/controllers)
+Define and handle application behavior by reacting to requests from API and Scheduler that sit further out. Controllers use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized into functions whose names describe what is happening, such as:
 - startNewSeason()
 - createNewUserClub()
 - authenticateLogin()
@@ -52,17 +49,22 @@ Defines and handles application behavior by reacting to requests from API and Sc
 
 (- EventNotifications???)
 
-## 6. Interactors (/api, /scheduler)
-Receives or generates impulses that make the application proceed and do things. Contains two major parts:
+### 6. Interactors (/api, /scheduler)
+Receive or generate impulses that make the application proceed and do things. Contains two major parts:
 - Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
-- API: exposes REST endpoints for frontend.
+- API: REST endpoints for frontend. Contains Express routers serving endpoints, payload types, and request validators.
 
-## 7. The outside (/)
+### 7. The outside (/)
 - index.ts performs the init and startup sequence: sets up REST routes, sets up datasource, provides dataAccess Ports with Adapter implementations, lauches Scheduler.
 - environment.ts?
 - (e2e tests when ready)
 
+## Match Resolving
 
+## API
+
+
+---
 
 case study, mieti miten menee jos halutaan...
 - laajentuva liifgapyramidi täytetään uusien klubien createTimen perusteella järjestyksessä (nyt taitaa mennä epädeterministisesti?)
