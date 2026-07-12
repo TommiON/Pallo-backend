@@ -7,10 +7,12 @@ Domain Objects that represent foundational game constructs. Most are instantiate
 - Club: 
 - Time: the current moment (season, week, day, hour) in gametime.
 - Player
-- Match
-- MatchEvent
-- Standing: a Club's situation in a Leagua (points, goal difference) at a given moment (season, week).
-- League
+- League: a set of Clubs playing against each other for a season.
+- Standing: a Club's situation in a League at a given moment (season, week).
+- Match:
+- (MatchPhase)
+- MatchEvent:
+- (Tactics, mahtaako mahtua yhteen olioon vai pitääkö palastella: lineup, )
 
 Some represent overarching concepts that are not instantiated and persisted:
 - WeeklyEvent: a recurring event in game's weekly cycle.
@@ -21,14 +23,15 @@ Also contains Domain Properties, the core settings of the gameworld.
 Domain Core persisted. Exposes Services, each of which generally handles persistence of a certain type of Domain Object (TimeService, LeagueService, PlayerService, etc). To avoid dependence on specific frameworks, this layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access, without knowing about the concerete implementation.
 
 ### 3. Domain Engine (/domainEngine)
-Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine functions work with Domain Objects in isolation and know nothing about the wider flow of the application.
+Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine functions operate at the abstraction level of Domain Objects and know nothing about the wider flow of the application.
 - DomainInitializer: initializes the state of domain.
 - ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander: creates Leagues and organizes them into pyramid-like structure.
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
 - PromoRelegator: promotes/relegates Clubs between Leagues at the end of a season.
 - StandingsManager: updates Standings after Matches, and compares Standings for sorting purposes.
-- MatchResolver: resolves Matches into a sequence of MatchEvents.
+- ()
+- MatchResolver: resolves Matches into a sequence of MatchPhases and MatchEvents.
 
 ### 4. Persistence Implementation (/persistence)
 Concrete implementation of Data Access Interface. Uses TypeORM framework and PostgreSQL database.
@@ -60,6 +63,19 @@ Receive or generate impulses that make the application proceed and do things. Co
 - (e2e tests when ready)
 
 ## Match Resolving
+
+MatchResolver (/domainEngine) generates outcome of Matches. Match resolving follows pipes & filters architecture: the starting point is both teams' adopted Tactics, and this initial state is fed through a series of filters that produce MatchEvents and may also produce a change of MatchPhase. Filters utilize both teams' tactical approaches, player characters, and a degree of randomness. The aim is a modular MatchResolver where tactical sub-engines can be added, removed and changed over time without breaking the whole thing.
+
+tähän yleiskuva...
+
+- MatchPhase: pallonhallinta/heatmap
+- MatchEvent:
+
+- Pelin intensiteetti määrää kuinka monta kertaa putki mennään läpi: taktiikka vaikuttaa eniten, lisäksi pelaajien kestävyys, luonteenpiirteet, sää? Miten mallinnetaan vaihdot? Aiheuttaako vaihto aina putken läpäisyn uudelleen? Tämä voisi olla hyvä idea.
+- Ylätason taktiikka pysyy samana läpi pelin? Sen sijaan pelaajavaihdon yhteydessä voi säätää pelaajakohtaista taktiikkaa? Eli sama järjestely kuin Hattrickissa: yleistaktiikka, yksilöllinen taktiikka?
+
+
+User output: automaattisesti generoitua tekstiä/grafiikkaa MatchPhasejen ja -Eventtien perusteella.
 
 ## API
 
