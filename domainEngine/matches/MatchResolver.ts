@@ -1,12 +1,12 @@
 import Match from "../../domainCore/Match";
 import MatchEvent from "../../domainCore/MatchEvent";
 import { getRandomNumberInRange } from "../../domainCore/domainUtils";
-import { MATCH_DUMMY_MODE } from "../../domainCore/domainProperties";
+import { GAME_DUMMY_MODE } from "../../domainCore/domainProperties";
 
 // Tarvitaan jonkinlainen MatchSetup-domainolio, ne tänne parametreina
 export const resolveMatch = (): MatchEvent[] => {
     const events: MatchEvent[] = [];
-    events.push(...(MATCH_DUMMY_MODE ? playDummy() : play()));
+    events.push(...(GAME_DUMMY_MODE ? playDummy() : play()));
     return events;
 }
 

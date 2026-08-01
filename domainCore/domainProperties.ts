@@ -1,3 +1,5 @@
+export const GAME_DUMMY_MODE = true;
+
 export const PLAYER_MIN_AGE = 16;
 export const PLAYER_MAX_AGE = 80;
 export const PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH = [70, 95, 100];
@@ -7,8 +9,6 @@ export const CLUB_NUMBER_OF_PLAYERS_AT_START = 15;
 export const LEAGUE_NUMBER_OF_TEAMS = 4;
 export const LEAGUE_SPAN_FACTOR = 2;
 export const LEAGUE_PROMOTED_FROM_TOP = 1;
-
-export const MATCH_DUMMY_MODE = true;
 
 // tätä tarvitaan jos tehdään admin-endpoint API:iin
 export const TIME_USE_SCHEDULER = true;
