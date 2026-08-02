@@ -3,7 +3,7 @@ const loadResolveMatchWithDummyMode = (dummyMode: boolean) => {
 
 	jest.doMock("../../../domainCore/domainProperties", () => ({
 		...jest.requireActual("../../../domainCore/domainProperties"),
-		MATCH_DUMMY_MODE: dummyMode
+		GAME_DUMMY_MODE: dummyMode
 	}));
 
 	const getRandomNumberInRangeMock = jest.fn();
