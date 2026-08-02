@@ -47,7 +47,7 @@ describe("leagueService.findLeaguesBySeason", () => {
 
         expect(leagueRepository.find).toHaveBeenCalledWith({
             where: { season: 5 },
-            relations: ["clubs", "matches", "matches.homeClub", "matches.awayClub"]
+            relations: ["clubs", "matches", "matches.homeClub", "matches.awayClub", "standings"]
         });
         expect(result).toHaveLength(1);
         expect(result[0]).toBeInstanceOf(League);
