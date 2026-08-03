@@ -21,6 +21,19 @@ export const toPlayerEntityData = (player: Player): PlayerEntityData => {
         name: player.name,
         age: player.age,
         footedness: player.footedness,
-        clubId: player.club?.id
+        clubId: player.club?.id,
+        stamina: player.stamina,
+        pace: player.pace,
+        strength: player.strength,
+        height: player.height,
+        positioning: player.positioning,
+        vision: player.vision,
+        shooting: player.shooting,
+        heading: player.heading,
+        passing: player.passing,
+        tackling: player.tackling,
+        ballControl: player.ballControl,
+        dribbling: player.dribbling,
+        shotStopping: player.shotStopping
     };
 };

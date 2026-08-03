@@ -7,6 +7,19 @@ export interface PlayerEntityData {
     name: string;
     age: number;
     footedness: string;
+    stamina: number;
+    pace: number;
+    strength: number;
+    height: number;
+    positioning: number;
+    vision: number;
+    shooting: number;
+    heading: number;
+    passing: number;
+    tackling: number;
+    ballControl: number;
+    dribbling: number;
+    shotStopping: number;
     clubId?: number;
     club?: any;
 }
@@ -23,6 +36,45 @@ export const PlayerEntity = new EntitySchema<PlayerEntityData>({
         },
         footedness: {
             type: "varchar"
+        },
+        stamina: {
+            type: "int"
+        },
+        pace: {
+            type: "int"
+        },
+        strength: {
+            type: "int"
+        },
+        height: {
+            type: "int"
+        },
+        positioning: {
+            type: "int"
+        },
+        vision: {
+            type: "int"
+        },
+        shooting: {
+            type: "int"
+        },
+        heading: {
+            type: "int"
+        },
+        passing: {
+            type: "int"
+        },
+        tackling: {
+            type: "int"
+        },
+        ballControl: {
+            type: "int"
+        },
+        dribbling: {
+            type: "int"
+        },
+        shotStopping: {
+            type: "int"
         },
         clubId: {
             name: "club_id",

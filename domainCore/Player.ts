@@ -9,6 +9,19 @@ export interface PlayerData {
     name: string;
     age: number;
     footedness: Footedness;
+    stamina: number;
+    pace: number;
+    strength: number;
+    height: number;
+    positioning: number;
+    vision: number;
+    shooting: number;
+    heading: number;
+    passing: number;
+    tackling: number;
+    ballControl: number;
+    dribbling: number;
+    shotStopping: number;
 }
 
 export default class Player implements PlayerData {
