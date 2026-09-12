@@ -12,10 +12,13 @@ export const resolveMatch = (): MatchEvent[] => {
     return events;
 }
 
-// kannasta luetut Tacticsit muuttuvat resolverin työmuistiksi (vaihdot, loukkaantumiset jne) jota ei kirjoiteta takaisin kantaan
+// kannasta luetut Tacticsit muuttuvat resolverin työmuistiksi (vaihdot, loukkaantumiset jne) jota ei kirjoiteta takaisin kantaan?
 const play = (homeTactics: Tactics, awayTactics: Tactics): MatchEvent[] => {
-    for (let minute = 0; minute < 90; minute += MATCH_GRANULARITY_MINUTES) {
+    let minute = 0;
+    let step = MATCH_GRANULARITY_MINUTES;
+    while (minute < 90) {
         // pääluuppi
+        minute += step;
     }
 
     return [];
