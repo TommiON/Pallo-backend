@@ -16,8 +16,10 @@ export const resolveMatch = (): MatchEvent[] => {
 const play = (homeTactics: Tactics, awayTactics: Tactics): MatchEvent[] => {
     let minute = 0;
     let step = MATCH_GRANULARITY_MINUTES;
+
     while (minute < 90) {
         // pääluuppi
+        // step += MatchNaturen (endminute - startminute)
         minute += step;
     }
 
