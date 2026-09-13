@@ -3,42 +3,42 @@
 Pallo-backend's architecture can be pictured as seven nested spheres where dependencies point inwards, i.e. inner spheres know nothing about the outer.
 
 ### 1. Domain Core (/domainCore)
-Domain Objects that represent foundational game constructs. Most are instantiated and persisted:
-- Club: 
-- Time: the current moment (season, week, day, hour) in gametime. A singleton.
-- Player
-- League: a set of Clubs playing against each other for a season.
-- Standing: a Club's situation in a League at a given moment (season, week).
-- Match:
-- MatchBalance: focus of play and share of ball possession during a period in a Match. 
-- MatchEvent:
-- (Tactics, mahtaako mahtua yhteen olioon vai pitääkö palastella: lineup, )
+Domain Objects that represent foundational game constructs. Most are instantiated and persisted as an eponymous entity.
+- Club: The team, and also user account, of a user.
+- Time: Current moment (season, week, day, hour) in gametime. A singleton.
+- Player: Team member with individual identity and a set of physical, technical and tactical skills.
+- League: Collection of Clubs playing against each other for a season.
+- Standing: Club's situation in a League at a given moment (season, week).
+- Match: A contest between two Clubs.
+- MatchNature: Attribute set that describes a Match as a whole during a certain period of the said Match. 
+- MatchEvent: Individual action in a Match.
+- Tactics: Tactical setup for a Match.
 
-Some represent overarching concepts or supportive data structures that are not instantiated and persisted:
-- WeeklyEvent: a recurring event in game's weekly cycle.
+Some Domain Objects represent overarching concepts that are not instantiated and persisted:
+- WeeklyEvent: Recurring event in game's weekly cycle.
 
-Also contains Domain Properties, the core settings of the gameworld.
+Also contains Domain Properties, the core settings of the gameworld, and Domain Utils, a collection of generic helper functions.
 
 ### 2. Data Access Interface (/dataAccess)
-Domain Core persisted. Exposes Services, each of which generally handles persistence of a certain type of Domain Object (TimeService, LeagueService, PlayerService, etc). To avoid dependence on specific frameworks, this layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Callers will use Ports for data access without knowing about the concerete implementation.
+Domain Core persisted. Exposes Services, each of which generally handles persistence of a certain type of Domain Object (TimeService, LeagueService, PlayerService, etc). To avoid dependency on specific frameworks or databases, this layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration hook that accepts an implementation (Adapter) of a Port. Callers will access data via Ports without knowing about the implementation.
 
 ### 3. Domain Engine (/domainEngine)
 Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine operates at the abstraction level of Domain Objects and knows nothing about the wider flow of the application.
-- DomainInitializer: initializes the state of domain.
+- DomainInitializer: initializes the state of the domain.
 - ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander: creates Leagues and organizes them into pyramid-like structure.
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
 - PromotorRelegator: promotes/relegates Clubs between Leagues at the end of a season.
 - StandingsManager: updates Standings after Matches, and compares Standings for sorting purposes.
-- (TacticsBuilder)
-- MatchResolver: resolves Matches into a sequence of MatchBalances and MatchEvents.
+- TacticsBuilder: builds a Club's tactical choices and approaches for a Match.
+- MatchResolver: resolves a Match into a sequence of MatchNatures and MatchEvents.
 
 ### 4. Persistence Implementation (/persistence)
 Concrete implementation of Data Access Interface. Uses TypeORM framework and PostgreSQL database.
 - /entities define database tables.
 - /adapters implement the Ports of sphere 2.
 - /repositories handle accessing database.
-- /mappers transform entity data <-> Domain Objects
+- /mappers transform entity data <-> Domain Objects.
 
 - DataSource varmaan myös tänne?
 
@@ -53,8 +53,8 @@ Define and handle application behavior by reacting to requests from API and Sche
 (- EventNotifications???)
 
 ### 6. Interactors (/api, /scheduler)
-Receive or generate impulses that make the application proceed and do things. Contains two major parts:
-- Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
+Receive or generate impulses that make the application to do things. Consists of two parts:
+- Scheduler: the application's timekeeper that maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
 - API: REST endpoints for frontend user interaction. Contains Express routers serving endpoints, payload types, and request validators.
 
 ### 7. The outside (/)
@@ -64,7 +64,7 @@ Receive or generate impulses that make the application proceed and do things. Co
 
 ## Match Resolving
 
-MatchResolver (/domainEngine/matches/MatchResolver.ts and its private sub-engines) generates outcome of a Match. Match resolving follows a kind of a pipes & filters architecture: state is fed through a series of filters that may produce MatchEvents and/or a changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness. The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
+MatchResolver (/domainEngine/matches/MatchResolver.ts and its private sub-engines) generates outcome of a Match. Match resolving follows a kind of a simplified pipes & filters architecture (no buffers, no concurrency). State is fed through a series of filters that may produce MatchEvents and/or a changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness. The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
 
 ### MatchNature
 
@@ -85,37 +85,28 @@ MatchEvent (/domainCore/MatchEvent.ts) is a concrete thing happening in a Match.
 
 ### Filter chain
 
-MatchResolver runs a filter chain in its main loop. By default, this happens every MATCH_GRANULARITY_MINUTES game minutes. Filters are derived from the abstract class AbstractFilter. They receive input of type FilterResult, process it, and pass it on. FilterResult contains the following data:
-- homeTactics: the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if substitution MatchEvent takes place.)
-- awayTactics: same as above, for visiting team.
-- natures: a chronological sequence of MatchNatures so far.
-- events: a chronological sequence of MatchEvents so far.
+MatchResolver runs a filter chain in its main loop. By default, this happens every MATCH_GRANULARITY_MINUTES game minutes, but changes in MatchNature's intensity may change this.
 
-Once the looping is over, MatchNatures and MatchEvents are persisted and become the official data on how the Match went. Changes to homeTactics or awayTactics are not persisted, as these are just runtime work memory for the filter chain. The original, persisted Tactics remain as the historical data on how users tactically approached the Match.
+Filters are derived from the abstract class AbstractFilter. They receive input of type FilterResult, process it, and pass it on. FilterResult contains the following data:
+- the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if a substitution MatchEvent takes place.)
+- visiting team's Tactics, similarly.
+- list of MatchNatures generated so far.
+- list of MatchEvents generated so far.
 
-From functional point of view, filters can be divided into three groups that follow each other like this.
+Once the main loop stops, MatchNatures and MatchEvents are persisted and become the official report on how the Match went. Changes to Tactics are not persisted.
 
-Intensity filters >> Structural filters >> Event filters
+From functional point of view, filters can be divided into three groups that follow each other like this. Intensity filters >> Structural filters >> Event filters (Vaiko ehkä ei sittenkään, vaan kaikki filtterit voivat teemansa mukaisesti sekä muokata Naturea että tuottaa Eventtejä. Esim. Substitution tuottaa Eventin ja lisää intensiteettiä?)
 
-(Vaiko ehkä ei sittenkään, vaan kaikki filtterit voivat teemansa mukaisesti sekä muokata Naturea että tuottaa Eventtejä. Esim. Substitution tuottaa Eventin ja lisää intensiteettiä?)
 
-#### Intensity Filters
+
+
+
 
 
 - Substitution impulse (laukaisee aina putken)
 - General approach impulse (aktiivisempi, ekspansiivisempi taktiikka laukaisee putken useammin; jos molemmilla joukkueilla aktiivinen taktiikka, tulee erityisen paljon syklejä)
 - Individual effect impulse, voi kasvattaa (temperamenttinen, arvaamaton, luova), mainitaan aina joko hyvänä tai huonona pelinä?
 - FatigueImpulseFilter
-
-#### Structural filters
-
-#### Event filters
-
-
-
-
-
-
 
 
 - MatchPhase describes general dominance of teams in different parts of the pitch. It is expressed as amount of possession in nine zones of the pitch, and affects the distribution (but not amount) of goal-opportunity Events.
