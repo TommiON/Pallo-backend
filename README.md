@@ -1,37 +1,37 @@
-## Architecture: Spheres
+## Architecture overview: Spheres
 
 Pallo-backend's architecture can be pictured as seven nested spheres where dependencies point inwards, i.e. inner spheres know nothing about the outer.
 
 ### 1. Domain Core (/domainCore)
 Domain Objects that represent foundational game constructs. Most are instantiated and persisted:
 - Club: 
-- Time: the current moment (season, week, day, hour) in gametime.
+- Time: the current moment (season, week, day, hour) in gametime. A singleton.
 - Player
 - League: a set of Clubs playing against each other for a season.
 - Standing: a Club's situation in a League at a given moment (season, week).
 - Match:
-- (MatchPhase)
+- MatchBalance: focus of play and share of ball possession during a period in a Match. 
 - MatchEvent:
 - (Tactics, mahtaako mahtua yhteen olioon vai pitääkö palastella: lineup, )
 
-Some represent overarching concepts that are not instantiated and persisted:
+Some represent overarching concepts or supportive data structures that are not instantiated and persisted:
 - WeeklyEvent: a recurring event in game's weekly cycle.
 
 Also contains Domain Properties, the core settings of the gameworld.
 
 ### 2. Data Access Interface (/dataAccess)
-Domain Core persisted. Exposes Services, each of which generally handles persistence of a certain type of Domain Object (TimeService, LeagueService, PlayerService, etc). To avoid dependence on specific frameworks, this layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Call sites will then use Ports for data access, without knowing about the concerete implementation.
+Domain Core persisted. Exposes Services, each of which generally handles persistence of a certain type of Domain Object (TimeService, LeagueService, PlayerService, etc). To avoid dependence on specific frameworks, this layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration function that accepts an implementation of a Port. Callers will use Ports for data access without knowing about the concerete implementation.
 
 ### 3. Domain Engine (/domainEngine)
-Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine functions operate at the abstraction level of Domain Objects and know nothing about the wider flow of the application.
+Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine operates at the abstraction level of Domain Objects and knows nothing about the wider flow of the application.
 - DomainInitializer: initializes the state of domain.
 - ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander: creates Leagues and organizes them into pyramid-like structure.
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
-- PromoRelegator: promotes/relegates Clubs between Leagues at the end of a season.
+- PromotorRelegator: promotes/relegates Clubs between Leagues at the end of a season.
 - StandingsManager: updates Standings after Matches, and compares Standings for sorting purposes.
-- ()
-- MatchResolver: resolves Matches into a sequence of MatchPhases and MatchEvents.
+- (TacticsBuilder)
+- MatchResolver: resolves Matches into a sequence of MatchBalances and MatchEvents.
 
 ### 4. Persistence Implementation (/persistence)
 Concrete implementation of Data Access Interface. Uses TypeORM framework and PostgreSQL database.
@@ -55,7 +55,7 @@ Define and handle application behavior by reacting to requests from API and Sche
 ### 6. Interactors (/api, /scheduler)
 Receive or generate impulses that make the application proceed and do things. Contains two major parts:
 - Scheduler: the application's timekeeper. Maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
-- API: REST endpoints for frontend. Contains Express routers serving endpoints, payload types, and request validators.
+- API: REST endpoints for frontend user interaction. Contains Express routers serving endpoints, payload types, and request validators.
 
 ### 7. The outside (/)
 - index.ts performs the init and startup sequence: sets up REST routes, sets up datasource, provides dataAccess Ports with Adapter implementations, lauches Scheduler.
@@ -64,16 +64,84 @@ Receive or generate impulses that make the application proceed and do things. Co
 
 ## Match Resolving
 
-MatchResolver (/domainEngine) generates outcome of Matches. Match resolving follows pipes & filters architecture: the starting point is both teams' adopted Tactics, and this initial state is fed through a series of filters that produce MatchEvents and may also produce a change of MatchPhase. Filters utilize both teams' tactical approaches, player characters, and a degree of randomness. The aim is a modular MatchResolver where tactical sub-engines can be added, removed and changed over time without breaking the whole thing.
+MatchResolver (/domainEngine/matches/MatchResolver.ts and its private sub-engines) generates outcome of a Match. Match resolving follows a kind of a pipes & filters architecture: state is fed through a series of filters that may produce MatchEvents and/or a changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness. The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
 
-tähän yleiskuva...
+### MatchNature
 
-- MatchPhase: pallonhallinta/heatmap
-- MatchEvent:
+MatchNature (/domainCore/MatchNature.ts) contains attributes about the Match as a whole.
+- Intensity: How much or little is happening.
+- Balance: How big a portion of play happens in the different areas of the pitch. The are seven areas: left, center and right of home defence; midfield; left, center and right of home offense. 
+- Possession: How big a share of ball is home team having. This is expressed separately for the seven pitch areas mentioned above. Visiting team's share is implicit, 100 % - home team's share.
 
-- Pelin intensiteetti määrää kuinka monta kertaa putki mennään läpi: taktiikka vaikuttaa eniten, lisäksi pelaajien kestävyys, luonteenpiirteet, sää? Miten mallinnetaan vaihdot? Aiheuttaako vaihto aina putken läpäisyn uudelleen? Tämä voisi olla hyvä idea.
+A Match will almost always have multiple MatchNatures attached to it, as game evolves during the 90 minutes. 
+
+Intensity affects how frequently the filter chain is re-run: the higher the intensity, the more potential MatchEvents and potential changes of MatchNature. In practice, higher intensity reduces MatchNature's endMinute attribute, causing MatchResolver's main loop to launch the next filter chain sooner. Lower intensity does the opposite.
+
+Balance and possession, on the other hand, affect the distribution of different kinds of MatchEvents, but not the amount of them.
+
+### Match Event
+
+MatchEvent (/domainCore/MatchEvent.ts) is a concrete thing happening in a Match. There are several kinds:
+
+### Filter chain
+
+MatchResolver runs a filter chain in its main loop. By default, this happens every MATCH_GRANULARITY_MINUTES game minutes. Filters are derived from the abstract class AbstractFilter. They receive input of type FilterResult, process it, and pass it on. FilterResult contains the following data:
+- homeTactics: the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if substitution MatchEvent takes place.)
+- awayTactics: same as above, for visiting team.
+- natures: a chronological sequence of MatchNatures so far.
+- events: a chronological sequence of MatchEvents so far.
+
+Once the looping is over, MatchNatures and MatchEvents are persisted and become the official data on how the Match went. Changes to homeTactics or awayTactics are not persisted, as these are just runtime work memory for the filter chain. The original, persisted Tactics remain as the historical data on how users tactically approached the Match.
+
+From functional point of view, filters can be divided into three groups that follow each other like this.
+
+Intensity filters >> Structural filters >> Event filters
+
+(Vaiko ehkä ei sittenkään, vaan kaikki filtterit voivat teemansa mukaisesti sekä muokata Naturea että tuottaa Eventtejä. Esim. Substitution tuottaa Eventin ja lisää intensiteettiä?)
+
+#### Intensity Filters
+
+
+- Substitution impulse (laukaisee aina putken)
+- General approach impulse (aktiivisempi, ekspansiivisempi taktiikka laukaisee putken useammin; jos molemmilla joukkueilla aktiivinen taktiikka, tulee erityisen paljon syklejä)
+- Individual effect impulse, voi kasvattaa (temperamenttinen, arvaamaton, luova), mainitaan aina joko hyvänä tai huonona pelinä?
+- FatigueImpulseFilter
+
+#### Structural filters
+
+#### Event filters
+
+
+
+
+
+
+
+
+- MatchPhase describes general dominance of teams in different parts of the pitch. It is expressed as amount of possession in nine zones of the pitch, and affects the distribution (but not amount) of goal-opportunity Events.
+- MatchEvent: viime kädessä ainoa oleellinen event maalitilanne -> lopputulos? Tämän lisäksi loukkaantuminen, kortit, Tarvitaanko eventtien ketjutusta? Määrittele erilaiset maalipaikat, ehkä noin 10 erilaista tai vähän yli?
+
+- Suuri ratkaisematon kysymys: miten pelaajien ominaisuudet mäppäytyvät MatchPhase ja MatchEvent filttereiksi? Toistaiseksi ominaisuuslistaa ei ole edes päätetty.
 - Ylätason taktiikka pysyy samana läpi pelin? Sen sijaan pelaajavaihdon yhteydessä voi säätää pelaajakohtaista taktiikkaa? Eli sama järjestely kuin Hattrickissa: yleistaktiikka, yksilöllinen taktiikka?
+- Ylätason taktiikka: https://futiapp.substack.com/p/how-many-ways-are-there-to-play-football
+- Oleellista: parametrointi domainPropertiesissa. Yksi parametri per filtteri? Pysyisi ainakin hallittavana.
+- Oleellista: selkeä taktiikka<->lopputulos -mäppäys, selkeitä ja ennakoitavia säätimiä, vaikka ei olisi täysin realistista, esim. pelaajien kestävyys näkyy suoraan ja havaittavasti, samoin esim. lähestymistavan aktiivisuus (enemmän pipe-inputteja, enemmän loukkaantumisriskiä)
+- Oleellista: kokonaisarkkitehtuuri, ei kaottiinen spagettikasa
 
+Millaisia taktisia ylätason säätöjä:
+- Puolustuslinja: matala, neutraali, korkea
+- Kaaos/hallinta
+- Aktiivinen/passiivinen
+- Suositaan laitoja/keskustaa/neutraali
+- Pallonmenetys: kuoreenvetäytyminen, neutraali, prässi
+- Pallonsaanti: nopeasti/kärsivällisesti
+- Syöttäminen: pitkä/lyhyt/vaihteleva
+- Yritetäänkö kaukolaukauksia?
+
+Pelaajakohtainen ohje ominaisuuksien kertoimina?
+- Maalivahti: shotstopper/sweeper, build-up/kick-away
+- Keskuspuolustaja:
+- Laitapuolustaja: 
 
 User output: automaattisesti generoitua tekstiä/grafiikkaa MatchPhasejen ja -Eventtien perusteella.
 
