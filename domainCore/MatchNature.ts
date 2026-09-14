@@ -9,7 +9,6 @@ export type PitchArea = 'homeDefenceLeft' |
                         'homeAttackCentre' |
                         'homeAttackRight';
 
-
 export default class MatchNature {
     match: Match;
     startMinute: number;
@@ -21,9 +20,6 @@ export default class MatchNature {
     constructor(match: Match, startMinute: number) {
         this.match = match;
         this.startMinute = startMinute;
-        
-        this.balance = new Map<PitchArea, number>();
-        this.homePossession = new Map<PitchArea, number>();
 
         if (startMinute < 45 && (startMinute + MATCH_GRANULARITY_MINUTES) > 45) {
             this.endMinute = 45;
@@ -32,6 +28,9 @@ export default class MatchNature {
         } else {
             this.endMinute = startMinute + MATCH_GRANULARITY_MINUTES;
         }
+        
+        this.balance = new Map<PitchArea, number>();
+        this.homePossession = new Map<PitchArea, number>();
 
         this.balance.set('homeDefenceLeft', 10);
         this.balance.set('homeDefenceCentre', 10);
