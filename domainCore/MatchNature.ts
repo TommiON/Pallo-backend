@@ -23,13 +23,7 @@ export default class MatchNature {
         this.match = match;
         this.startMinute = startMinute;
 
-        if (startMinute < 45 && (startMinute + MATCH_GRANULARITY_MINUTES) > 45) {
-            this.endMinute = 45;
-        } else if (startMinute >= 45 && (startMinute + MATCH_GRANULARITY_MINUTES) > 90) {
-            this.endMinute = 90;
-        } else {
-            this.endMinute = startMinute + MATCH_GRANULARITY_MINUTES;
-        }
+        this.endMinute = this.getMaxEndMinute();
         
         this.balance = new Map<PitchArea, number>();
         this.homePossession = new Map<PitchArea, number>();
@@ -62,20 +56,30 @@ export default class MatchNature {
 
     // Match intensity slows down
     intensityDown = () => {
-        if ((this.endMinute + INTENSITY_TIME_STEP) > (this.startMinute + 2 * INTENSITY_TIME_STEP)) {
+        const maxEndMinute = this.getMaxEndMinute();
+
+        if ((this.endMinute + INTENSITY_TIME_STEP) > maxEndMinute) {
             return;
-        } else if (this.startMinute < 45 && (this.endMinute + INTENSITY_TIME_STEP) > 45) {
-            this.endMinute = 45;
-        } else if (this.startMinute < 90 && (this.endMinute + INTENSITY_TIME_STEP) > 90) {
-            this.endMinute = 90;
-        } else {
-            this.endMinute += INTENSITY_TIME_STEP;
         }
+
+        this.endMinute += INTENSITY_TIME_STEP;
     }
 
     
     pushAndCedePossession = (pushArea: PitchArea, cedeAreas: PitchArea[]) => {
 
+    }
+
+    private getMaxEndMinute(): number {
+        if (this.startMinute < 45 && (this.startMinute + MATCH_GRANULARITY_MINUTES) > 45) {
+            return 45;
+        }
+
+        if (this.startMinute >= 45 && (this.startMinute + MATCH_GRANULARITY_MINUTES) > 90) {
+            return 90;
+        }
+
+        return this.startMinute + MATCH_GRANULARITY_MINUTES;
     }
 
     
