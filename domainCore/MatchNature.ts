@@ -9,12 +9,14 @@ export type PitchArea = 'homeDefenceLeft' |
                         'homeAttackCentre' |
                         'homeAttackRight';
 
+const INTENSITY_TIME_STEP = MATCH_GRANULARITY_MINUTES / 3;
+
 export default class MatchNature {
     match: Match;
     startMinute: number;
-    endMinute?: number;
-    private balance: Map<PitchArea, number>;
-    private homePossession: Map<PitchArea, number>;
+    endMinute: number;
+    balance: Map<PitchArea, number>;
+    homePossession: Map<PitchArea, number>;
 
     // default object that filters can then alter along the chain
     constructor(match: Match, startMinute: number) {
@@ -23,7 +25,7 @@ export default class MatchNature {
 
         if (startMinute < 45 && (startMinute + MATCH_GRANULARITY_MINUTES) > 45) {
             this.endMinute = 45;
-        } else if (startMinute > 45 && (startMinute + MATCH_GRANULARITY_MINUTES) > 90) {
+        } else if (startMinute >= 45 && (startMinute + MATCH_GRANULARITY_MINUTES) > 90) {
             this.endMinute = 90;
         } else {
             this.endMinute = startMinute + MATCH_GRANULARITY_MINUTES;
@@ -49,12 +51,34 @@ export default class MatchNature {
         this.homePossession.set('homeAttackRight', 50);
     }
 
-    // tarvinnnee miettiä setter-mekanismit jotka kontrolloivat ettei valu yli
+    // Match intensity increases
+    intensityUp = () => {
+        if ((this.endMinute - INTENSITY_TIME_STEP) < (this.startMinute + INTENSITY_TIME_STEP)) {
+            return;
+        } else {
+            this.endMinute -= INTENSITY_TIME_STEP;
+        }
+    }
 
-    // 
+    // Match intensity slows down
+    intensityDown = () => {
+        if ((this.endMinute + INTENSITY_TIME_STEP) > (this.startMinute + 2 * INTENSITY_TIME_STEP)) {
+            return;
+        } else if (this.startMinute < 45 && (this.endMinute + INTENSITY_TIME_STEP) > 45) {
+            this.endMinute = 45;
+        } else if (this.startMinute < 90 && (this.endMinute + INTENSITY_TIME_STEP) > 90) {
+            this.endMinute = 90;
+        } else {
+            this.endMinute += INTENSITY_TIME_STEP;
+        }
+    }
+
+    
     pushAndCedePossession = (pushArea: PitchArea, cedeAreas: PitchArea[]) => {
 
     }
+
+    
 
 }
 
