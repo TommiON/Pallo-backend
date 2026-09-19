@@ -87,7 +87,7 @@ MatchEvent (/domainCore/MatchEvent.ts) is a concrete thing happening in a Match.
 
 MatchResolver runs a filter chain in its main loop. By default, this happens every MATCH_GRANULARITY_MINUTES game minutes, but changes in MatchNature's intensity may change this.
 
-Filters are derived from the abstract class AbstractMatchFilter. They receive input of type MatchFilterResult, process it, and pass it on. MatchFilterResult contains the following data:
+Filters are derived from the abstract class MatchRseolverFilter. They receive input of type MatchFilterResult, process it, and pass it on. MatchFilterResult contains the following data:
 - the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if a substitution MatchEvent takes place.)
 - visiting team's Tactics, similarly.
 - list of MatchNatures generated so far.
