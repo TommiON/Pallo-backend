@@ -25,7 +25,11 @@ const loadMatchNature = (matchGranularityMinutes: number, startMinute: number = 
     };
 };
 
-describe.each([15, 30])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchGranularityMinutes) => {
+const expectMinuteToEqual = (actual: number, expected: number) => {
+    expect(actual).toBeCloseTo(expected, 10);
+};
+
+describe.each([10, 15, 20])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchGranularityMinutes) => {
     afterEach(() => {
         jest.resetModules();
         jest.clearAllMocks();
@@ -65,7 +69,7 @@ describe.each([15, 30])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchG
 
             matchNature.intensityUp();
 
-            expect(matchNature.endMinute).toBe(startMinute + matchGranularityMinutes - intensityTimeStep);
+            expectMinuteToEqual(matchNature.endMinute, startMinute + matchGranularityMinutes - intensityTimeStep);
         });
 
         it("should not let end time get too close to start time", () => {
@@ -75,11 +79,11 @@ describe.each([15, 30])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchG
             matchNature.intensityUp();
             matchNature.intensityUp();
 
-            expect(matchNature.endMinute).toBe(startMinute + intensityTimeStep);
+            expectMinuteToEqual(matchNature.endMinute, startMinute + intensityTimeStep);
 
             matchNature.intensityUp();
 
-            expect(matchNature.endMinute).toBe(startMinute + intensityTimeStep);
+            expectMinuteToEqual(matchNature.endMinute, startMinute + intensityTimeStep);
         });
     });
 
@@ -92,7 +96,7 @@ describe.each([15, 30])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchG
             matchNature.intensityUp();
             matchNature.intensityDown();
 
-            expect(matchNature.endMinute).toBe(startMinute + 2 * intensityTimeStep);
+            expectMinuteToEqual(matchNature.endMinute, startMinute + 2 * intensityTimeStep);
         });
 
         it("should not let end time get too far away from start time", () => {
@@ -110,7 +114,7 @@ describe.each([15, 30])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchG
 
             matchNature.intensityUp();
 
-            expect(matchNature.endMinute).toBe(45 - intensityTimeStep);
+            expectMinuteToEqual(matchNature.endMinute, 45 - intensityTimeStep);
 
             matchNature.intensityDown();
 
@@ -123,7 +127,7 @@ describe.each([15, 30])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchG
 
             matchNature.intensityUp();
 
-            expect(matchNature.endMinute).toBe(90 - intensityTimeStep);
+            expectMinuteToEqual(matchNature.endMinute, 90 - intensityTimeStep);
 
             matchNature.intensityDown();
 

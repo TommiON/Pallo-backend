@@ -10,6 +10,7 @@ export type PitchArea = 'homeDefenceLeft' |
                         'homeAttackRight';
 
 const INTENSITY_TIME_STEP = MATCH_GRANULARITY_MINUTES / 3;
+const TIME_COMPARISON_EPSILON = 1e-9;
 
 export default class MatchNature {
     match: Match;
@@ -47,22 +48,30 @@ export default class MatchNature {
 
     // Match intensity increases
     intensityUp = () => {
-        if ((this.endMinute - INTENSITY_TIME_STEP) < (this.startMinute + INTENSITY_TIME_STEP)) {
+        const minEndMinute = this.startMinute + INTENSITY_TIME_STEP;
+        const nextEndMinute = this.endMinute - INTENSITY_TIME_STEP;
+
+        if (nextEndMinute < (minEndMinute - TIME_COMPARISON_EPSILON)) {
             return;
-        } else {
-            this.endMinute -= INTENSITY_TIME_STEP;
         }
+
+        this.endMinute = Math.abs(nextEndMinute - minEndMinute) <= TIME_COMPARISON_EPSILON
+            ? minEndMinute
+            : nextEndMinute;
     }
 
     // Match intensity slows down
     intensityDown = () => {
         const maxEndMinute = this.getMaxEndMinute();
+        const nextEndMinute = this.endMinute + INTENSITY_TIME_STEP;
 
-        if ((this.endMinute + INTENSITY_TIME_STEP) > maxEndMinute) {
+        if (nextEndMinute > (maxEndMinute + TIME_COMPARISON_EPSILON)) {
             return;
         }
 
-        this.endMinute += INTENSITY_TIME_STEP;
+        this.endMinute = Math.abs(nextEndMinute - maxEndMinute) <= TIME_COMPARISON_EPSILON
+            ? maxEndMinute
+            : nextEndMinute;
     }
 
     
@@ -81,7 +90,6 @@ export default class MatchNature {
 
         return this.startMinute + MATCH_GRANULARITY_MINUTES;
     }
-
     
 
 }
