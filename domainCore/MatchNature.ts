@@ -13,49 +13,61 @@ const INTENSITY_TIME_STEP = MATCH_GRANULARITY_MINUTES / 3;
 const TIME_COMPARISON_EPSILON = 1e-9;
 
 export default class MatchNature {
-    match: Match;
-    startMinute: number;
-    endMinute: number;
-    balance: Map<PitchArea, number>;
-    homePossession: Map<PitchArea, number>;
+    readonly match: Match;
+    readonly startMinute: number;
+    private _endMinute: number;
+    private readonly _balance: Map<PitchArea, number>;
+    private readonly _homePossession: Map<PitchArea, number>;
+
+    get endMinute(): number {
+        return this._endMinute;
+    }
+
+    get balance(): ReadonlyMap<PitchArea, number> {
+        return this._balance;
+    }
+
+    get homePossession(): ReadonlyMap<PitchArea, number> {
+        return this._homePossession;
+    }
 
     // default object that filters can then alter along the chain
     constructor(match: Match, startMinute: number) {
         this.match = match;
         this.startMinute = startMinute;
 
-        this.endMinute = this.getMaxEndMinute();
+        this._endMinute = this.getMaxEndMinute();
         
-        this.balance = new Map<PitchArea, number>();
-        this.homePossession = new Map<PitchArea, number>();
+        this._balance = new Map<PitchArea, number>();
+        this._homePossession = new Map<PitchArea, number>();
 
-        this.balance.set('homeDefenceLeft', 10);
-        this.balance.set('homeDefenceCentre', 10);
-        this.balance.set('homeDefenceRight', 10);
-        this.balance.set('midfield', 40);
-        this.balance.set('homeAttackLeft', 10);
-        this.balance.set('homeAttackCentre', 10);
-        this.balance.set('homeAttackRight', 10);
+        this._balance.set('homeDefenceLeft', 10);
+        this._balance.set('homeDefenceCentre', 10);
+        this._balance.set('homeDefenceRight', 10);
+        this._balance.set('midfield', 40);
+        this._balance.set('homeAttackLeft', 10);
+        this._balance.set('homeAttackCentre', 10);
+        this._balance.set('homeAttackRight', 10);
 
-        this.homePossession.set('homeDefenceLeft', 50);
-        this.homePossession.set('homeDefenceCentre', 50);
-        this.homePossession.set('homeDefenceRight', 50);
-        this.homePossession.set('midfield', 50);
-        this.homePossession.set('homeAttackLeft', 50);
-        this.homePossession.set('homeAttackCentre', 50);
-        this.homePossession.set('homeAttackRight', 50);
+        this._homePossession.set('homeDefenceLeft', 50);
+        this._homePossession.set('homeDefenceCentre', 50);
+        this._homePossession.set('homeDefenceRight', 50);
+        this._homePossession.set('midfield', 50);
+        this._homePossession.set('homeAttackLeft', 50);
+        this._homePossession.set('homeAttackCentre', 50);
+        this._homePossession.set('homeAttackRight', 50);
     }
 
     // Match intensity increases
     intensityUp = () => {
         const minEndMinute = this.startMinute + INTENSITY_TIME_STEP;
-        const nextEndMinute = this.endMinute - INTENSITY_TIME_STEP;
+        const nextEndMinute = this._endMinute - INTENSITY_TIME_STEP;
 
         if (nextEndMinute < (minEndMinute - TIME_COMPARISON_EPSILON)) {
             return;
         }
 
-        this.endMinute = Math.abs(nextEndMinute - minEndMinute) <= TIME_COMPARISON_EPSILON
+        this._endMinute = Math.abs(nextEndMinute - minEndMinute) <= TIME_COMPARISON_EPSILON
             ? minEndMinute
             : nextEndMinute;
     }
@@ -63,13 +75,13 @@ export default class MatchNature {
     // Match intensity slows down
     intensityDown = () => {
         const maxEndMinute = this.getMaxEndMinute();
-        const nextEndMinute = this.endMinute + INTENSITY_TIME_STEP;
+        const nextEndMinute = this._endMinute + INTENSITY_TIME_STEP;
 
         if (nextEndMinute > (maxEndMinute + TIME_COMPARISON_EPSILON)) {
             return;
         }
 
-        this.endMinute = Math.abs(nextEndMinute - maxEndMinute) <= TIME_COMPARISON_EPSILON
+        this._endMinute = Math.abs(nextEndMinute - maxEndMinute) <= TIME_COMPARISON_EPSILON
             ? maxEndMinute
             : nextEndMinute;
     }
