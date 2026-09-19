@@ -2,14 +2,15 @@ import MatchNature from "../../domainCore/MatchNature";
 import MatchEvent from "../../domainCore/MatchEvent";
 import Tactics from "../../domainCore/Tactics";
 
-export type FilterResult = {
+export type MatchResolverFilterResult = {
     homeTactics: Tactics;
     awayTactics: Tactics;
-    matchNatures: MatchNature[];
+    currentMatchNature: MatchNature;
+    previousMatchNatures: ReadonlyArray<MatchNature>;
     matchEvents: MatchEvent[];
 }
 
-// Base class for all match resolver filters
+// Abstract base class for all match resolver filters
 abstract class MatchResolverFilter {
     protected nextFilter: MatchResolverFilter | null = null;
 
@@ -18,14 +19,14 @@ abstract class MatchResolverFilter {
         return filter;
     }
 
-    public apply(input: FilterResult): FilterResult {
+    public apply(input: MatchResolverFilterResult): MatchResolverFilterResult {
         const output = this.process(input);
         return this.passToNext(output);
     }
 
-    protected abstract process(input: FilterResult): FilterResult;
+    protected abstract process(input: MatchResolverFilterResult): MatchResolverFilterResult;
 
-    protected passToNext(input: FilterResult): FilterResult {
+    protected passToNext(input: MatchResolverFilterResult): MatchResolverFilterResult {
         if (this.nextFilter) {
             return this.nextFilter.apply(input);
         }

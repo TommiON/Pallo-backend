@@ -64,16 +64,16 @@ Receive or generate impulses that make the application to do things. Consists of
 
 ## Match Resolving
 
-MatchResolver (/domainEngine/matches/MatchResolver.ts and its private sub-engines) generates outcome of a Match. Match resolving follows a kind of a simplified pipes & filters architecture (no buffers, no concurrency). State is fed through a series of filters that may produce MatchEvents and/or a changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness. The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
+MatchResolver (/domainEngine/matches/MatchResolver.ts and its private sub-engines) generates outcome of a Match. Match resolving follows pipes & filters architecture in a simplified form (no buffers, no concurrency). State is fed through a series of filters that may produce MatchEvents and/or a changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness. The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. In other words, MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
 
 ### MatchNature
 
 MatchNature (/domainCore/MatchNature.ts) contains attributes about the Match as a whole.
 - Intensity: How much or little is happening.
-- Balance: How big a portion of play happens in the different areas of the pitch. The are seven areas: left, center and right of home defence; midfield; left, center and right of home offense. 
-- Possession: How big a share of ball is home team having. This is expressed separately for the seven pitch areas mentioned above. Visiting team's share is implicit, 100 % - home team's share.
+- Balance: How big a portion of play happens in different areas of the pitch.
+- Possession: How big a share of ball is home team having in different areas of the pitch.
 
-A Match will almost always have multiple MatchNatures attached to it, as game evolves during the 90 minutes. 
+A Match will have multiple MatchNatures attached to it, as game evolves during the 90 minutes. 
 
 Intensity affects how frequently the filter chain is re-run: the higher the intensity, the more potential MatchEvents and potential changes of MatchNature. In practice, higher intensity reduces MatchNature's endMinute attribute, causing MatchResolver's main loop to launch the next filter chain sooner. Lower intensity does the opposite.
 
@@ -87,7 +87,7 @@ MatchEvent (/domainCore/MatchEvent.ts) is a concrete thing happening in a Match.
 
 MatchResolver runs a filter chain in its main loop. By default, this happens every MATCH_GRANULARITY_MINUTES game minutes, but changes in MatchNature's intensity may change this.
 
-Filters are derived from the abstract class AbstractFilter. They receive input of type FilterResult, process it, and pass it on. FilterResult contains the following data:
+Filters are derived from the abstract class AbstractMatchFilter. They receive input of type MatchFilterResult, process it, and pass it on. MatchFilterResult contains the following data:
 - the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if a substitution MatchEvent takes place.)
 - visiting team's Tactics, similarly.
 - list of MatchNatures generated so far.
