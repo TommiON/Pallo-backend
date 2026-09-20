@@ -29,7 +29,8 @@ const play = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchEv
     while (minute < (FULL_TIME_MINUTE - TIME_COMPARISON_EPSILON)) {       
         let currentPhaseInMatch = new MatchNature(match, minute);
         // filter chain may alter the nextPhaseInMatch...
-        
+
+        // defensive checks that should not ever be triggered if MatchNature behaves, but just in case...
         if (currentPhaseInMatch.endMinute <= (minute + TIME_COMPARISON_EPSILON)) {
             throw new Error("Match resolver phase did not advance time");
         }

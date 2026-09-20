@@ -20,7 +20,7 @@ export const resolveMatches = async (season: number, week: number) => {
     for (const match of matches) {
         match.started = true;
 
-        match.events = resolveMatch();
+        match.events = resolveMatch(match);
         match.events.forEach((event) => { event.match = match; });
         await saveMatchEventsInBatch(match.events);
         
