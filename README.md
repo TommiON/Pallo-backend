@@ -10,7 +10,7 @@ Domain Objects that represent foundational game constructs. Most are instantiate
 - League: Collection of Clubs playing against each other for a season.
 - Standing: Club's situation in a League at a given moment (season, week).
 - Match: A contest between two Clubs.
-- MatchNature: Attribute set that describes a Match as a whole during a certain period of the said Match. 
+- MatchNature 
 - MatchEvent: Individual action in a Match.
 - Tactics: Tactical setup for a Match.
 
