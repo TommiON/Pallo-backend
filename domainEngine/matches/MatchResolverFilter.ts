@@ -2,6 +2,8 @@ import MatchNature from "../../domainCore/MatchNature";
 import MatchEvent from "../../domainCore/MatchEvent";
 import Tactics from "../../domainCore/Tactics";
 
+// Abstract base class for all match resolver filters
+
 export type MatchResolverFilterResult = {
     homeTactics: Tactics;
     awayTactics: Tactics;
@@ -10,7 +12,6 @@ export type MatchResolverFilterResult = {
     matchEvents: MatchEvent[];
 }
 
-// Abstract base class for all match resolver filters
 abstract class MatchResolverFilter {
     protected nextFilter: MatchResolverFilter | null = null;
 
