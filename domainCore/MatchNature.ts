@@ -11,7 +11,7 @@ Mutation principles:
 - No direct access, modifications through dedicated methods only.
 - Changes are constant and non-parametric, decided internally by MatchNature itself.
 - Changes are capped to a limit.
-- Balance and possession have a tendency towards 50%: changes upwards from 50% become progressively smaller, changes towards 50% from below are bigger when the initial value is far from 50%.
+- Balance and possession grow with diminishing returns.
 - The final, Match-affecting state is usually a result of multiple rounds of adjustment: a filter may change something one way, a subsequent filter the other way.
 */
 
@@ -28,6 +28,7 @@ const DEFENCE_DEFAULT_BALANCE = 0.1;
 const ATTACK_DEFAULT_BALANCE = 0.1;
 const MIDFIELD_DEFAULT_BALANCE = 0.4;
 const POSSESSION_DEFAULT = 0.5;
+const DIMINISHING_RETURNS_FACTOR = 0.2;
 const TIME_COMPARISON_EPSILON = 1e-9;
 
 export default class MatchNature {
@@ -104,6 +105,18 @@ export default class MatchNature {
             : nextEndMinute;
     }
 
+    private getMaxEndMinute(): number {
+        if (this.startMinute < 45 && (this.startMinute + MATCH_GRANULARITY_MINUTES) > 45) {
+            return 45;
+        }
+
+        if (this.startMinute >= 45 && (this.startMinute + MATCH_GRANULARITY_MINUTES) > 90) {
+            return 90;
+        }
+
+        return this.startMinute + MATCH_GRANULARITY_MINUTES;
+    }
+
     // Adjust balance of play. Any increases in gainAreas are offset by decreases in loseAreas, because total is always 100%
     rebalance = (gainAreas: PitchArea[], loseAreas: PitchArea[]) => {
         
@@ -118,34 +131,23 @@ export default class MatchNature {
         }
 
         const currentValue = home ? homePossession : 1 - homePossession;
+        const newValue = this.growShareWithDiminishingReturns(currentValue);
 
-        if (this.getPossessionProportionalDistanceFromDefault(currentValue) >= 0.3) {
-            // lisätään vähän...
-        } else if (this.getPossessionProportionalDistanceFromDefault(currentValue) >= 0.2) {
-
-        } else if (this.getPossessionProportionalDistanceFromDefault(currentValue) >= 0.1) {
-
+        if (home) {
+            this._homePossession.set(pushArea, newValue);
         } else {
-            // lisätään paljon...
+            this._homePossession.set(pushArea, 1 - newValue);
         }
-
     }
 
-    private getMaxEndMinute(): number {
-        if (this.startMinute < 45 && (this.startMinute + MATCH_GRANULARITY_MINUTES) > 45) {
-            return 45;
+    private growShareWithDiminishingReturns = (currentValue: number): number => {
+        if (currentValue > 0.8) {
+            return currentValue;
         }
 
-        if (this.startMinute >= 45 && (this.startMinute + MATCH_GRANULARITY_MINUTES) > 90) {
-            return 90;
-        }
+        const diminishingFactor = 1 - currentValue;
 
-        return this.startMinute + MATCH_GRANULARITY_MINUTES;
-    }
-
-    // itse asiassa tämän ei pitäne käyttää itseiarvoa, mieti uusiksi!
-    private getPossessionProportionalDistanceFromDefault = (currentValue: number): number => {
-        return Math.abs(currentValue - POSSESSION_DEFAULT) / POSSESSION_DEFAULT;
+        return currentValue + (diminishingFactor * DIMINISHING_RETURNS_FACTOR);
     }
 
     private getBalanceProportionalDistanceFromDefault = (currentValue: number, pitchArea: PitchArea): number => {

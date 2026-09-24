@@ -29,6 +29,11 @@ const expectMinuteToEqual = (actual: number, expected: number) => {
     expect(actual).toBeCloseTo(expected, 10);
 };
 
+const expectShareToEqual = (actual: number | undefined, expected: number) => {
+    expect(actual).not.toBeUndefined();
+    expect(actual as number).toBeCloseTo(expected, 10);
+};
+
 describe.each([10, 15, 20])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchGranularityMinutes) => {
     afterEach(() => {
         jest.resetModules();
@@ -132,6 +137,70 @@ describe.each([10, 15, 20])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (ma
             matchNature.intensityDown();
 
             expect(matchNature.endMinute).toBe(90);
+        });
+    });
+
+    describe("pushForPossession", () => {
+        it("should increase home possession in the selected area", () => {
+            const { matchNature } = loadMatchNature(matchGranularityMinutes);
+
+            matchNature.pushForPossession("midfield", true);
+
+            expectShareToEqual(matchNature.homePossession.get("midfield"), 0.6);
+        });
+
+        it("should increase away possession by decreasing stored home possession in the selected area", () => {
+            const { matchNature } = loadMatchNature(matchGranularityMinutes);
+
+            matchNature.pushForPossession("midfield", false);
+
+            expectShareToEqual(matchNature.homePossession.get("midfield"), 0.4);
+        });
+
+        it("should apply diminishing returns over repeated home pushes", () => {
+            const { matchNature } = loadMatchNature(matchGranularityMinutes);
+
+            matchNature.pushForPossession("midfield", true);
+            matchNature.pushForPossession("midfield", true);
+
+            expectShareToEqual(matchNature.homePossession.get("midfield"), 0.68);
+        });
+
+        it("should apply diminishing returns over repeated away pushes", () => {
+            const { matchNature } = loadMatchNature(matchGranularityMinutes);
+
+            matchNature.pushForPossession("midfield", false);
+            matchNature.pushForPossession("midfield", false);
+
+            expectShareToEqual(matchNature.homePossession.get("midfield"), 0.32);
+        });
+
+        it("should not affect other pitch areas", () => {
+            const { matchNature } = loadMatchNature(matchGranularityMinutes);
+
+            matchNature.pushForPossession("midfield", true);
+
+            expectShareToEqual(matchNature.homePossession.get("midfield"), 0.6);
+            expectShareToEqual(matchNature.homePossession.get("homeAttackLeft"), 0.5);
+            expectShareToEqual(matchNature.homePossession.get("homeDefenceCentre"), 0.5);
+        });
+
+        it("should stop changing once the pushed side is already above the hard cap threshold", () => {
+            const { matchNature } = loadMatchNature(matchGranularityMinutes);
+
+            matchNature.pushForPossession("midfield", true);
+            matchNature.pushForPossession("midfield", true);
+            matchNature.pushForPossession("midfield", true);
+            matchNature.pushForPossession("midfield", true);
+            matchNature.pushForPossession("midfield", true);
+
+            const cappedValue = matchNature.homePossession.get("midfield");
+
+            expectShareToEqual(cappedValue, 0.83616);
+
+            matchNature.pushForPossession("midfield", true);
+
+            expectShareToEqual(matchNature.homePossession.get("midfield"), 0.83616);
         });
     });
 });
