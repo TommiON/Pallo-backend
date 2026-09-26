@@ -27,9 +27,9 @@ export const resolveMatch = (match: Match): MatchEvent[] => {
 const play = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchEvent[] => {
     // haettaisiinko taktiikat vasta täällä?
     let minute = 0;
+    let currentPhaseInMatch = MatchNature.createInitial(match, minute);
 
     while (minute < (FULL_TIME_MINUTE - TIME_COMPARISON_EPSILON)) {       
-        let currentPhaseInMatch = new MatchNature(match, minute);
         // filter chain may alter the nextPhaseInMatch...
 
         // defensive checks that should not ever be triggered if MatchNature behaves, but just in case...
@@ -42,6 +42,10 @@ const play = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchEv
         }
 
         minute = currentPhaseInMatch.endMinute;
+
+        if (minute < (FULL_TIME_MINUTE - TIME_COMPARISON_EPSILON)) {
+            currentPhaseInMatch = MatchNature.createFromPrevious(currentPhaseInMatch);
+        }
     }
 
     return [];
@@ -51,6 +55,7 @@ const playDummy = (match: Match, homeTactics: Tactics, awayTactics: Tactics): Ma
     let minute = 0;
     const previousMatchNatures: MatchNature[] = [];
     let matchEvents: MatchEvent[] = [];
+    let currentMatchNature = MatchNature.createInitial(match, minute);
 
     const filterChainStartPoint: MatchResolverFilter = dummyFilterChain[0];
 
@@ -58,7 +63,7 @@ const playDummy = (match: Match, homeTactics: Tactics, awayTactics: Tactics): Ma
         const matchState: MatchResolverFilterResult = {
             homeTactics,
             awayTactics,
-            currentMatchNature: new MatchNature(match, minute),
+            currentMatchNature,
             previousMatchNatures,
             matchEvents,
         };
@@ -69,6 +74,10 @@ const playDummy = (match: Match, homeTactics: Tactics, awayTactics: Tactics): Ma
         matchEvents = [...resolvedMatchState.matchEvents];
 
         previousMatchNatures.push(resolvedMatchState.currentMatchNature);
+
+        if (minute < (FULL_TIME_MINUTE - TIME_COMPARISON_EPSILON)) {
+            currentMatchNature = MatchNature.createFromPrevious(resolvedMatchState.currentMatchNature);
+        }
     }
    
     return matchEvents;

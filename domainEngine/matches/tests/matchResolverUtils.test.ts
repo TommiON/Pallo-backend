@@ -23,7 +23,7 @@ const createMatch = () => new Match(
 const createInput = (startMinute: number, matchEvents: MatchEvent[] = []): MatchResolverFilterResult => ({
     homeTactics: new Tactics(),
     awayTactics: new Tactics(),
-    currentMatchNature: new MatchNature(createMatch(), startMinute),
+    currentMatchNature: MatchNature.createInitial(createMatch(), startMinute),
     previousMatchNatures: [],
     matchEvents,
 });
