@@ -4,6 +4,7 @@ import { sharedEntityBaseColumns } from "./sharedEntityBase";
 export interface MatchNatureEntityData {
     id?: number;
     matchId: number;
+    match?: any;
     startMinute: number;
     endMinute: number;
     balance: string; // JSON stringified Map<PitchArea, number>
@@ -11,7 +12,7 @@ export interface MatchNatureEntityData {
 }
 
 export const MatchNatureEntity = new EntitySchema<MatchNatureEntityData>({
-    name: "MatchNature",
+    name: "match_nature",
     columns: {
         ...sharedEntityBaseColumns,
         matchId: {
@@ -30,4 +31,12 @@ export const MatchNatureEntity = new EntitySchema<MatchNatureEntityData>({
             type: String,
         },
     },
+    relations: {
+        match: {
+            target: "match",
+            type: "many-to-one",
+            joinColumn: { name: "match_id" },
+            inverseSide: "phases"
+        }
+    }
 });
