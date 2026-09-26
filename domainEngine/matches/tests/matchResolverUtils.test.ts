@@ -49,7 +49,7 @@ describe("getALegalMinuteForEvent", () => {
 
         const minute = getALegalMinuteForEvent(input);
 
-        expect(getRandomNumberInRangeMock).toHaveBeenCalledWith(24, input.currentMatchNature.endMinute);
+        expect(getRandomNumberInRangeMock).toHaveBeenCalledWith(25, input.currentMatchNature.endMinute);
         expect(minute).toBe(42);
     });
 
