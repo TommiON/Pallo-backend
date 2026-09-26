@@ -61,3 +61,8 @@ const playDummy = (): MatchEvent[] => {
 
     return events;
 }
+
+export const matchResolverDev = {
+    play,
+    playDummy,
+};

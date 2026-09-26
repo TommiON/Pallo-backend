@@ -4,7 +4,10 @@
   "main": "index.js",
   "scripts": {
     "start-dev": "nodemon index.ts",
-    "test": "jest"
+    "test": "jest --testPathIgnorePatterns=/domainEngine/matches/dev/",
+    "test:match-resolver-dev": "jest --runTestsByPath ./domainEngine/matches/dev/MatchResolver.dev.test.ts --runInBand",
+    "test:match-resolver-dev:dummy": "jest --runTestsByPath ./domainEngine/matches/dev/MatchResolver.dev.test.ts --runInBand --testNamePattern=dummy:",
+    "test:match-resolver-dev:full": "jest --runTestsByPath ./domainEngine/matches/dev/MatchResolver.dev.test.ts --runInBand --testNamePattern=full:"
   },
   "keywords": [],
   "author": "",
