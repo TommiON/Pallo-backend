@@ -19,7 +19,8 @@ const loadMatchNature = (matchGranularityMinutes: number, startMinute: number = 
     const mockMatch = new Match(new Club("Home Test Club"), new Club("Away Test Club"), 1);
 
     return {
-        matchNature: new MatchNature(mockMatch, startMinute),
+        MatchNature,
+        matchNature: MatchNature.createInitial(mockMatch, startMinute),
         intensityTimeStep: matchGranularityMinutes / 3,
         matchGranularityMinutes
     };
@@ -64,6 +65,36 @@ describe.each([10, 15, 20])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (ma
 
             expect(matchNature.startMinute).toBe(startMinute);
             expect(matchNature.endMinute).toBe(90);
+        });
+
+        it("should create a new phase from the previous phase end minute and carry forward state", () => {
+            const startMinute = 0;
+            const { MatchNature, matchNature } = loadMatchNature(matchGranularityMinutes, startMinute);
+
+            matchNature.pushForPossession("midfield", true);
+            (matchNature as any)._balance.set("midfield", 0.35);
+
+            const nextMatchNature = MatchNature.createFromPrevious(matchNature);
+
+            expect(nextMatchNature.startMinute).toBe(matchNature.endMinute);
+            expect(nextMatchNature.endMinute).toBe(Math.min(matchNature.endMinute + matchGranularityMinutes, 90));
+            expect(nextMatchNature.balance).not.toBe(matchNature.balance);
+            expect(nextMatchNature.homePossession).not.toBe(matchNature.homePossession);
+            expectShareToEqual(nextMatchNature.homePossession.get("midfield"), 0.6);
+            expectShareToEqual(nextMatchNature.balance.get("midfield"), 0.35);
+        });
+
+        it("should not share carried-forward maps by reference", () => {
+            const { MatchNature, matchNature } = loadMatchNature(matchGranularityMinutes, 0);
+
+            matchNature.pushForPossession("midfield", true);
+
+            const nextMatchNature = MatchNature.createFromPrevious(matchNature);
+
+            nextMatchNature.pushForPossession("midfield", true);
+
+            expectShareToEqual(matchNature.homePossession.get("midfield"), 0.6);
+            expectShareToEqual(nextMatchNature.homePossession.get("midfield"), 0.68);
         });
     });
 

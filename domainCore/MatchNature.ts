@@ -50,8 +50,23 @@ export default class MatchNature {
         return this._homePossession;
     }
 
-    // default object that filters can then alter along the chain
-    constructor(match: Match, startMinute: number) {
+    public static createInitial(match: Match, startMinute: number): MatchNature {
+        return new MatchNature(match, startMinute);
+    }
+
+    public static createFromPrevious(previousMatchNature: MatchNature): MatchNature {
+        const nextMatchNature = new MatchNature(
+            previousMatchNature.match,
+            previousMatchNature.endMinute,
+        );
+
+        nextMatchNature.copyMapValues(previousMatchNature._balance, nextMatchNature._balance);
+        nextMatchNature.copyMapValues(previousMatchNature._homePossession, nextMatchNature._homePossession);
+
+        return nextMatchNature;
+    }
+
+    private constructor(match: Match, startMinute: number) {
         this.match = match;
         this.startMinute = startMinute;
 
@@ -161,12 +176,12 @@ export default class MatchNature {
             return currentValue;
         }
     }
+
+    private copyMapValues<T>(source: Map<PitchArea, T>, target: Map<PitchArea, T>): void {
+        target.clear();
+
+        for (const [key, value] of source.entries()) {
+            target.set(key, value);
+        }
+    }
 }
-
-// hahmotelma:
-// - push/cede: kumpikin joukkue voi lisätä vaikutusta tietyllä alueella ja luovuttaa vastaavan möäärän muilla alueilla
-// - emphasize/de-emphasize: pelin painopiste lisääntyy tietyllä alueella ja vähenee toisella
-// - luuppi kutsuu näitä n kertaa, viimeisen filtterin jälkeen uusi balance
-
-// työnjako domainObjectin sisäinen logiikka vs. filtterit?
-// keskikentän hallinta 
