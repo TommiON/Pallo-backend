@@ -16,12 +16,6 @@ describe("MatchResolver dev harness", () => {
         const awayTactics = new Tactics();
         
         const events = matchResolverDev.playDummy(match, homeTactics, awayTactics);
-
-        console.log("playDummy() events", events.map((event) => ({
-            type: event.type,
-            initiator: event.initiator,
-            minute: event.minute,
-        })));
     });
 
     it("full: runs play and prints the generated events", () => {
@@ -30,11 +24,5 @@ describe("MatchResolver dev harness", () => {
         const awayTactics = new Tactics();
 
         const events = matchResolverDev.play(match, homeTactics, awayTactics);
-
-        console.log("play() events", events.map((event) => ({
-            type: event.type,
-            initiator: event.initiator,
-            minute: event.minute,
-        })));
     });
 });
