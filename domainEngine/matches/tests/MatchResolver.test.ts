@@ -27,20 +27,29 @@ const loadResolveMatchWithDummyMode = (dummyMode: boolean, options?: {
 	}
 
 	const getRandomNumberInRangeMock = jest.fn();
+	const getRandomElementMock = jest.fn();
 	jest.doMock("../../../domainCore/domainUtils", () => ({
 		...jest.requireActual("../../../domainCore/domainUtils"),
-		getRandomNumberInRange: getRandomNumberInRangeMock
+		getRandomNumberInRange: getRandomNumberInRangeMock,
+		getRandomElement: getRandomElementMock,
 	}));
 
 	const { resolveMatch } = require("../MatchResolver") as {
 		resolveMatch: (match: unknown) => any[];
 	};
 
-	return { resolveMatch, getRandomNumberInRangeMock };
+	return { resolveMatch, getRandomNumberInRangeMock, getRandomElementMock };
 };
 
 describe("MatchResolver.resolveMatch", () => {
+	let consoleLogSpy: jest.SpyInstance;
+
+	beforeEach(() => {
+		consoleLogSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+	});
+
 	afterEach(() => {
+		consoleLogSpy.mockRestore();
 		jest.resetModules();
 		jest.clearAllMocks();
 		jest.dontMock("../../../domainCore/domainProperties");
@@ -59,23 +68,50 @@ describe("MatchResolver.resolveMatch", () => {
 	});
 
 	it("palauttaa deterministisesti dummy-maalitapahtumat kun MATCH_DUMMY_MODE on true", () => {
-		const { resolveMatch, getRandomNumberInRangeMock } = loadResolveMatchWithDummyMode(true);
+		const { resolveMatch, getRandomNumberInRangeMock, getRandomElementMock } = loadResolveMatchWithDummyMode(true);
 		const match = createMatch();
 
 		getRandomNumberInRangeMock
-			.mockReturnValueOnce(2) // numberOfHomeGoals
-			.mockReturnValueOnce(1) // numberOfAwayGoals
-			.mockReturnValueOnce(12) // home minute 1
-			.mockReturnValueOnce(55) // home minute 2
-			.mockReturnValueOnce(89); // away minute 1
+			.mockReturnValueOnce(12)
+			.mockReturnValueOnce(25)
+			.mockReturnValueOnce(55);
+
+		getRandomElementMock
+			.mockReturnValueOnce("unchanged§")
+			.mockReturnValueOnce(true)
+			.mockReturnValueOnce("home")
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce("unchanged§")
+			.mockReturnValueOnce(true)
+			.mockReturnValueOnce("home")
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce("unchanged§")
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce("unchanged§")
+			.mockReturnValueOnce(true)
+			.mockReturnValueOnce("away")
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce("unchanged§")
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce("unchanged§")
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false)
+			.mockReturnValueOnce(false);
 
 		const events = resolveMatch(match);
 
-		expect(getRandomNumberInRangeMock).toHaveBeenCalledTimes(5);
+		expect(getRandomNumberInRangeMock).toHaveBeenCalledTimes(3);
 		expect(events).toHaveLength(3);
 		expect(events.map((e) => e.type)).toEqual(["goal", "goal", "goal"]);
 		expect(events.map((e) => e.initiator)).toEqual(["home", "home", "away"]);
-		expect(events.map((e) => e.minute)).toEqual([12, 55, 89]);
+		expect(events.map((e) => e.minute)).toEqual([12, 25, 55]);
 	});
 
 	it("throws when a resolved phase does not advance time", () => {
