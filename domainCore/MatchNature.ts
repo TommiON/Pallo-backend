@@ -36,8 +36,8 @@ export interface MatchNatureData {
     match: Match;
     startMinute: number;
     endMinute: number;
-    balance: Map<PitchArea, number>;
-    homePossession: Map<PitchArea, number>;
+    balance: ReadonlyMap<PitchArea, number>;
+    homePossession: ReadonlyMap<PitchArea, number>;
 }
 
 export default class MatchNature {
@@ -74,6 +74,17 @@ export default class MatchNature {
         nextMatchNature.copyMapValues(previousMatchNature._homePossession, nextMatchNature._homePossession);
 
         return nextMatchNature;
+    }
+
+    public static restoreFromPersistence(data: MatchNatureData): MatchNature {
+        const restoredMatchNature = new MatchNature(data.match, data.startMinute);
+
+        restoredMatchNature.id = data.id;
+        restoredMatchNature._endMinute = data.endMinute;
+        restoredMatchNature.copyMapValues(data.balance, restoredMatchNature._balance);
+        restoredMatchNature.copyMapValues(data.homePossession, restoredMatchNature._homePossession);
+
+        return restoredMatchNature;
     }
 
     private constructor(match: Match, startMinute: number) {
@@ -187,7 +198,7 @@ export default class MatchNature {
         }
     }
 
-    private copyMapValues<T>(source: Map<PitchArea, T>, target: Map<PitchArea, T>): void {
+    private copyMapValues<T>(source: ReadonlyMap<PitchArea, T>, target: Map<PitchArea, T>): void {
         target.clear();
 
         for (const [key, value] of source.entries()) {
