@@ -2,8 +2,10 @@ import Match from "../../domainCore/Match";
 import MatchEvent from "../../domainCore/MatchEvent";
 import Tactics from "../../domainCore/Tactics";
 import MatchNature from "../../domainCore/MatchNature";
+import { MatchResolverFilter, MatchResolverFilterResult } from "./MatchResolverFilter";
 import { getRandomNumberInRange } from "../../domainCore/domainUtils";
 import { GAME_DUMMY_MODE } from "../../domainCore/domainProperties";
+import { dummyFilterChain } from "./FilterChainFactory";
 
 // Tarvitaan jonkinlainen MatchSetup-domainolio, ne tänne parametreina
 // lisäksi palautusarvo, jossa eventtien lisäksi balancet ja intensityt
@@ -17,7 +19,7 @@ const TIME_COMPARISON_EPSILON = 1e-9;
 
 export const resolveMatch = (match: Match): MatchEvent[] => {
     const events: MatchEvent[] = [];
-    events.push(...(GAME_DUMMY_MODE ? playDummy() : play(match, new Tactics(), new Tactics())));
+    events.push(...(GAME_DUMMY_MODE ? playDummy(match, new Tactics(), new Tactics()) : play(match, new Tactics(), new Tactics())));
     return events;
 }
 
@@ -45,23 +47,35 @@ const play = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchEv
     return [];
 }
 
-const playDummy = (): MatchEvent[] => {
-    const events: MatchEvent[] = [];
+const playDummy = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchEvent[] => {
+    let minute = 0;
+    const previousMatchNatures: MatchNature[] = [];
+    let matchEvents: MatchEvent[] = [];
 
-    const numberOfHomeGoals = getRandomNumberInRange(0, 3);
-    const numberOfAwayGoals = getRandomNumberInRange(0, 3);
+    const filterChainStartPoint: MatchResolverFilter = dummyFilterChain[0];
 
-    for (let i = 0; i < numberOfHomeGoals; i++) {
-        events.push(new MatchEvent('goal', getRandomNumberInRange(1, 90), 'home'));
+    while (minute < (FULL_TIME_MINUTE - TIME_COMPARISON_EPSILON)) {
+        const matchState: MatchResolverFilterResult = {
+            homeTactics,
+            awayTactics,
+            currentMatchNature: new MatchNature(match, minute),
+            previousMatchNatures,
+            matchEvents,
+        };
+
+        const resolvedMatchState = filterChainStartPoint.apply(matchState);
+        
+        minute = resolvedMatchState.currentMatchNature.endMinute;
+        matchEvents = [...resolvedMatchState.matchEvents];
+
+        previousMatchNatures.push(resolvedMatchState.currentMatchNature);
     }
-
-    for (let i = 0; i < numberOfAwayGoals; i++) {
-        events.push(new MatchEvent('goal', getRandomNumberInRange(1, 90), 'away'));
-    }
-
-    return events;
+   
+    return matchEvents;
 }
 
+
+// Development utilities, used by "test" at /dev/MatchResolver.dev.test.ts 
 export const matchResolverDev = {
     play,
     playDummy,
