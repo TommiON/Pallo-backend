@@ -3,12 +3,9 @@ import MatchEvent from "../../domainCore/MatchEvent";
 import Tactics from "../../domainCore/Tactics";
 import MatchNature from "../../domainCore/MatchNature";
 import { MatchResolverFilter, MatchResolverFilterResult } from "./MatchResolverFilter";
-import { getRandomNumberInRange } from "../../domainCore/domainUtils";
 import { GAME_DUMMY_MODE } from "../../domainCore/domainProperties";
 import { dummyFilterChain } from "./FilterChainFactory";
 
-// Tarvitaan jonkinlainen MatchSetup-domainolio, ne tänne parametreina
-// lisäksi palautusarvo, jossa eventtien lisäksi balancet ja intensityt
 type MatchResolutionResult = {
     phases: MatchNature[];
     events: MatchEvent[];
@@ -17,14 +14,16 @@ type MatchResolutionResult = {
 const FULL_TIME_MINUTE = 90;
 const TIME_COMPARISON_EPSILON = 1e-9;
 
-export const resolveMatch = (match: Match): MatchEvent[] => {
-    const events: MatchEvent[] = [];
-    events.push(...(GAME_DUMMY_MODE ? playDummy(match, new Tactics(), new Tactics()) : play(match, new Tactics(), new Tactics())));
-    return events;
+export const resolveMatch = (match: Match): MatchResolutionResult => {
+    if (GAME_DUMMY_MODE) {
+        return playDummy(match, new Tactics(), new Tactics());
+    } else {
+        return play(match, new Tactics(), new Tactics());
+    }
 }
 
 // kannasta luetut Tacticsit muuttuvat resolverin työmuistiksi (vaihdot, loukkaantumiset jne) jota ei kirjoiteta takaisin kantaan?
-const play = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchEvent[] => {
+const play = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchResolutionResult => {
     // haettaisiinko taktiikat vasta täällä?
     let minute = 0;
     let currentPhaseInMatch = MatchNature.createInitial(match, minute);
@@ -48,10 +47,13 @@ const play = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchEv
         }
     }
 
-    return [];
+    return {
+        phases: [],
+        events: []
+    };
 }
 
-const playDummy = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchEvent[] => {
+const playDummy = (match: Match, homeTactics: Tactics, awayTactics: Tactics): MatchResolutionResult => {
     let minute = 0;
     const previousMatchNatures: MatchNature[] = [];
     let matchEvents: MatchEvent[] = [];
@@ -80,7 +82,10 @@ const playDummy = (match: Match, homeTactics: Tactics, awayTactics: Tactics): Ma
         }
     }
    
-    return matchEvents;
+    return {
+        phases: previousMatchNatures,
+        events: matchEvents
+    }
 }
 
 
