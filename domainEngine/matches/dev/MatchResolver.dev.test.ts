@@ -11,7 +11,11 @@ const createMatch = () => new Match(
 
 describe("MatchResolver dev harness", () => {
     it("dummy: runs playDummy and prints the generated events", () => {
-        const events = matchResolverDev.playDummy();
+        const match = createMatch();
+        const homeTactics = new Tactics();
+        const awayTactics = new Tactics();
+        
+        const events = matchResolverDev.playDummy(match, homeTactics, awayTactics);
 
         console.log("playDummy() events", events.map((event) => ({
             type: event.type,
