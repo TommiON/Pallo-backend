@@ -13,6 +13,7 @@ export interface MatchEntityData {
     homeClub?: any;
     awayClub?: any;
     events?: any;
+    phases?: any;
 }
 
 export const MatchEntity = new EntitySchema<MatchEntityData>({
@@ -60,6 +61,11 @@ export const MatchEntity = new EntitySchema<MatchEntityData>({
         },
         events: {
             target: "match_event",
+            type: "one-to-many",
+            inverseSide: "match"
+        },
+        phases: {
+            target: "match_nature",
             type: "one-to-many",
             inverseSide: "match"
         }
