@@ -12,7 +12,7 @@ export type MatchResolverFilterResult = {
     matchEvents: MatchEvent[];
 }
 
-abstract class MatchResolverFilter {
+export abstract class MatchResolverFilter {
     protected nextFilter: MatchResolverFilter | null = null;
 
     public setNext(filter: MatchResolverFilter): MatchResolverFilter {
@@ -25,6 +25,7 @@ abstract class MatchResolverFilter {
         return this.passToNext(output);
     }
 
+    // filter-specific logic implemented here
     protected abstract process(input: MatchResolverFilterResult): MatchResolverFilterResult;
 
     protected passToNext(input: MatchResolverFilterResult): MatchResolverFilterResult {
