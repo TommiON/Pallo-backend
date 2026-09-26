@@ -31,7 +31,17 @@ const POSSESSION_DEFAULT = 0.5;
 const DIMINISHING_RETURNS_FACTOR = 0.2;
 const TIME_COMPARISON_EPSILON = 1e-9;
 
+export interface MatchNatureData {
+    id?: number;
+    match: Match;
+    startMinute: number;
+    endMinute: number;
+    balance: Map<PitchArea, number>;
+    homePossession: Map<PitchArea, number>;
+}
+
 export default class MatchNature {
+    id?: number;
     readonly match: Match;
     readonly startMinute: number;
     private _endMinute: number;

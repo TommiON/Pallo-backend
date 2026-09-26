@@ -1,7 +1,7 @@
 import Club from "./Club";
 import League from "./League";
 import MatchEvent from "./MatchEvent";
-import { getRandomNumberInRange } from "./domainUtils";
+import MatchNature from "./MatchNature";
 
 // Tiivistelmätietotyyppi
 export type MatchResult = {
@@ -22,6 +22,7 @@ export interface MatchData {
     started: boolean;
     finished: boolean;
     events: MatchEvent[];
+    phases: MatchNature[];
 }
 
 export default class Match {
@@ -33,6 +34,7 @@ export default class Match {
     started: boolean;
     finished: boolean;
     events: MatchEvent[];
+    phases: MatchNature[];
 
     constructor(homeClub: Club, awayClub: Club, week: number, league?: League) {
         this.homeClub = homeClub;
@@ -42,6 +44,7 @@ export default class Match {
         this.started = false;
         this.finished = false;
         this.events = [];
+        this.phases = [];
     }
 
     getResult(): MatchResult {
