@@ -4,7 +4,7 @@ import { getRandomNumberInRange, getRandomElement } from "../../../domainCore/do
 // randomly adjusts midfield possession
 class DummyPossessionFilter extends MatchResolverFilter {
     protected process(input: MatchResolverFilterResult): MatchResolverFilterResult {
-        const change = getRandomElement(['homeDominance', 'awayDominance', 'noChange', 'noChange', 'noChange']);
+        const change = getRandomElement(['homeDominance', 'awayDominance', 'noChange']);
 
         if (change === 'homeDominance') {
             input.currentMatchNature.pushForPossession('midfield', true);
