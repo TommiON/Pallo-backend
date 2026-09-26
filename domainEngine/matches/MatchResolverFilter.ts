@@ -9,7 +9,7 @@ export type MatchResolverFilterResult = {
     awayTactics: Tactics;
     currentMatchNature: MatchNature;
     previousMatchNatures: ReadonlyArray<MatchNature>;
-    matchEvents: MatchEvent[];
+    matchEvents: ReadonlyArray<MatchEvent>;
 }
 
 export abstract class MatchResolverFilter {
