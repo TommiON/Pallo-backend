@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 
-import environment from "./config/environment";
+import environment from "./environment";
 import appDataSource from "./persistence/datasource/datasource";
 
 import healthCheckRouter from "./api/healthCheck/healthCheckRoutes";

@@ -2,7 +2,7 @@ import jsonwebtoken from 'jsonwebtoken';
 import { passwordMatches } from './controllerUtils';
 import { findClubForAuthentication } from '../dataAccess/authService';
 
-import environment from '../config/environment';
+import environment from '../environment';
 
 type AuthenticationResult = {
     usernameFound: boolean;

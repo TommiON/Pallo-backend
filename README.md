@@ -24,7 +24,7 @@ Domain Core persisted. Exposes services, each of which generally handles persist
 
 ### 3. Domain Engine (/domainEngine)
 Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine operates at the abstraction level of Domain Objects and knows nothing about the wider flow of the application.
-(- DomainInitializer: initializes the state of the domain.)
+- DomainInitializer: initializes the state of the domain. (Tämä ehkä pois, nykymuodossaan schedulerin hommia?)
 - ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander: creates Leagues and organizes them into pyramid-like structure.
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
@@ -57,9 +57,8 @@ Receive or generate impulses that make the application do things. Consists of tw
 - API: REST endpoints for frontend user interaction. Contains Express routers serving endpoints, payload types, and request validators.
 
 ### 7. The outside (/)
-- index.ts performs the init and startup sequence: sets up REST routes, sets up datasource, provides dataAccess Ports with Adapter implementations, lauches Scheduler.
-- environment.ts?
-- (e2e tests when ready)
+- index.ts performs the init and startup sequence: sets up REST routes, sets up datasource, provides dataAccess Ports with Adapter implementations, launches Scheduler.
+- environment.ts handles environment variables.
 
 ## Match Resolving
 

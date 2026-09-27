@@ -3,7 +3,7 @@ import jsonwebtoken from "jsonwebtoken";
 import { authenticateLogin, generateToken } from "../authenticateLogin";
 import { findClubForAuthentication } from "../../dataAccess/authService";
 import { passwordMatches } from "../controllerUtils";
-import environment from "../../config/environment";
+import environment from "../../environment";
 
 jest.mock("../../dataAccess/authService", () => ({
     findClubForAuthentication: jest.fn()

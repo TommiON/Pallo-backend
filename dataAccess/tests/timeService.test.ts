@@ -10,7 +10,7 @@ import { timeRepository } from "../../persistence/repositories/repositories";
 import { configureTimeService, getCurrentTime, initializeTime, updateTime } from "../timeService";
 import { eventNotifications } from "../eventNotifications";
 
-jest.mock("../../config/datasource", () => ({
+jest.mock("../../persistence/datasource/datasource", () => ({
     __esModule: true,
     default: {
         transaction: jest.fn()

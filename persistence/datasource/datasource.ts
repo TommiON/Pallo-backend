@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
 
-import environment from "../../config/environment";
+import environment from "../../environment";
 import { PlayerEntity } from "../entities/PlayerEntity";
 import { ClubEntity } from "../entities/ClubEntity";
 import { LeagueEntity } from "../entities/LeagueEntity";

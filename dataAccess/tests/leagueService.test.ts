@@ -7,7 +7,7 @@ import {
 import { leagueRepository } from "../../persistence/repositories/repositories";
 import { configureLeagueService, findLeaguesBySeason } from "../leagueService";
 
-jest.mock("../../config/datasource", () => ({
+jest.mock("../../persistence/datasource/datasource", () => ({
     __esModule: true,
     default: {
         transaction: jest.fn()

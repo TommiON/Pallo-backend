@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import jsonwebtoken from 'jsonwebtoken';
 
-import environment from '../config/environment';
+import environment from '../environment';
 import { ValidationError } from "./ValidationError";
 import { sendErrorResponse } from "./ApiResponse";
 import { AuthenticatedUser } from "../controllers/authenticateLogin";

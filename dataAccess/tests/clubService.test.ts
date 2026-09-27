@@ -12,7 +12,7 @@ import appDataSource from "../../persistence/datasource/datasource";
 import { configureClubService, persistNewClub } from "../clubService";
 import { eventNotifications } from "../eventNotifications";
 
-jest.mock("../../config/datasource", () => ({
+jest.mock("../../persistence/datasource/datasource", () => ({
     __esModule: true,
     default: {
         transaction: jest.fn()
