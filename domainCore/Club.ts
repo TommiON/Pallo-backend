@@ -2,7 +2,8 @@ import Player from "./Player";
 import League from "./League";
 import { getRandomNumberInRange } from "./domainUtils";
 
-// Core data contract for Club - defines what's exposed externally
+/* CLUB: the team, and also the user account, of a user. */
+
 export interface ClubData {
     id?: number;
     name: string;

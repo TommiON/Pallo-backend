@@ -1,6 +1,9 @@
 import Time from "./Time";
 
-//Core data contract for WeeklyEvent - defines what's exposed externally
+/*
+WEEKLY EVENT: recurring event in game's weekly cycle. Differs from most other Domain Objects for being just conceptual, i.e. not persisted as an instance.
+*/
+
 export interface WeeklyEventData {
     type: WeeklyEventType;
     deadline: WeeklyDeadline;

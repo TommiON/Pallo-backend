@@ -1,8 +1,8 @@
 import Match from "./Match";
 import { MATCH_GRANULARITY_MINUTES } from "./domainProperties";
 
-/*
-MatchNature holds and manages three properties describing Match as a whole:
+/* 
+MATCHNATURE: holds and manages three properties describing Match as a whole:
 - Intensity; How much or little is happening. Expressed through the endMinute property; the lower it is, the higher the intensity, causing the next resolver loop to launch earlier.
 - Balance: How play is distributed across the seven PitchAreas. Totals to 100% for the entire pitch.
 - Home possession: How big a share of the ball the home team has in each of the PitchAreas. Visiting team implicitly 1 - home possession.

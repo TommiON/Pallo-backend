@@ -2,7 +2,8 @@ import { LEAGUE_NUMBER_OF_TEAMS } from "./domainProperties";
 
 const weeksInSeason = (LEAGUE_NUMBER_OF_TEAMS - 1) * 2;
 
-// Core data contract for Time - defines what's exposed externally
+/* TIME: Current moment (season, week, day, hour) in gametime. A singleton. */
+
 export interface TimeData {
     season: number;
     week: number;

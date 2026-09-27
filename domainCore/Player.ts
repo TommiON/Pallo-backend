@@ -3,7 +3,8 @@ import { getRandomElement, getRandomNumberInRange } from "./domainUtils";
 import { PLAYER_MIN_AGE, PLAYER_FOOTEDNESS_DISTRIBUTION_WEIGHTS_RIGHT_LEFT_BOTH, PLAYER_WEAK_SKILL_STARTING_RANGE, 
     PLAYER_AVERAGE_SKILL_STARTING_RANGE, PLAYER_STRONG_SKILL_STARTING_RANGE } from "./domainProperties";
 
-// Core data contract for Player - defines what's exposed externally
+/* PLAYER: team member with individual identity and a set of physical, technical and tactical skills. */
+
 export interface PlayerData {
     id?: number;
     name: string;

@@ -3,7 +3,8 @@ import League from "./League";
 import MatchEvent from "./MatchEvent";
 import MatchNature from "./MatchNature";
 
-// Tiivistelmätietotyyppi
+/* MATCH: a contest between two Clubs. */
+
 export type MatchResult = {
         id?: number;
         homeClub: Club;
@@ -12,7 +13,6 @@ export type MatchResult = {
         awayGoals: number;
 }
 
-// Core data contract for League - defines what's exposed externally
 export interface MatchData {
     id?: number;
     league?: League;

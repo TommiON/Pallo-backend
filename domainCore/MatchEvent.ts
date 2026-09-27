@@ -1,6 +1,6 @@
 import Match from "./Match";
 
-// TODO: this is very preliminary, just to enable dummy-playing matches
+/* MATCHEVENT: individual action in a Match. */
 
 export type MatchEventType = 'goal' | 'assist' | 'yellow_card' | 'red_card' | 'substitution';
 export type MatchEventInitiator = 'home' | 'away';

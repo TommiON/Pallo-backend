@@ -3,7 +3,8 @@ import Match from "./Match";
 import Standing from "./Standing";
 import { getRandomNumberInRange } from "./domainUtils";
 
-// Core data contract for League - defines what's exposed externally
+/* LEAGUE: a collection of Clubs playing against each other for a season. */
+
 export interface LeagueData {
     id?: number;
     season: number;

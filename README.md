@@ -3,28 +3,28 @@
 Pallo-backend's architecture can be pictured as seven nested spheres where dependencies point inwards, i.e. inner spheres know nothing about the outer.
 
 ### 1. Domain Core (/domainCore)
-Domain Objects that represent foundational game constructs. Most are instantiated and persisted as an eponymous entity.
-- Club: The team, and also user account, of a user.
-- Time: Current moment (season, week, day, hour) in gametime. A singleton.
-- Player: Team member with individual identity and a set of physical, technical and tactical skills.
-- League: Collection of Clubs playing against each other for a season.
-- Standing: Club's situation in a League at a given moment (season, week).
-- Match: A contest between two Clubs.
+Domain Objects that represent foundational game concepts:
+- Club
+- Time
+- Player
+- League
+- Standing
+- Match
 - MatchNature 
-- MatchEvent: Individual action in a Match.
-- Tactics: Tactical setup for a Match.
+- MatchEvent
+- Tactics
+- WeeklyEvent
 
-Some Domain Objects represent overarching concepts that are not instantiated and persisted:
-- WeeklyEvent: Recurring event in game's weekly cycle.
+Domain Objects typically expose a constructable class (e.g. Match) and a behavior-stripped data representation (e.g. MatchData), sometimes also other related data types (e.g. MatchResult).
 
-Also contains Domain Properties, the core settings of the gameworld, and Domain Utils, a collection of generic helper functions.
+This layer also contains Domain Properties, the core settings of the gameworld, and Domain Utils, a collection of generic helper functions.
 
 ### 2. Data Access Interface (/dataAccess)
-Domain Core persisted. Exposes Services, each of which generally handles persistence of a certain type of Domain Object (TimeService, LeagueService, PlayerService, etc). To avoid dependency on specific frameworks or databases, this layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration hook that accepts an implementation (Adapter) of a Port. Callers will access data via Ports without knowing about the implementation.
+Domain Core persisted. Exposes services, each of which generally handles persistence of a certain type of Domain Object (TimeService, LeagueService, PlayerService, etc). To avoid dependency on specific frameworks and databases, this layer is just an interface, defined as abtract Ports. Services expose a dependency-injecting configuration hook that accepts an implementation (Adapter) of a Port. Callers will access data via Ports without knowing about the implementation.
 
 ### 3. Domain Engine (/domainEngine)
 Algorithms and orchestrating functions that define the fundamental workings of the game. Domain Engine operates at the abstraction level of Domain Objects and knows nothing about the wider flow of the application.
-- DomainInitializer: initializes the state of the domain.
+(- DomainInitializer: initializes the state of the domain.)
 - ClubCreator: creates and initializes new user Clubs.
 - PyramidExpander: creates Leagues and organizes them into pyramid-like structure.
 - FixtureGenerator: generates Matches between Clubs in a League at the start of a season.
@@ -43,7 +43,7 @@ Concrete implementation of Data Access Interface. Uses TypeORM framework and Pos
 - DataSource varmaan myös tänne?
 
 ### 5. Application Controllers (/controllers)
-Define and handle application behavior by reacting to requests from API and Scheduler that sit further out. Controllers use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized into functions whose names describe what is happening, such as:
+Define and handle application behavior by reacting to requests from API and Scheduler. Controllers use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized into functions whose names describe what is happening, such as:
 - startNewSeason()
 - createNewUserClub()
 - authenticateLogin()
@@ -53,7 +53,7 @@ Define and handle application behavior by reacting to requests from API and Sche
 (- EventNotifications???)
 
 ### 6. Interactors (/api, /scheduler)
-Receive or generate impulses that make the application to do things. Consists of two parts:
+Receive or generate impulses that make the application do things. Consists of two parts:
 - Scheduler: the application's timekeeper that maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
 - API: REST endpoints for frontend user interaction. Contains Express routers serving endpoints, payload types, and request validators.
 
@@ -64,7 +64,7 @@ Receive or generate impulses that make the application to do things. Consists of
 
 ## Match Resolving
 
-MatchResolver (/domainEngine/matches/MatchResolver.ts and its private sub-engines) generates outcome of a Match. Match resolving follows pipes & filters architecture in a simplified form (no buffers, no concurrency). State is fed through a series of filters that may produce MatchEvents and/or a changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness. The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. In other words, MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
+MatchResolver (/domainEngine/matches/MatchResolver.ts and its private sub-engines) generates outcome of a Match. Match resolving follows pipes & filters architecture in a simplified form (no buffers, no concurrency). State is fed through a series of filters that may produce MatchEvents and/or changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness. The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. In other words, MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
 
 ### MatchNature
 
@@ -87,9 +87,10 @@ MatchEvent (/domainCore/MatchEvent.ts) is a concrete thing happening in a Match.
 
 MatchResolver runs a filter chain in its main loop. By default, this happens every MATCH_GRANULARITY_MINUTES game minutes, but changes in MatchNature's intensity may change this.
 
-Filters are derived from the abstract class MatchRseolverFilter. They receive input of type MatchFilterResult, process it, and pass it on. MatchFilterResult contains the following data:
-- the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if a substitution MatchEvent takes place.)
+Filters are derived from the abstract class MatchResolverFilter. They receive input of type MatchResolverFilterResult, process it, and pass it on. MatchResolverFilterResult contains the following data:
+- the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if a substitution MatchEvent takes place.) <- tämä ei kyllä kuulosta järin robustilta, pitäisikö Tacticsit olla immutable ja filttereille jokin erillinen työtila?
 - visiting team's Tactics, similarly.
+- current, potentially mutating MatchNature.
 - list of MatchNatures generated so far.
 - list of MatchEvents generated so far.
 
