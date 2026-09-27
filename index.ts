@@ -19,6 +19,7 @@ import { configureTimeService } from "./dataAccess/timeService";
 import { configureMatchService } from "./dataAccess/matchService";
 import { configureMatchEventService } from "./dataAccess/matchEventService";
 import { configureStandingService } from "./dataAccess/standingService";
+import { configureMatchNatureService } from "./dataAccess/matchNatureService";
 
 import { defaultAuthStorePort } from "./persistence/adapters/authAdapters";
 import { defaultClubEventsPort, defaultClubStorePort, defaultClubTransactionPort } from "./persistence/adapters/clubAdapters";
@@ -28,6 +29,7 @@ import { defaultTimeEventsPort, defaultTimeStorePort, defaultTimeTransactionPort
 import { defaultMatchStorePort, defaultMatchTransactionPort } from "./persistence/adapters/matchAdapters";
 import { defaultMatchEventStorePort, defaultMatchEventTransactionPort } from "./persistence/adapters/matchEventAdapters";
 import { defaultStandingStorePort } from "./persistence/adapters/standingAdapters";
+import { defaultMatchNatureStorePort, defaultMatchNatureTransactionPort } from "./persistence/adapters/matchNatureAdapters";
 
 import { initializeScheduler, startScheduler } from "./scheduler/scheduler";
 
@@ -55,6 +57,7 @@ const start = async () => {
         configureMatchService({ matchStore: defaultMatchStorePort, matchTransaction: defaultMatchTransactionPort });
         configureMatchEventService({ matchEventStore: defaultMatchEventStorePort, matchEventTransaction: defaultMatchEventTransactionPort });
         configureStandingService({ standingStore: defaultStandingStorePort });
+        configureMatchNatureService({ matchNatureStore: defaultMatchNatureStorePort, matchNatureTransaction: defaultMatchNatureTransactionPort });
         
         await initializeScheduler();
         startScheduler();
