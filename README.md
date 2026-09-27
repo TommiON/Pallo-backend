@@ -42,19 +42,18 @@ Concrete implementation of Data Access Interface. Uses TypeORM framework and Pos
 - /datasource sets up data source for TypeORM.
 
 ### 5. Application Controllers (/controllers)
-Define and handle application behavior by reacting to requests from API and Scheduler. Controllers use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized into functions whose names describe what is happening, such as:
+Define and handle application behavior by reacting to requests from API and Scheduler. Controllers use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized into functions whose names start with a verb and describe what is happening, such as:
 - startNewSeason()
 - createNewUserClub()
 - authenticateLogin()
 - resolveMatches()
-- etc.
 
 (- EventNotifications???)
 
-### 6. Interactors (/api, /scheduler)
-Receive or generate impulses that make the application do things. Consists of two parts:
-- Scheduler: the application's timekeeper that maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from Interactors sphere ever needs to know what time it is.)
-- API: REST endpoints for frontend user interaction. Contains Express routers serving endpoints, payload types, and request validators.
+### 6. Impulse Sources (/api, /scheduler)
+Receive or generate impulses that make the application to do things, i.e. to call something on Application Controllers layer. Consists of two parts:
+- /scheduler: the application's timekeeper that maintains a periodic clock-tick. Generates application-internal events by checking on each tick whether it is time to do something. Also contains appClock that provides API with the game's time. (Nobody inwards from this layer ever needs to know what time it is.)
+- /api: REST endpoints for frontend interaction. Contains Express routers serving the endpoints, payload types, and request validators.
 
 ### 7. The outside (/)
 - index.ts performs the init and startup sequence: sets up REST routes, sets up datasource, provides dataAccess Ports with Adapter implementations, launches Scheduler.
