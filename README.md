@@ -74,7 +74,7 @@ A Match will have multiple MatchNatures attached to it, as game evolves during t
 
 Intensity affects how frequently the filter chain is re-run: the higher the intensity, the more potential MatchEvents and potential changes of MatchNature. In practice, higher intensity reduces MatchNature's endMinute attribute, causing MatchResolver's main loop to launch the next filter chain sooner. Lower intensity does the opposite.
 
-Balance and possession, on the other hand, affect the distribution of different kinds of MatchEvents, but not the amount of them.
+Balance and possession, on the other hand, affect the distribution of different kinds of MatchEvents, but not the amount of them. (Balance varmaan näin, mutta Possession?)
 
 ### Match Event
 
@@ -107,7 +107,6 @@ From functional point of view, filters can be divided into three groups that fol
 - FatigueImpulseFilter
 
 
-- MatchPhase describes general dominance of teams in different parts of the pitch. It is expressed as amount of possession in nine zones of the pitch, and affects the distribution (but not amount) of goal-opportunity Events.
 - MatchEvent: viime kädessä ainoa oleellinen event maalitilanne -> lopputulos? Tämän lisäksi loukkaantuminen, kortit, Tarvitaanko eventtien ketjutusta? Määrittele erilaiset maalipaikat, ehkä noin 10 erilaista tai vähän yli?
 
 - Suuri ratkaisematon kysymys: miten pelaajien ominaisuudet mäppäytyvät MatchPhase ja MatchEvent filttereiksi? Toistaiseksi ominaisuuslistaa ei ole edes päätetty.
@@ -153,23 +152,6 @@ case study, mieti miten menee jos halutaan...
 
 ----
 
-### Directory structure
-
-- **/domainModel**: Domain objects and their business logic. Each Domain Object offers a Domain Data Contract that defines what is exposed, and fromEntity/toEntity factories/adapters for dealing with persistence level.
-
-- **/persistence**: Persisted version of the Domain model. Contains Entities and Repositories corresponding to Domain objects. Persistence Data Contracts define how Domain objects are persisted.
-
-- **/api**: REST endpoints for frontend. Request and response types. Request validators.
-
-- **/services**: Mediates between API and inner parts of the application. Responsible for dealing with the persistence level. Returns Domain objects.
-
-- **/domainEngine**: Larger-scale business logic. Deals with Domain objects and does things to them.
-
-- **/domainProperties**: Domain-related settings and properties.
-
-- **/config**: Technical configuration.
-
-- **/utils**: Helper functions and stuff.
 
 ### Flow
 
