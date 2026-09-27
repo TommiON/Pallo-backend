@@ -16,7 +16,8 @@ export const MatchNatureEntity = new EntitySchema<MatchNatureEntityData>({
     columns: {
         ...sharedEntityBaseColumns,
         matchId: {
-            type: Number,
+            name: "match_id",
+            type: "int"
         },
         startMinute: {
             type: Number,
