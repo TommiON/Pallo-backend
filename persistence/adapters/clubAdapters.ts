@@ -1,6 +1,6 @@
 import { EntityManager, Repository } from "typeorm";
 
-import appDataSource from "../../config/datasource";
+import appDataSource from "../datasource/datasource";
 import Club from "../../domainCore/Club";
 import Player from "../../domainCore/Player";
 import { eventNotifications } from "../../dataAccess/eventNotifications";

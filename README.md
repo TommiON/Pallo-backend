@@ -36,11 +36,10 @@ Algorithms and orchestrating functions that define the fundamental workings of t
 ### 4. Persistence Implementation (/persistence)
 Concrete implementation of Data Access Interface. Uses TypeORM framework and PostgreSQL database.
 - /entities define database tables.
-- /adapters implement the Ports of sphere 2.
+- /adapters implement the Ports of level 2.
 - /repositories handle accessing database.
 - /mappers transform entity data <-> Domain Objects.
-
-- DataSource varmaan myös tänne?
+- /datasource sets up data source for TypeORM.
 
 ### 5. Application Controllers (/controllers)
 Define and handle application behavior by reacting to requests from API and Scheduler. Controllers use Data Access Interface for data needs and Domain Engine for performing domain operations. Organized into functions whose names describe what is happening, such as:

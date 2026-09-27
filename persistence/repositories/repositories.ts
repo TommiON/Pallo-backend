@@ -1,6 +1,6 @@
 import { EntityManager, Repository } from "typeorm";
 
-import appDataSource from "../../config/datasource";
+import appDataSource from "../datasource/datasource";
 
 import { PlayerEntity, PlayerEntityData } from "../entities/PlayerEntity";
 export const playerRepository: Repository<PlayerEntityData> = appDataSource.getRepository(PlayerEntity);

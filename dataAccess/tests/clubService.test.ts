@@ -8,7 +8,7 @@ import {
     defaultClubTransactionPort
 } from "../../persistence/adapters/clubAdapters";
 import { CLUB_NUMBER_OF_PLAYERS_AT_START } from "../../domainCore/domainProperties";
-import appDataSource from "../../config/datasource";
+import appDataSource from "../../persistence/datasource/datasource";
 import { configureClubService, persistNewClub } from "../clubService";
 import { eventNotifications } from "../eventNotifications";
 

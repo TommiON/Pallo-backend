@@ -5,7 +5,7 @@ import { matchRepository } from "../repositories/repositories";
 import { MatchStorePort, MatchTransactionalStorePort, MatchTransactionPort } from "../../dataAccess/ports/matchPorts";
 import Match from "../../domainCore/Match";
 import { MatchEntity, MatchEntityData } from "../entities/MatchEntity";
-import appDataSource from "../../config/datasource";
+import appDataSource from "../datasource/datasource";
 
 
 const createMatchStoreFromRepository = (repository: Repository<MatchEntityData>): MatchStorePort => ({

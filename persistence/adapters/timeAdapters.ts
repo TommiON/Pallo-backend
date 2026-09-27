@@ -1,6 +1,6 @@
 import { EntityManager, Repository } from "typeorm";
 
-import appDataSource from "../../config/datasource";
+import appDataSource from "../datasource/datasource";
 import Time from "../../domainCore/Time";
 import { eventNotifications } from "../../dataAccess/eventNotifications";
 import { TimeEventsPort, TimeStorePort, TimeTransactionPort } from "../../dataAccess/ports/timePorts";

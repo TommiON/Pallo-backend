@@ -5,7 +5,7 @@ import { matchEventRepository } from "../repositories/repositories";
 import { MatchEventStorePort, MatchEventTransactionalStorePort, MatchEventTransactionPort } from "../../dataAccess/ports/matchEventPorts";
 import MatchEvent from "../../domainCore/MatchEvent";
 import { MatchEventEntity, MatchEventEntityData } from "../entities/MatchEventEntity";
-import appDataSource from "../../config/datasource";
+import appDataSource from "../datasource/datasource";
 
 const createMatchEventStoreFromRepository = (repository: Repository<MatchEventEntityData>): MatchEventStorePort => ({
     save: async (event: MatchEvent) => {

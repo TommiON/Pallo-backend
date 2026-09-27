@@ -1,14 +1,14 @@
 import { DataSource } from "typeorm";
 
-import environment from "./environment";
-import { PlayerEntity } from "../persistence/entities/PlayerEntity";
-import { ClubEntity } from "../persistence/entities/ClubEntity";
-import { LeagueEntity } from "../persistence/entities/LeagueEntity";
-import { MatchEntity } from "../persistence/entities/MatchEntity";
-import { MatchEventEntity } from "../persistence/entities/MatchEventEntity";
-import { TimeEntity } from "../persistence/entities/TimeEntity";
-import { StandingEntity } from "../persistence/entities/StandingEntity";
-import { MatchNatureEntity } from "../persistence/entities/MatchNatureEntity";
+import environment from "../../config/environment";
+import { PlayerEntity } from "../entities/PlayerEntity";
+import { ClubEntity } from "../entities/ClubEntity";
+import { LeagueEntity } from "../entities/LeagueEntity";
+import { MatchEntity } from "../entities/MatchEntity";
+import { MatchEventEntity } from "../entities/MatchEventEntity";
+import { TimeEntity } from "../entities/TimeEntity";
+import { StandingEntity } from "../entities/StandingEntity";
+import { MatchNatureEntity } from "../entities/MatchNatureEntity";
 
 const appDataSource = new DataSource({
     type:           'postgres',

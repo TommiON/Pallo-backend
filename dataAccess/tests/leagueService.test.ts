@@ -1,5 +1,5 @@
 import League from "../../domainCore/League";
-import appDataSource from "../../config/datasource";
+import appDataSource from "../../persistence/datasource/datasource";
 import {
     defaultLeagueStorePort,
     defaultLeagueTransactionPort

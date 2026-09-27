@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import environment from "./config/environment";
-import appDataSource from "./config/datasource";
+import appDataSource from "./persistence/datasource/datasource";
 
 import healthCheckRouter from "./api/healthCheck/healthCheckRoutes";
 import playerRouter from "./api/player/playerRoutes";

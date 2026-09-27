@@ -1,5 +1,5 @@
 import Time from "../../domainCore/Time";
-import appDataSource from "../../config/datasource";
+import appDataSource from "../../persistence/datasource/datasource";
 import type { TimeEntityData } from "../../persistence/entities/TimeEntity";
 import {
     defaultTimeEventsPort,
