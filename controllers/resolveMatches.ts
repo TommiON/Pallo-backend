@@ -1,6 +1,7 @@
 import { resolveMatch } from "../domainEngine/matches/MatchResolver";
 import { findMatchesBySeasonAndWeek, saveMatch, saveMatchesInBatch } from "../dataAccess/matchService";
 import { saveMatchEventsInBatch } from "../dataAccess/matchEventService";
+import { saveMatchNaturesInBatch } from "../dataAccess/matchNatureService";
 import Match from "../domainCore/Match";
 import Standing from "../domainCore/Standing";
 import { saveStanding, findStandingByLeagueIdAndClubIdAndWeek } from "../dataAccess/standingService";
@@ -22,10 +23,13 @@ export const resolveMatches = async (season: number, week: number) => {
 
         const { phases, events } = resolveMatch(match);
 
-        // tästä eteenpäin ei vielä tiedetä MatchNatureista mitään...
         match.events = events;
         match.events.forEach((event) => { event.match = match; });
         await saveMatchEventsInBatch(match.events);
+
+        match.phases = phases;
+        match.phases.forEach((phase) => { phase.match = match; });
+        await saveMatchNaturesInBatch(match.phases);
         
         match.finished = true;
         

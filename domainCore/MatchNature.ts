@@ -42,7 +42,7 @@ export interface MatchNatureData {
 
 export default class MatchNature {
     id?: number;
-    readonly match: Match;
+    match: Match;
     readonly startMinute: number;
     private _endMinute: number;
     private readonly _balance: Map<PitchArea, number>;
