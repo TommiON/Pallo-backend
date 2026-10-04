@@ -10,6 +10,7 @@ import clubRouter from "./api/club/clubRoutes";
 import loginRouter from "./api/login/loginRoutes";
 import timeRouter from "./api/time/timeRoutes";
 import leagueRouter from "./api/league/leagueRoutes";
+import matchRouter from "./api/match/matchRoutes";
 
 import { configureAuthService } from "./dataAccess/authService";
 import { configureClubService } from "./dataAccess/clubService";
@@ -44,6 +45,7 @@ app.use(playerRouter);
 app.use(clubRouter);
 app.use(timeRouter);
 app.use(leagueRouter);
+app.use(matchRouter);
 
 const start = async () => {
     try {
