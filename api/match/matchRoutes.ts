@@ -3,8 +3,8 @@ import { authValidator } from '../authValidator';
 import { MatchReportByIdRequest, MatchReportResponse, MatchEventPayload, MatchNaturePayload } from './MatchRequestAndResponseTypes';
 import { getMatchReport } from '../../controllers/getMatchReport';
 import { ApiResponse, sendSuccessResponse, sendErrorResponse } from '../ApiResponse';
-import MatchNature, { MatchNatureData } from '../../domainCore/MatchNature';
-import MatchEvent, { MatchEventData } from '../../domainCore/MatchEvent';
+import { MatchNatureData } from '../../domainCore/MatchNature';
+import { MatchEventData } from '../../domainCore/MatchEvent';
 
 
 const baseUrl = '/api/match';
