@@ -6,7 +6,6 @@ import { ApiResponse, sendSuccessResponse, sendErrorResponse } from '../ApiRespo
 import { MatchNatureData } from '../../domainCore/MatchNature';
 import { MatchEventData } from '../../domainCore/MatchEvent';
 
-
 const baseUrl = '/api/match';
 const matchRouter = express.Router();
 
@@ -40,23 +39,31 @@ const mapMatchNaturesToPayload = (matchNatures: MatchNatureData[]): MatchNatureP
         startMinute: nature.startMinute,
         endMinute: nature.endMinute,
         homePossession: {
-            homeDefenceLeft: getRequiredMapValue(nature.homePossession, 'homeDefenceLeft'),
-            homeDefenceCenter: getRequiredMapValue(nature.homePossession, 'homeDefenceCentre'),
-            homeDefenceRight: getRequiredMapValue(nature.homePossession, 'homeDefenceRight'),
-            midfield: getRequiredMapValue(nature.homePossession, 'midfield'),
-            homeAttackLeft: getRequiredMapValue(nature.homePossession, 'homeAttackLeft'),
-            homeAttackCenter: getRequiredMapValue(nature.homePossession, 'homeAttackCentre'),
-            homeAttackRight: getRequiredMapValue(nature.homePossession, 'homeAttackRight'),
+            homeDefenceLeft: roundToTwoDecimals(getRequiredMapValue(nature.homePossession, 'homeDefenceLeft')),
+            homeDefenceCenter: roundToTwoDecimals(getRequiredMapValue(nature.homePossession, 'homeDefenceCentre')),
+            homeDefenceRight: roundToTwoDecimals(getRequiredMapValue(nature.homePossession, 'homeDefenceRight')),
+            midfield: roundToTwoDecimals(getRequiredMapValue(nature.homePossession, 'midfield')),
+            homeAttackLeft: roundToTwoDecimals(getRequiredMapValue(nature.homePossession, 'homeAttackLeft')),
+            homeAttackCenter: roundToTwoDecimals(getRequiredMapValue(nature.homePossession, 'homeAttackCentre')),
+            homeAttackRight: roundToTwoDecimals(getRequiredMapValue(nature.homePossession, 'homeAttackRight')),
         },
         balance: {
-            homeDefenceLeft: getRequiredMapValue(nature.balance, 'homeDefenceLeft'),
-            homeDefenceCenter: getRequiredMapValue(nature.balance, 'homeDefenceCentre'),
-            homeDefenceRight: getRequiredMapValue(nature.balance, 'homeDefenceRight'),
-            midfield: getRequiredMapValue(nature.balance, 'midfield'),
-            homeAttackLeft: getRequiredMapValue(nature.balance, 'homeAttackLeft'),
-            homeAttackCenter: getRequiredMapValue(nature.balance, 'homeAttackCentre'),
-            homeAttackRight: getRequiredMapValue(nature.balance, 'homeAttackRight'),
+            homeDefenceLeft: roundToTwoDecimals(getRequiredMapValue(nature.balance, 'homeDefenceLeft')),
+            homeDefenceCenter: roundToTwoDecimals(getRequiredMapValue(nature.balance, 'homeDefenceCentre')),
+            homeDefenceRight: roundToTwoDecimals(getRequiredMapValue(nature.balance, 'homeDefenceRight')),
+            midfield: roundToTwoDecimals(getRequiredMapValue(nature.balance, 'midfield')),
+            homeAttackLeft: roundToTwoDecimals(getRequiredMapValue(nature.balance, 'homeAttackLeft')),
+            homeAttackCenter: roundToTwoDecimals(getRequiredMapValue(nature.balance, 'homeAttackCentre')),
+            homeAttackRight: roundToTwoDecimals(getRequiredMapValue(nature.balance, 'homeAttackRight')),
         }
+    }));
+};
+
+const mapMatchEventsToPayload = (matchEvents: MatchEventData[]): MatchEventPayload[] => {
+    return matchEvents.map(event => ({
+        eventType: event.type,
+        initiator: event.initiator ? event.initiator : '',
+        minute: event.minute,
     }));
 };
 
@@ -70,12 +77,8 @@ const getRequiredMapValue = (map: ReadonlyMap<string, number>, key: string): num
     return value;
 };
 
-const mapMatchEventsToPayload = (matchEvents: MatchEventData[]): MatchEventPayload[] => {
-    return matchEvents.map(event => ({
-        eventType: event.type,
-        initiator: event.initiator ? event.initiator : '',
-        minute: event.minute,
-    }));
+const roundToTwoDecimals = (value: number): number => {
+    return parseFloat(value.toFixed(2));
 };
 
 export default matchRouter;
