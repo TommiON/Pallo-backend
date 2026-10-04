@@ -13,13 +13,31 @@ export type MatchReportResponse = {
 };
 
 export type MatchEventPayload = {
-    eventType: string; // Replace 'string' with the appropriate type for the event type if needed
-    minute: number; // Replace 'number' with the appropriate type for the minute if needed
+    eventType: string;
+    initiator: string;
+    minute: number;
 };
 
 export type MatchNaturePayload = {
     startMinute: number; //
     endMinute: number;
-    possession: number; // Replace 'number' with the appropriate type for the possession if needed
+    homePossession: {
+        homeDefenceLeft: number;
+        homeDefenceCenter: number;
+        homeDefenceRight: number;
+        midfield: number;
+        homeAttackLeft: number;
+        homeAttackCenter: number;
+        homeAttackRight: number;
+    }
+    balance: {
+        homeDefenceLeft: number;
+        homeDefenceCenter: number;
+        homeDefenceRight: number;
+        midfield: number;
+        homeAttackLeft: number;
+        homeAttackCenter: number;
+        homeAttackRight: number;
+    }
 };
 

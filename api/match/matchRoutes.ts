@@ -3,6 +3,8 @@ import { authValidator } from '../authValidator';
 import { MatchReportByIdRequest, MatchReportResponse, MatchEventPayload, MatchNaturePayload } from './MatchRequestAndResponseTypes';
 import { getMatchReport } from '../../controllers/getMatchReport';
 import { ApiResponse, sendSuccessResponse, sendErrorResponse } from '../ApiResponse';
+import MatchNature, { MatchNatureData } from '../../domainCore/MatchNature';
+import MatchEvent, { MatchEventData } from '../../domainCore/MatchEvent';
 
 
 const baseUrl = '/api/match';
@@ -33,12 +35,47 @@ matchRouter.get(`${baseUrl}/:id`,
     }
 });
 
-const mapMatchNaturesToPayload = (matchNatures: any[]): MatchNaturePayload[] => {
-    return [];
+const mapMatchNaturesToPayload = (matchNatures: MatchNatureData[]): MatchNaturePayload[] => {
+    return matchNatures.map(nature => ({
+        startMinute: nature.startMinute,
+        endMinute: nature.endMinute,
+        homePossession: {
+            homeDefenceLeft: getRequiredMapValue(nature.homePossession, 'homeDefenceLeft'),
+            homeDefenceCenter: getRequiredMapValue(nature.homePossession, 'homeDefenceCentre'),
+            homeDefenceRight: getRequiredMapValue(nature.homePossession, 'homeDefenceRight'),
+            midfield: getRequiredMapValue(nature.homePossession, 'midfield'),
+            homeAttackLeft: getRequiredMapValue(nature.homePossession, 'homeAttackLeft'),
+            homeAttackCenter: getRequiredMapValue(nature.homePossession, 'homeAttackCentre'),
+            homeAttackRight: getRequiredMapValue(nature.homePossession, 'homeAttackRight'),
+        },
+        balance: {
+            homeDefenceLeft: getRequiredMapValue(nature.balance, 'homeDefenceLeft'),
+            homeDefenceCenter: getRequiredMapValue(nature.balance, 'homeDefenceCentre'),
+            homeDefenceRight: getRequiredMapValue(nature.balance, 'homeDefenceRight'),
+            midfield: getRequiredMapValue(nature.balance, 'midfield'),
+            homeAttackLeft: getRequiredMapValue(nature.balance, 'homeAttackLeft'),
+            homeAttackCenter: getRequiredMapValue(nature.balance, 'homeAttackCentre'),
+            homeAttackRight: getRequiredMapValue(nature.balance, 'homeAttackRight'),
+        }
+    }));
 };
 
-const mapMatchEventsToPayload = (matchEvents: any[]): MatchEventPayload[] => {
-    return [];
+const getRequiredMapValue = (map: ReadonlyMap<string, number>, key: string): number => {
+    const value = map.get(key);
+
+    if (value === undefined) {
+        throw new Error(`Missing MatchNature map value for key: ${key}`);
+    }
+
+    return value;
+};
+
+const mapMatchEventsToPayload = (matchEvents: MatchEventData[]): MatchEventPayload[] => {
+    return matchEvents.map(event => ({
+        eventType: event.type,
+        initiator: event.initiator ? event.initiator : '',
+        minute: event.minute,
+    }));
 };
 
 export default matchRouter;
