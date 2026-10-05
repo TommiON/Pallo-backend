@@ -61,14 +61,16 @@ Receive or generate impulses that make the application to do things, i.e. to cal
 
 ## Match Resolving
 
-MatchResolver (/domainEngine/matches/MatchResolver.ts and its private sub-engines) generates outcome of a Match. Match resolving follows pipes & filters architecture in a simplified form (no buffers, no concurrency). State is fed through a series of filters that may produce MatchEvents and/or changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness. The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. In other words, MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
+MatchResolver (/domainEngine/matches/MatchResolver.ts and its private subengines) generates outcome of a Match. Match resolving follows pipes & filters architecture in a simplified form, with no buffers and no concurrency. State is fed through a series of filters that may produce MatchEvents and/or changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness.
+
+The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. In other words, MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
 
 ### MatchNature
 
 MatchNature (/domainCore/MatchNature.ts) contains attributes about the Match as a whole.
 - Intensity: How much or little is happening.
 - Balance: How big a portion of play happens in different areas of the pitch.
-- Possession: How big a share of ball is home team having in different areas of the pitch.
+- Possession: How big a share of ball the teams are having in different areas of the pitch.
 
 A Match will have multiple MatchNatures attached to it, as game evolves during the 90 minutes. 
 
@@ -85,7 +87,7 @@ MatchEvent (/domainCore/MatchEvent.ts) is a concrete thing happening in a Match.
 MatchResolver runs a filter chain in its main loop. By default, this happens every MATCH_GRANULARITY_MINUTES game minutes, but changes in MatchNature's intensity may change this.
 
 Filters are derived from the abstract class MatchResolverFilter. They receive input of type MatchResolverFilterResult, process it, and pass it on. MatchResolverFilterResult contains the following data:
-- the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if a substitution MatchEvent takes place.) <- tämä ei kyllä kuulosta järin robustilta, pitäisikö Tacticsit olla immutable ja filttereille jokin erillinen työtila?
+- the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if a substitution MatchEvent takes place.) <- tämä ei kyllä kuulosta järin robustilta, pitäisikö Tacticsit olla immutable ja filttereille jokin erillinen työtila? Vai itse asiassa funktionaalinen lähestymistapa: pelaajavaihdot,taktiikkamuutokset ja loukkaantumiset ne jotka voivat erota alku-Tacticsista; näille MatchEvent, ja sitten filtteröivä ja korvaavan palauttava checkForPlayerSubstitution() jne aina kun tarvitaan pelaajaa tai muuta dataa päätöksentekoon?
 - visiting team's Tactics, similarly.
 - current, potentially mutating MatchNature.
 - list of MatchNatures generated so far.
@@ -93,7 +95,7 @@ Filters are derived from the abstract class MatchResolverFilter. They receive in
 
 Once the main loop stops, MatchNatures and MatchEvents are persisted and become the official report on how the Match went. Changes to Tactics are not persisted.
 
-From functional point of view, filters can be divided into three groups that follow each other like this. Intensity filters >> Structural filters >> Event filters (Vaiko ehkä ei sittenkään, vaan kaikki filtterit voivat teemansa mukaisesti sekä muokata Naturea että tuottaa Eventtejä. Esim. Substitution tuottaa Eventin ja lisää intensiteettiä?)
+
 
 
 
