@@ -153,9 +153,26 @@ export default class MatchNature {
         return this.startMinute + MATCH_GRANULARITY_MINUTES;
     }
 
-    // Adjust balance of play. Any increases in gainAreas are offset by decreases in loseAreas, because total is always 100%
-    rebalance = (gainAreas: PitchArea[], loseAreas: PitchArea[]) => {
-        
+    // Adjust balance of play. Any increases in gainAreas are offset by decreases in cedeAreas, because total is always 100%.
+    // If no cedeAeas specified, offset is applied evenly across all other areas.
+    rebalance = (gainAreas: PitchArea[], cedeAreas: PitchArea[]) => {
+        if (gainAreas.length === 0) {
+            throw new Error(`No gain areas specified for rebalancing`);
+        }
+
+        const currentShare = gainAreas.reduce((sum, area) => sum + (this._balance.get(area) ?? 0), 0);
+        const newShare = this.growShareWithDiminishingReturns(currentShare);
+
+        for (const area of gainAreas) {
+            this._balance.set(area, (this._balance.get(area) ?? 0) + newShare / gainAreas.length);
+        }
+
+        const cedingAreas = cedeAreas.length > 0 ? cedeAreas : Array.from(this._balance.keys()).filter(area => !gainAreas.includes(area));
+        const cedingSharePerArea = newShare / cedingAreas.length;
+
+        for (const area of cedingAreas) {
+            this._balance.set(area, (this._balance.get(area) ?? 0) - cedingSharePerArea);
+        }
     }
 
     // Increases either home or away possession in the specified pitch area.
