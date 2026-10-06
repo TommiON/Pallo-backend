@@ -16,16 +16,12 @@ export type MatchReport = {
 
 // Returns a composite object describing how a Match unfolded
 
-export const getMatchReport = async (matchId: number): Promise<MatchReport> => {
+export const getMatchReport = async (matchId: number): Promise<MatchReport|null> => {
     const match = await findMatchById(matchId);
     
-    if (!match) {
-        throw new Error(`Match with ID ${matchId} not found`);
+    if (!match || !match.started) {
+        return null;
     }
-
-    if (!match.started) {
-        throw new Error(`Match with ID ${matchId} has not started`);
-    } 
 
     const phases = await findMatchNaturesByMatchId(matchId);
 

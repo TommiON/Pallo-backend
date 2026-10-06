@@ -2,7 +2,9 @@ export type MatchReportByIdRequest = {
     id: string;
 };
 
-export type MatchReportResponse = {
+export type MatchReportResponse = MatchReportPayload | null;
+
+export type MatchReportPayload = {
     matchId: number;
     homeTeam: string;
     homeTeamId: number;
@@ -19,7 +21,7 @@ export type MatchEventPayload = {
 };
 
 export type MatchNaturePayload = {
-    startMinute: number; //
+    startMinute: number;
     endMinute: number;
     homePossession: {
         homeDefenceLeft: number;

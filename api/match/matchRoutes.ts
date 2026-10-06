@@ -1,6 +1,7 @@
 import express, {Request, Response} from 'express';
 import { authValidator } from '../authValidator';
-import { MatchReportByIdRequest, MatchReportResponse, MatchEventPayload, MatchNaturePayload } from './MatchRequestAndResponseTypes';
+import { getMatchReportByIdValidator } from './matchRequestValidator';
+import { MatchReportByIdRequest, MatchReportPayload, MatchEventPayload, MatchNaturePayload, MatchReportResponse } from './MatchRequestAndResponseTypes';
 import { getMatchReport } from '../../controllers/getMatchReport';
 import { ApiResponse, sendSuccessResponse, sendErrorResponse } from '../ApiResponse';
 import { MatchNatureData } from '../../domainCore/MatchNature';
@@ -11,6 +12,7 @@ const matchRouter = express.Router();
 
 matchRouter.get(`${baseUrl}/:id`,
         authValidator,
+        getMatchReportByIdValidator,
         async (req: Request<MatchReportByIdRequest, any, any>, res: Response<ApiResponse<MatchReportResponse>>) => {
 
     const id = Number.parseInt(req.params.id);
@@ -18,7 +20,12 @@ matchRouter.get(`${baseUrl}/:id`,
     try {
         const matchReport = await getMatchReport(id);
 
-        const responsePayload: MatchReportResponse = {
+        if (!matchReport) {
+            res.json(sendSuccessResponse(null));
+            return;
+        }
+
+        const responsePayload: MatchReportPayload = {
             matchId: matchReport.matchId,
             homeTeam: matchReport.homeTeam,
             homeTeamId: matchReport.homeTeamId,
