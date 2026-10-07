@@ -35,6 +35,10 @@ const expectShareToEqual = (actual: number | undefined, expected: number) => {
     expect(actual as number).toBeCloseTo(expected, 10);
 };
 
+const getTotalBalance = (matchNature: { balance: ReadonlyMap<unknown, number> }) => {
+    return Array.from(matchNature.balance.values()).reduce((sum, value) => sum + value, 0);
+};
+
 describe.each([10, 15, 20])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchGranularityMinutes) => {
     afterEach(() => {
         jest.resetModules();
@@ -232,6 +236,33 @@ describe.each([10, 15, 20])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (ma
             matchNature.pushForPossession("midfield", true);
 
             expectShareToEqual(matchNature.homePossession.get("midfield"), 0.83616);
+        });
+    });
+
+    describe("rebalance", () => {
+        it("should preserve the total balance while repeatedly rebalancing a gain area", () => {
+            const { matchNature } = loadMatchNature(matchGranularityMinutes);
+
+            for (let iteration = 0; iteration < 7; iteration += 1) {
+                matchNature.rebalance(["midfield"], []);
+            }
+
+            expectShareToEqual(matchNature.balance.get("midfield"), 0.8);
+            expect(getTotalBalance(matchNature)).toBeCloseTo(1, 10);
+
+            for (const area of ["homeDefenceLeft", "homeDefenceCentre", "homeDefenceRight", "homeAttackLeft", "homeAttackCentre", "homeAttackRight"] as const) {
+                expect((matchNature.balance.get(area) as number)).toBeGreaterThanOrEqual(0);
+            }
+        });
+
+        it("should preserve total balance when gain and cede areas are both explicit", () => {
+            const { matchNature } = loadMatchNature(matchGranularityMinutes);
+
+            matchNature.rebalance(["midfield", "homeAttackCentre"], ["homeDefenceLeft", "homeDefenceCentre"]);
+
+            expect(getTotalBalance(matchNature)).toBeCloseTo(1, 10);
+            expect((matchNature.balance.get("midfield") as number)).toBeLessThanOrEqual(0.8);
+            expect((matchNature.balance.get("homeAttackCentre") as number)).toBeLessThanOrEqual(0.8);
         });
     });
 });

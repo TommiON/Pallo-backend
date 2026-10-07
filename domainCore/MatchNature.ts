@@ -160,18 +160,43 @@ export default class MatchNature {
             throw new Error(`No gain areas specified for rebalancing`);
         }
 
-        const currentShare = gainAreas.reduce((sum, area) => sum + (this._balance.get(area) ?? 0), 0);
-        const newShare = this.growShareWithDiminishingReturns(currentShare);
+        const uniqueGainAreas = Array.from(new Set(gainAreas));
+        const uniqueCedeAreas = Array.from(new Set(cedeAreas));
+        const cedingAreas = uniqueCedeAreas.length > 0
+            ? uniqueCedeAreas
+            : Array.from(this._balance.keys()).filter(area => !uniqueGainAreas.includes(area));
 
-        for (const area of gainAreas) {
-            this._balance.set(area, (this._balance.get(area) ?? 0) + newShare / gainAreas.length);
+        if (cedingAreas.length === 0) {
+            throw new Error(`No cede areas specified for rebalancing`);
         }
 
-        const cedingAreas = cedeAreas.length > 0 ? cedeAreas : Array.from(this._balance.keys()).filter(area => !gainAreas.includes(area));
-        const cedingSharePerArea = newShare / cedingAreas.length;
+        const currentShare = uniqueGainAreas.reduce((sum, area) => sum + (this._balance.get(area) ?? 0), 0);
+        const targetShare = Math.min(0.8, this.growShareWithDiminishingReturns(currentShare));
+        const shareDelta = targetShare - currentShare;
+
+        if (shareDelta <= 0) {
+            return;
+        }
+
+        const gainSharePerArea = shareDelta / uniqueGainAreas.length;
+        const cedeSharePerArea = shareDelta / cedingAreas.length;
+
+        for (const area of uniqueGainAreas) {
+            const currentBalance = this._balance.get(area);
+            if (currentBalance === undefined) {
+                throw new Error(`Missing balance value for pitch area: ${area}`);
+            }
+
+            this._balance.set(area, currentBalance + gainSharePerArea);
+        }
 
         for (const area of cedingAreas) {
-            this._balance.set(area, (this._balance.get(area) ?? 0) - cedingSharePerArea);
+            const currentBalance = this._balance.get(area);
+            if (currentBalance === undefined) {
+                throw new Error(`Missing balance value for pitch area: ${area}`);
+            }
+
+            this._balance.set(area, currentBalance - cedeSharePerArea);
         }
     }
 
