@@ -40,7 +40,7 @@ export interface MatchNatureData {
     homePossession: ReadonlyMap<PitchArea, number>;
 }
 
-export default class MatchNature {
+export default class MatchNature implements MatchNatureData {
     id?: number;
     match: Match;
     readonly startMinute: number;

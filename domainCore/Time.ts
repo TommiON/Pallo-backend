@@ -11,7 +11,7 @@ export interface TimeData {
     hour: number
 }
 
-export default class Time {
+export default class Time implements TimeData {
     season: number;
     week: number;
     day: number;

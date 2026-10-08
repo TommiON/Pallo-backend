@@ -25,7 +25,7 @@ export interface MatchData {
     phases: MatchNature[];
 }
 
-export default class Match {
+export default class Match implements MatchData {
     id?: number;
     league?: League;
     homeClub: Club;

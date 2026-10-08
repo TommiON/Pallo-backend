@@ -18,7 +18,7 @@ export interface StandingData {
     goalsAgainst: number;
 }
 
-export default class Standing {
+export default class Standing implements StandingData {
     id?: number;
 
     league: League;
