@@ -5,7 +5,8 @@ import { sharedEntityBaseColumns } from "./sharedEntityBase";
 export interface MatchEventEntityData {
     id?: number;
     matchId?: number;
-    type: string;
+    family: string;
+    subtype: string;
     initiator: string;
     minute: number;
     match?: any;
@@ -19,7 +20,10 @@ export const MatchEventEntity = new EntitySchema<MatchEventEntityData>({
             name: "match_id",
             type: "int"
         },
-        type: {
+        family: {
+            type: "varchar"
+        },
+        subtype: {
             type: "varchar"
         },
         initiator: {

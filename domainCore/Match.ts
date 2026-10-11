@@ -52,8 +52,8 @@ export default class Match implements MatchData {
             id: this.id,
             homeClub: this.homeClub,
             awayClub: this.awayClub,
-            homeGoals: this.events.filter(e => e.type === 'goal' && e.initiator === 'home').length,
-            awayGoals: this.events.filter(e => e.type === 'goal' && e.initiator === 'away').length
+            homeGoals: this.events.filter(e => e.subtype === 'goal' && e.initiator === 'home').length,
+            awayGoals: this.events.filter(e => e.subtype === 'goal' && e.initiator === 'away').length
         }
     }
 }

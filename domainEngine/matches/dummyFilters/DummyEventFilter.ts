@@ -14,6 +14,7 @@ class DummyEventFilter extends MatchResolverFilter {
             if (goalScored) {
                 const homeOrAway = getRandomElement(['home', 'away']);
                 matchEvents.push(new MatchEvent(
+                    'goal_attempt',
                     'goal',
                     getALegalMinuteForEvent({
                         ...input,

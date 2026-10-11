@@ -15,7 +15,8 @@ export type MatchReportPayload = {
 };
 
 export type MatchEventPayload = {
-    eventType: string;
+    eventFamily: string;
+    eventSubType: string;
     initiator: string;
     minute: number;
 };

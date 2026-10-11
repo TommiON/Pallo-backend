@@ -68,7 +68,8 @@ const mapMatchNaturesToPayload = (matchNatures: MatchNatureData[]): MatchNatureP
 
 const mapMatchEventsToPayload = (matchEvents: MatchEventData[]): MatchEventPayload[] => {
     return matchEvents.map(event => ({
-        eventType: event.type,
+        eventFamily: event.family,
+        eventSubType: event.subtype,
         initiator: event.initiator ? event.initiator : '',
         minute: event.minute,
     }));

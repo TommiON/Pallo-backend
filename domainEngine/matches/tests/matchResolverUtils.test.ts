@@ -44,8 +44,8 @@ describe("getALegalMinuteForEvent", () => {
     });
 
     it("uses the latest previous event minute as the lower bound when it is inside the current phase", () => {
-        const latestEvent = new MatchEvent("goal", 24, "home");
-        const input = createInput(15, [new MatchEvent("yellow_card", 18, "away"), latestEvent]);
+        const latestEvent = new MatchEvent("goal_attempt", "goal", 24, "home");
+        const input = createInput(15, [new MatchEvent("foul", "yellow_card", 18, "away"), latestEvent]);
 
         const minute = getALegalMinuteForEvent(input);
 
@@ -54,7 +54,7 @@ describe("getALegalMinuteForEvent", () => {
     });
 
     it("does not allow an event earlier than the current phase start even if the latest event happened before the phase", () => {
-        const input = createInput(30, [new MatchEvent("goal", 12, "home")]);
+        const input = createInput(30, [new MatchEvent("goal_attempt", "goal", 12, "home")]);
 
         const minute = getALegalMinuteForEvent(input);
 
