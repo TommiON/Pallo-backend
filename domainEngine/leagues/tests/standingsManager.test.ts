@@ -90,11 +90,11 @@ const createFinishedMatch = (homeGoals: number, awayGoals: number): Match => {
     const match = new Match(homeClub, awayClub, 3, league);
 
     for (let index = 0; index < homeGoals; index += 1) {
-        match.events.push(new MatchEvent("goal_attempt", "goal", index + 1, "home"));
+        match.events.push(new MatchEvent("shot", "goal", index + 1, "home"));
     }
 
     for (let index = 0; index < awayGoals; index += 1) {
-        match.events.push(new MatchEvent("goal_attempt", "goal", homeGoals + index + 1, "away"));
+        match.events.push(new MatchEvent("shot", "goal", homeGoals + index + 1, "away"));
     }
 
     return match;

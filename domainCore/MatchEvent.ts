@@ -1,12 +1,21 @@
 import Match from "./Match";
 import Player from "./Player";
 
-/* MATCHEVENT: individual action in a Match.
+/* 
+MATCHEVENT: Individual action in a Match. Sequence of MatchEvents define how a Match concretely unfolds (with MatchNatures providing more structural information
+that can not be captured by individial events). The most important of the various kinds of MatchEvents are, obviously, goals.
 
+MatchEvents are grouped into families and subtypes, defined by the MatchEventTypeMap. Additional properties are the initiating side of the event (home or away),
+references to offensive and defensive players involved, and minute. Furthermore, a MatchEvent may result in a subsequent MatchEvent, which is linked through the
+followedBy property.
 */
 
 export type MatchEventTypeMap = {
-    goal_attempt: 'goal' | 'shot_on_target' | 'shot_off_target' | 'shot_blocked';
+    // Goal-scoring opportunity executed: may result in a goal, be off target, be made vain by the defense, or be saved by the goalkeeper.
+    shot: 'goal' | 'off_target' | 'blocked' | 'saved';
+    // Goal-scoring opportunity
+    goal_opportunity: 'header' | 'long_range' | '1_on_1' | 'scramble' | 'penalty';
+    // 
     goal_set_up: 'cross' | 'through_pass' | 'cutback' | 'set_piece_delivery';
     foul: 'foul' | 'yellow_card' | 'red_card';
     injury: 'injury';
@@ -24,11 +33,6 @@ export type MatchEventType = MatchEventSubType;
 
 export type MatchEventInitiator = 'home' | 'away';
 
-// maalitilanne: keskitys, kaukolaukas, läpisyöttö, läpiajo, rangaistuspotku, kulmapotku, vapaapotku, 
-// pitäisikö jotenkin hyödyntää xG-ajattelua: pallo maalipaikkaan -> yritys -> maali, ohi, blokki, torjunta
-// - voisi eriyttää hyökkäyksen paskuuden ja puolustuksen hyvyyden jos maali jää tulematta
-// - oleellista tässä kohtaa saada hyvä ja future-proof MatchEvent-malli, filttereitä ehtii säätää myöhemmin
-
 export interface MatchEventData<TFamily extends MatchEventFamily = MatchEventFamily> {
     id?: number;
     match: Match;
@@ -38,6 +42,7 @@ export interface MatchEventData<TFamily extends MatchEventFamily = MatchEventFam
     
     minute: number;
     initiator: MatchEventInitiator | null;
+    // pitäisikö olla hyökkäävä ja puolustava osapuoli erikseen?
     player: Player;
     followedBy: MatchEvent | null;
 }

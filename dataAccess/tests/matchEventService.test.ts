@@ -28,7 +28,7 @@ describe("matchEventService", () => {
 
     const createMatchEventFixture = (id: number, matchId: number): MatchEvent => {
         const match = createMatchFixture(matchId);
-        const event = new MatchEvent("goal_attempt", "goal", 12, "home");
+        const event = new MatchEvent("shot", "goal", 12, "home");
         event.id = id;
         event.match = match;
         return event;
