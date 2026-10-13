@@ -84,17 +84,21 @@ MatchEvent (/domainCore/MatchEvent.ts) is a concrete thing happening in a Match.
 
 ### Filter chain
 
-MatchResolver runs a filter chain in its main loop. By default, this happens every MATCH_GRANULARITY_MINUTES game minutes, but changes in MatchNature's intensity may change this.
+MatchResolver runs a filter chain in its main loop. By default, this happens every `MATCH_GRANULARITY_MINUTES` game minutes, but changes in `MatchNature`'s intensity may change this.
 
-Filters are derived from the abstract class MatchResolverFilter. They receive input of type MatchResolverFilterResult, process it, and pass it on. MatchResolverFilterResult contains the following data:
-- the home team's Tactics object. At the beginning, it is read in as the user has defined it for the Match. It then becomes MatchResolver's work memory and may change somewhat during the filterings (for instance, Players in opening lineup and substitutes list swap places if a substitution MatchEvent takes place.) <- tämä ei kyllä kuulosta järin robustilta, pitäisikö Tacticsit olla immutable ja filttereille jokin erillinen työtila? Vai itse asiassa funktionaalinen lähestymistapa: pelaajavaihdot,taktiikkamuutokset ja loukkaantumiset ne jotka voivat erota alku-Tacticsista; näille MatchEvent, ja sitten filtteröivä ja korvaavan palauttava checkForPlayerSubstitution() jne aina kun tarvitaan pelaajaa tai muuta dataa päätöksentekoon?
-- visiting team's Tactics, similarly.
-- current, potentially mutating MatchNature.
-- list of MatchNatures generated so far.
-- list of MatchEvents generated so far.
+Filters are derived from the abstract class `MatchResolverFilter`. They receive input of type `MatchResolverFilterResult`, process it, and pass it on. `MatchResolverFilterResult` contains the following data:
+- The home team's `Tactics` object.
+- Visiting team's `Tactics` object.
+- Current, potentially mutating `MatchNature`.
+- List of `MatchNature`s generated so far.
+- List of `MatchEvent`s generated so far.
 
-Once the main loop stops, MatchNatures and MatchEvents are persisted and become the official report on how the Match went. Changes to Tactics are not persisted.
+Once the main loop stops, `MatchNature`s and `MatchEvent`s are persisted and become the official report on how the `Match` went.
 
+Filter chain is configured at `/domainEngine/matches/FilterChainFactory.ts`. 
+
+-
+- Tacticsit immutable ja funktionaalinen lähestymistapa: pelaajavaihdot,taktiikkamuutokset ja loukkaantumiset ne jotka voivat erota alku-Tacticsista; näille MatchEvent, ja sitten filtteröivä ja korvaavan palauttava checkForPlayerSubstitution() jne aina kun tarvitaan pelaajaa tai muuta dataa päätöksentekoon?
 
 
 
