@@ -61,9 +61,9 @@ Receive or generate impulses that make the application to do things, i.e. to cal
 
 ## Match Resolving
 
-MatchResolver (/domainEngine/matches/MatchResolver.ts and its private subengines) generates outcome of a Match. Match resolving follows pipes & filters architecture in a simplified form, with no buffers and no concurrency. State is fed through a series of filters that may produce MatchEvents and/or changes in MatchNature. Filters utilize teams' tactical approaches, player characters, and some randomness.
+`/domainEngine/matches/MatchResolver.ts` and its private subengines generate outcome of a **Match**. Match resolving follows pipes & filters architecture in a simplified form, with no buffers and no concurrency. State is fed through a series of filters that may produce **MatchEvent**s and/or changes in **MatchNature**. Filters utilize teams' tactical approaches, player characters, and some randomness.
 
-The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. In other words, MatchNature and MatchEvent are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
+The aim is a modular engine where tactical aspects can be added, removed and changed without breaking the whole thing. In other words, **MatchNature** and **MatchEvent** are the two fixed concepts that define the run of a Match, while filters producing these may evolve.
 
 ### MatchNature
 
@@ -80,29 +80,49 @@ Balance and possession, on the other hand, affect the distribution of different 
 
 ### Match Event
 
-MatchEvent (/domainCore/MatchEvent.ts) is a concrete thing happening in a Match. There are several kinds:
+MatchEvent (`/domainCore/MatchEvent.ts`) is a concrete thing happening in a Match.
 
 ### Filter chain
 
-MatchResolver runs a filter chain in its main loop. By default, this happens every `MATCH_GRANULARITY_MINUTES` game minutes, but changes in `MatchNature`'s intensity may change this.
+MatchResolver runs a filter chain in its main loop. By default, this happens every `MATCH_GRANULARITY_MINUTES` game minutes, but changes in **MatchNature**s intensity may change this.
 
-Filters are derived from the abstract class `MatchResolverFilter`. They receive input of type `MatchResolverFilterResult`, process it, and pass it on. `MatchResolverFilterResult` contains the following data:
-- The home team's `Tactics` object.
-- Visiting team's `Tactics` object.
-- Current, potentially mutating `MatchNature`.
-- List of `MatchNature`s generated so far.
-- List of `MatchEvent`s generated so far.
+Filters are derived from the abstract class `MatchResolverFilter`. They receive input of type `MatchResolverFilterResult`, process it, and pass it on. It contains:
+- The home team's **Tactics** object.
+- Visiting team's **Tactics** object.
+- Current, potentially mutating **MatchNature**.
+- List of **MatchNature**s generated so far.
+- List of **MatchEvent**s generated so far.
 
-Once the main loop stops, `MatchNature`s and `MatchEvent`s are persisted and become the official report on how the `Match` went.
+Once the main loop stops, **MatchNature**s and **MatchEvent**s are persisted and become the official report on how the contest went.
 
 Filter chain is configured at `/domainEngine/matches/FilterChainFactory.ts`. 
 
--
+- Hahmottele millainen chain voisi olla.
+    - NatureFiltterit, vähän ja kokonaisvaltaisia
+    - EvenFiltterit, paljon ja erikoistuneita
+- MatchEventiit orginator filtteriltä: jokainen event yksiselitteisesti jonkin filtterin tuotos?
 - Tacticsit immutable ja funktionaalinen lähestymistapa: pelaajavaihdot,taktiikkamuutokset ja loukkaantumiset ne jotka voivat erota alku-Tacticsista; näille MatchEvent, ja sitten filtteröivä ja korvaavan palauttava checkForPlayerSubstitution() jne aina kun tarvitaan pelaajaa tai muuta dataa päätöksentekoon?
 
+### Tactics
+- Formation (4-4-2 jne)
+- Lineup: Map<pelipaikka, pelaaja>
+- Individual instruction: Map<pelaaja, instruction>
 
 
+Millaisia taktisia ylätason säätöjä:
+- Puolustuslinja: matala, neutraali, korkea
+- Kaaos/hallinta
+- Aktiivinen/passiivinen
+- Suositaan laitoja/keskustaa/neutraali
+- Pallonmenetys: kuoreenvetäytyminen, neutraali, prässi
+- Pallonsaanti: nopeasti/kärsivällisesti
+- Syöttäminen: pitkä/lyhyt/vaihteleva
+- Yritetäänkö kaukolaukauksia?
 
+Pelaajakohtainen ohje ominaisuuksien kertoimina?
+- Maalivahti: shotstopper/sweeper, build-up/kick-away
+- Keskuspuolustaja:
+- Laitapuolustaja: 
 
 
 
@@ -122,20 +142,7 @@ Filter chain is configured at `/domainEngine/matches/FilterChainFactory.ts`.
 - Oleellista: selkeä taktiikka<->lopputulos -mäppäys, selkeitä ja ennakoitavia säätimiä, vaikka ei olisi täysin realistista, esim. pelaajien kestävyys näkyy suoraan ja havaittavasti, samoin esim. lähestymistavan aktiivisuus (enemmän pipe-inputteja, enemmän loukkaantumisriskiä)
 - Oleellista: kokonaisarkkitehtuuri, ei kaottiinen spagettikasa
 
-Millaisia taktisia ylätason säätöjä:
-- Puolustuslinja: matala, neutraali, korkea
-- Kaaos/hallinta
-- Aktiivinen/passiivinen
-- Suositaan laitoja/keskustaa/neutraali
-- Pallonmenetys: kuoreenvetäytyminen, neutraali, prässi
-- Pallonsaanti: nopeasti/kärsivällisesti
-- Syöttäminen: pitkä/lyhyt/vaihteleva
-- Yritetäänkö kaukolaukauksia?
 
-Pelaajakohtainen ohje ominaisuuksien kertoimina?
-- Maalivahti: shotstopper/sweeper, build-up/kick-away
-- Keskuspuolustaja:
-- Laitapuolustaja: 
 
 User output: automaattisesti generoitua tekstiä/grafiikkaa MatchPhasejen ja -Eventtien perusteella.
 
