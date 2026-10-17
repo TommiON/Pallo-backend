@@ -2,6 +2,7 @@ import Club from "./Club";
 import League from "./League";
 import MatchEvent from "./MatchEvent";
 import MatchNature from "./MatchNature";
+import Tactics from "./Tactics";
 
 /* MATCH: a contest between two Clubs. */
 
@@ -15,24 +16,36 @@ export type MatchResult = {
 
 export interface MatchData {
     id?: number;
+    
     league?: League;
+    week: number;
+
     homeClub: Club;
     awayClub: Club;
-    week: number;
+    homeTactics: Tactics | null;
+    awayTactics: Tactics | null;
+    
     started: boolean;
     finished: boolean;
+    
     events: MatchEvent[];
     phases: MatchNature[];
 }
 
 export default class Match implements MatchData {
     id?: number;
+    
     league?: League;
+    week: number;
+
     homeClub: Club;
     awayClub: Club;
-    week: number;
+    homeTactics: Tactics | null;
+    awayTactics: Tactics | null;
+    
     started: boolean;
     finished: boolean;
+    
     events: MatchEvent[];
     phases: MatchNature[];
 

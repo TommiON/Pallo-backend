@@ -1,11 +1,10 @@
 import Player from "./Player";
+import Match from "./Match";
 
 /* 
 TACTICS: manages and contraints how the team is set up for a Match.
 - Formation and lineup.
 - Master tactic.
-
-Tactics will have a great impact on the Match, but doesn't in itself contain match-resolving logic - that is down to MatchResolver's filters.
 */
 
 export type Position = 'goalkeeper' | 'fullback_left' | 'fullback_right' | 'center_back' | 'wingback_left' | 'wingback_right' | 'midfielder_left' | 'midfielder_right' | 'midfielder_center' | 'forward_center' | 'forward_left' | 'forward_right';
@@ -39,7 +38,6 @@ const createEmptyLineup = (formation: Formation): LineupSlot[] => {
 };
 
 export default class Tactics {
-    // omistajuus: matsi vai klubi?
     public formation: Formation;
     public lineup: LineupSlot[];
 
