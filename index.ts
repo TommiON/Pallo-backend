@@ -21,6 +21,7 @@ import { configureMatchService } from "./dataAccess/matchService";
 import { configureMatchEventService } from "./dataAccess/matchEventService";
 import { configureStandingService } from "./dataAccess/standingService";
 import { configureMatchNatureService } from "./dataAccess/matchNatureService";
+import { configureTacticsService } from "./dataAccess/tacticsService";
 
 import { defaultAuthStorePort } from "./persistence/adapters/authAdapters";
 import { defaultClubEventsPort, defaultClubStorePort, defaultClubTransactionPort } from "./persistence/adapters/clubAdapters";
@@ -30,6 +31,7 @@ import { defaultTimeEventsPort, defaultTimeStorePort, defaultTimeTransactionPort
 import { defaultMatchStorePort, defaultMatchTransactionPort } from "./persistence/adapters/matchAdapters";
 import { defaultMatchEventStorePort, defaultMatchEventTransactionPort } from "./persistence/adapters/matchEventAdapters";
 import { defaultStandingStorePort } from "./persistence/adapters/standingAdapters";
+import { defaultTacticsStorePort, defaultTacticsTransactionPort } from "./persistence/adapters/tacticsAdapters";
 import { defaultMatchNatureStorePort, defaultMatchNatureTransactionPort } from "./persistence/adapters/matchNatureAdapters";
 
 import { initializeScheduler, startScheduler } from "./scheduler/scheduler";
@@ -57,6 +59,10 @@ const start = async () => {
         configurePlayerService({ playerStore: defaultPlayerStorePort });
         configureTimeService({ timeStore: defaultTimeStorePort, timeTransaction: defaultTimeTransactionPort, timeEvents: defaultTimeEventsPort });
         configureMatchService({ matchStore: defaultMatchStorePort, matchTransaction: defaultMatchTransactionPort });
+        configureMatchEventService({ matchEventStore: defaultMatchEventStorePort, matchEventTransaction: defaultMatchEventTransactionPort });
+        configureStandingService({ standingStore: defaultStandingStorePort });
+        configureMatchNatureService({ matchNatureStore: defaultMatchNatureStorePort, matchNatureTransaction: defaultMatchNatureTransactionPort });
+        configureTacticsService({ tacticsStore: defaultTacticsStorePort, tacticsTransaction: defaultTacticsTransactionPort });  
         configureMatchEventService({ matchEventStore: defaultMatchEventStorePort, matchEventTransaction: defaultMatchEventTransactionPort });
         configureStandingService({ standingStore: defaultStandingStorePort });
         configureMatchNatureService({ matchNatureStore: defaultMatchNatureStorePort, matchNatureTransaction: defaultMatchNatureTransactionPort });
