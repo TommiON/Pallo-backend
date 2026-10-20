@@ -1,5 +1,4 @@
 import Player from "./Player";
-import Match from "./Match";
 
 /* 
 TACTICS: manages and contraints how the team is set up for a Match.
@@ -17,6 +16,13 @@ export type LineupSlot = {
 };
 
 export type Lineup = ReadonlyArray<LineupSlot>;
+
+export interface TacticsData {
+    id?: number;
+    formation: Formation;
+    lineup: Lineup;
+    masterTactic: MasterTactic;
+}
 
 const groupings: Record<Formation, Position[]> = {
     '4-4-2': ['goalkeeper', 'fullback_left', 'fullback_right', 'center_back', 'center_back', 'midfielder_left', 'midfielder_right', 'midfielder_center', 'midfielder_center', 'forward_center', 'forward_center'],
@@ -37,7 +43,22 @@ const createEmptyLineup = (formation: Formation): LineupSlot[] => {
     }));
 };
 
+const validateLineupPositions = (formation: Formation, lineup: ReadonlyArray<LineupSlot>): void => {
+    const expectedPositions = groupings[formation];
+
+    if (lineup.length !== expectedPositions.length) {
+        throw new Error(`Expected ${expectedPositions.length} lineup slots for formation ${formation}, got ${lineup.length}`);
+    }
+
+    lineup.forEach((slot, index) => {
+        if (slot.position !== expectedPositions[index]) {
+            throw new Error(`Invalid lineup slot at index ${index} for formation ${formation}: expected ${expectedPositions[index]}, got ${slot.position}`);
+        }
+    });
+};
+
 export default class Tactics {
+    public id?: number;
     public formation: Formation;
     public lineup: LineupSlot[];
 
@@ -47,6 +68,19 @@ export default class Tactics {
         this.formation = formation;
         this.masterTactic = masterTactic;
         this.lineup = createEmptyLineup(formation);
+    }
+
+    public static restoreFromPersistence(data: TacticsData): Tactics {
+        validateLineupPositions(data.formation, data.lineup);
+
+        const tactics = new Tactics(data.formation, data.masterTactic);
+        tactics.id = data.id;
+        tactics.lineup = data.lineup.map((slot) => ({
+            position: slot.position,
+            player: slot.player,
+        }));
+
+        return tactics;
     }
 
     public setLineup(players: Player[]): void {
