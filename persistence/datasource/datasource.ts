@@ -9,6 +9,8 @@ import { MatchEventEntity } from "../entities/MatchEventEntity";
 import { TimeEntity } from "../entities/TimeEntity";
 import { StandingEntity } from "../entities/StandingEntity";
 import { MatchNatureEntity } from "../entities/MatchNatureEntity";
+import { TacticsEntity } from "../entities/TacticsEntity";
+import { TacticsLineupSlotEntity } from "../entities/TacticsLineupSlotEntity";
 
 const appDataSource = new DataSource({
     type:           'postgres',
@@ -26,7 +28,9 @@ const appDataSource = new DataSource({
         MatchEventEntity,
         TimeEntity,
         StandingEntity,
-        MatchNatureEntity
+        MatchNatureEntity,
+        TacticsEntity,
+        TacticsLineupSlotEntity
     ],
     subscribers:    [],
     migrations:     []
