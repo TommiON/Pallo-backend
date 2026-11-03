@@ -16,9 +16,9 @@ const TIME_COMPARISON_EPSILON = 1e-9;
 
 export const resolveMatch = (match: Match): MatchResolutionResult => {
     if (GAME_DUMMY_MODE) {
-        return playDummy(match, new Tactics(), new Tactics());
+        return playDummy(match, new Tactics(match.id ?? 0, "home"), new Tactics(match.id ?? 0, "away"));
     } else {
-        return play(match, new Tactics(), new Tactics());
+        return play(match, new Tactics(match.id ?? 0, "home"), new Tactics(match.id ?? 0, "away"));
     }
 }
 

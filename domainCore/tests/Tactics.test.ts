@@ -3,7 +3,7 @@ import Tactics from "../Tactics";
 
 describe("Tactics lineup", () => {
     it("creates an empty lineup matching the formation slots", () => {
-        const tactics = new Tactics("3-5-2");
+        const tactics = new Tactics(1, "home", "3-5-2");
 
         expect(tactics.lineup).toHaveLength(11);
         expect(tactics.lineup[0]).toEqual({ position: "goalkeeper", player: null });
@@ -14,7 +14,7 @@ describe("Tactics lineup", () => {
     });
 
     it("maps players onto formation slots in order, including repeated positions", () => {
-        const tactics = new Tactics("3-5-2");
+        const tactics = new Tactics(1, "home", "3-5-2");
         const players = Array.from({ length: 11 }, () => new Player());
 
         tactics.setLineup(players);
@@ -31,10 +31,22 @@ describe("Tactics lineup", () => {
     });
 
     it("rejects a lineup with the wrong number of players", () => {
-        const tactics = new Tactics();
+        const tactics = new Tactics(1, "home");
 
         expect(() => tactics.setLineup(Array.from({ length: 10 }, () => new Player()))).toThrow(
             "Expected 11 players for formation 4-4-2, got 10"
         );
+    });
+
+    it("tracks match ownership and lock state for match-scoped tactics", () => {
+        const tactics = new Tactics(42, "home", "3-5-2", "Direct");
+
+        expect(tactics.matchId).toBe(42);
+        expect(tactics.side).toBe("home");
+        expect(tactics.locked).toBe(false);
+
+        tactics.lock();
+
+        expect(tactics.locked).toBe(true);
     });
 });

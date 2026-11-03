@@ -6,7 +6,7 @@ import { fromTacticsEntity, toTacticsEntityData } from "../tacticsMapper";
 
 describe("tacticsMapper", () => {
     it("serializes lineup slots in order with player ids", () => {
-        const tactics = new Tactics("3-5-2", "Direct");
+        const tactics = new Tactics(44, "home", "3-5-2", "Direct");
         tactics.id = 44;
 
         const players = Array.from({ length: 11 }, (_, index) => {

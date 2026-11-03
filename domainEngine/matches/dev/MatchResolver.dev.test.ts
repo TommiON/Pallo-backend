@@ -12,16 +12,16 @@ const createMatch = () => new Match(
 describe("MatchResolver dev harness", () => {
     it("dummy: runs playDummy and prints the generated events", () => {
         const match = createMatch();
-        const homeTactics = new Tactics();
-        const awayTactics = new Tactics();
-        
+        const homeTactics = new Tactics(1, "home");
+        const awayTactics = new Tactics(1, "away");
+
         const events = matchResolverDev.playDummy(match, homeTactics, awayTactics);
     });
 
     it("full: runs play and prints the generated events", () => {
         const match = createMatch();
-        const homeTactics = new Tactics();
-        const awayTactics = new Tactics();
+        const homeTactics = new Tactics(1, "home");
+        const awayTactics = new Tactics(1, "away");
 
         const events = matchResolverDev.play(match, homeTactics, awayTactics);
     });
