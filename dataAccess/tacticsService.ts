@@ -1,18 +1,32 @@
-import Tactics from "../domainCore/Tactics";
+import Tactics, { MatchSide } from "../domainCore/Tactics";
 import { TacticsStorePort, TacticsTransactionPort } from "./ports/tacticsPorts";
 
 /**
- * Saves a Tactics aggregate to the database.
+ * Saves or updates a tactics set scoped to a specific match and side.
  */
-export const saveTactics = async (tactics: Tactics): Promise<Tactics> => {
-    return getConfiguredTacticsService().saveTactics(tactics);
+export const saveTactics = async (matchId: number, side: MatchSide, tactics: Tactics): Promise<Tactics> => {
+    return getConfiguredTacticsService().saveTactics(matchId, side, tactics);
 };
 
 /**
- * Finds a Tactics aggregate by its ID.
+ * Finds a Tactics aggregate by its match and side.
  */
-export const findTacticsById = async (id: number): Promise<Tactics | null> => {
-    return getConfiguredTacticsService().findTacticsById(id);
+export const findTacticsForMatch = async (matchId: number, side: MatchSide): Promise<Tactics | null> => {
+    return getConfiguredTacticsService().findTacticsForMatch(matchId, side);
+};
+
+/**
+ * Finds all tactics belonging to a match.
+ */
+export const findTacticsForMatchId = async (matchId: number): Promise<Tactics[]> => {
+    return getConfiguredTacticsService().findTacticsForMatchId(matchId);
+};
+
+/**
+ * Locks a tactics row once the match enters the historical phase.
+ */
+export const lockTacticsForMatch = async (matchId: number, side: MatchSide): Promise<void> => {
+    return getConfiguredTacticsService().lockTacticsForMatch(matchId, side);
 };
 
 export type TacticsServicePorts = {
@@ -21,14 +35,22 @@ export type TacticsServicePorts = {
 };
 
 export const createTacticsService = ({ tacticsStore, tacticsTransaction }: TacticsServicePorts) => ({
-    saveTactics: async (tactics: Tactics): Promise<Tactics> => {
+    saveTactics: async (matchId: number, side: MatchSide, tactics: Tactics): Promise<Tactics> => {
         return tacticsTransaction.runInTransaction(async (transactionalStore) => {
-            return transactionalStore.save(tactics);
+            return transactionalStore.saveForMatch(matchId, side, tactics);
         });
     },
 
-    findTacticsById: async (id: number): Promise<Tactics | null> => {
-        return tacticsStore.findById(id);
+    findTacticsForMatch: async (matchId: number, side: MatchSide): Promise<Tactics | null> => {
+        return tacticsStore.findByMatchIdAndSide(matchId, side);
+    },
+
+    findTacticsForMatchId: async (matchId: number): Promise<Tactics[]> => {
+        return tacticsStore.findByMatchId(matchId);
+    },
+
+    lockTacticsForMatch: async (matchId: number, side: MatchSide): Promise<void> => {
+        return tacticsStore.lockForMatch(matchId, side);
     }
 });
 
