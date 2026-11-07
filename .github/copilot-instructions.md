@@ -54,6 +54,12 @@ Use this section only when designing for possible horizontal scaling (multiple b
   - two concurrent workers produce one final standing set,
   - partial failure retries complete without double-counting.
 
+## Known problems to fix
+- Duplicate standing writes are a real structural bug, not a random DB hiccup: the unique constraint on `(league_id, club_id, week)` is correctly rejecting repeated resolution of the same league-week.
+- Resolution logic must be made idempotent and restart-safe: repeated execution after app restart or duplicate scheduler tick should update existing standings instead of inserting duplicates.
+- Fix path: add a league-week resolution guard/lease before write execution, wrap standing writes in upsert-or-conditional-update logic, and add a regression test for “same league-week resolved twice”.
+- This also applies to any future multi-instance scheduler path: only one active worker should be allowed to resolve a given league-week at a time.
+
 ### Eventing guidance
 - Keep `eventNotifications` for local in-process reactions only.
 - For cross-instance delivery, move to durable integration events (outbox table + worker, or message broker).
