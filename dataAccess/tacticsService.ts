@@ -36,6 +36,18 @@ export type TacticsServicePorts = {
 
 export const createTacticsService = ({ tacticsStore, tacticsTransaction }: TacticsServicePorts) => ({
     saveTactics: async (matchId: number, side: MatchSide, tactics: Tactics): Promise<Tactics> => {
+        if (tactics.matchId !== matchId) {
+            throw new Error(`Tactics matchId mismatch: expected ${matchId}, got ${tactics.matchId}.`);
+        }
+
+        if (tactics.side !== side) {
+            throw new Error(`Tactics side mismatch: expected ${side}, got ${tactics.side}.`);
+        }
+
+        if (tactics.locked) {
+            throw new Error("Cannot save locked tactics.");
+        }
+
         return tacticsTransaction.runInTransaction(async (transactionalStore) => {
             return transactionalStore.saveForMatch(matchId, side, tactics);
         });
@@ -50,7 +62,15 @@ export const createTacticsService = ({ tacticsStore, tacticsTransaction }: Tacti
     },
 
     lockTacticsForMatch: async (matchId: number, side: MatchSide): Promise<void> => {
-        return tacticsStore.lockForMatch(matchId, side);
+        const tactics = await tacticsStore.findByMatchIdAndSide(matchId, side);
+
+        if (!tactics) {
+            throw new Error(`No tactics found for match ${matchId} on side ${side}.`);
+        }
+
+        tactics.lock();
+        await tacticsStore.saveForMatch(matchId, side, tactics);
+        await tacticsStore.lockForMatch(matchId, side);
     }
 });
 
