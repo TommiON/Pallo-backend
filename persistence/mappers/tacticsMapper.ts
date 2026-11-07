@@ -19,8 +19,11 @@ const mapLineupSlotsFromEntity = (lineupSlots: TacticsLineupSlotEntityData[] | u
 export const fromTacticsEntity = (entity: TacticsEntityData): Tactics => {
     return Tactics.restoreFromPersistence({
         id: entity.id,
+        matchId: entity.matchId ?? 0,
+        side: (entity.side as any) ?? "home",
         formation: entity.formation as Formation,
         masterTactic: entity.masterTactic as MasterTactic,
+        locked: entity.locked ?? false,
         lineup: mapLineupSlotsFromEntity(entity.lineupSlots as TacticsLineupSlotEntityData[] | undefined),
     });
 };
@@ -28,8 +31,11 @@ export const fromTacticsEntity = (entity: TacticsEntityData): Tactics => {
 export const toTacticsEntityData = (tactics: Tactics): TacticsEntityData => {
     return {
         id: tactics.id,
+        matchId: tactics.matchId,
+        side: tactics.side,
         formation: tactics.formation,
         masterTactic: tactics.masterTactic,
+        locked: tactics.locked,
         lineupSlots: tactics.lineup.map((slot, index): TacticsLineupSlotEntityData => ({
             tacticsId: tactics.id ?? 0,
             slotIndex: index,

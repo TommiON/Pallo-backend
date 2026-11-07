@@ -2,7 +2,7 @@ import Club from "./Club";
 import League from "./League";
 import MatchEvent from "./MatchEvent";
 import MatchNature from "./MatchNature";
-import Tactics from "./Tactics";
+import Tactics, { MatchSide } from "./Tactics";
 
 /* MATCH: a contest between two Clubs. */
 
@@ -54,10 +54,46 @@ export default class Match implements MatchData {
         this.awayClub = awayClub;
         this.league = league;
         this.week = week;
+        this.homeTactics = null;
+        this.awayTactics = null;
         this.started = false;
         this.finished = false;
         this.events = [];
         this.phases = [];
+    }
+
+    public setTactics(side: MatchSide, tactics: Tactics): void {
+        if (this.started || this.finished) {
+            throw new Error("Cannot change tactics after match has started.");
+        }
+
+        if (tactics.side !== side) {
+            throw new Error(`Tactics side mismatch: expected ${side}, got ${tactics.side}.`);
+        }
+
+        if (side === "home") {
+            this.homeTactics = tactics;
+        } else {
+            this.awayTactics = tactics;
+        }
+    }
+
+    public lockTactics(): void {
+        if (!this.homeTactics || !this.awayTactics) {
+            throw new Error("Both home and away tactics must be assigned before the match can start.");
+        }
+
+        this.homeTactics.lock();
+        this.awayTactics.lock();
+    }
+
+    public start(): void {
+        if (!this.homeTactics || !this.awayTactics) {
+            throw new Error("Both home and away tactics must be assigned before the match can start.");
+        }
+
+        this.started = true;
+        this.lockTactics();
     }
 
     getResult(): MatchResult {

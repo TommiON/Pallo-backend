@@ -1,8 +1,11 @@
-import Tactics from "../../domainCore/Tactics";
+import Tactics, { MatchSide } from "../../domainCore/Tactics";
 
 export interface TacticsStorePort {
-    save(tactics: Tactics): Promise<Tactics>;
+    saveForMatch(matchId: number, side: MatchSide, tactics: Tactics): Promise<Tactics>;
     findById(id: number): Promise<Tactics | null>;
+    findByMatchIdAndSide(matchId: number, side: MatchSide): Promise<Tactics | null>;
+    findByMatchId(matchId: number): Promise<Tactics[]>;
+    lockForMatch(matchId: number, side: MatchSide): Promise<void>;
 }
 
 export interface TacticsTransactionPort {

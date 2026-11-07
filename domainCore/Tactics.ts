@@ -9,6 +9,7 @@ TACTICS: manages and contraints how the team is set up for a Match.
 export type Position = 'goalkeeper' | 'fullback_left' | 'fullback_right' | 'center_back' | 'wingback_left' | 'wingback_right' | 'midfielder_left' | 'midfielder_right' | 'midfielder_center' | 'forward_center' | 'forward_left' | 'forward_right';
 
 export type Formation = '4-4-2' | '4-3-3' | '3-5-2' | '5-3-2' | '4-2-3-1' | '3-4-3' | '4-5-1';
+export type MatchSide = 'home' | 'away';
 
 export type LineupSlot = {
     position: Position;
@@ -19,9 +20,12 @@ export type Lineup = ReadonlyArray<LineupSlot>;
 
 export interface TacticsData {
     id?: number;
+    matchId?: number;
+    side?: MatchSide;
     formation: Formation;
     lineup: Lineup;
     masterTactic: MasterTactic;
+    locked?: boolean;
 }
 
 const groupings: Record<Formation, Position[]> = {
@@ -59,22 +63,28 @@ const validateLineupPositions = (formation: Formation, lineup: ReadonlyArray<Lin
 
 export default class Tactics {
     public id?: number;
+    public matchId: number;
+    public side: MatchSide;
     public formation: Formation;
     public lineup: LineupSlot[];
-
     public masterTactic: MasterTactic;
+    public locked: boolean;
 
-    constructor(formation: Formation = '4-4-2', masterTactic: MasterTactic = 'Balanced') {
+    constructor(matchId: number, side: MatchSide, formation: Formation = '4-4-2', masterTactic: MasterTactic = 'Balanced') {
+        this.matchId = matchId;
+        this.side = side;
         this.formation = formation;
         this.masterTactic = masterTactic;
-        this.lineup = createEmptyLineup(formation);
+        this.locked = false;
+        this.lineup = createEmptyLineup(this.formation);
     }
 
     public static restoreFromPersistence(data: TacticsData): Tactics {
         validateLineupPositions(data.formation, data.lineup);
 
-        const tactics = new Tactics(data.formation, data.masterTactic);
+        const tactics = new Tactics(data.matchId ?? 0, data.side ?? 'home', data.formation, data.masterTactic);
         tactics.id = data.id;
+        tactics.locked = data.locked ?? false;
         tactics.lineup = data.lineup.map((slot) => ({
             position: slot.position,
             player: slot.player,
@@ -83,7 +93,15 @@ export default class Tactics {
         return tactics;
     }
 
+    public lock(): void {
+        this.locked = true;
+    }
+
     public setLineup(players: Player[]): void {
+        if (this.locked) {
+            throw new Error('Cannot update a locked tactics set.');
+        }
+
         const formationLineup = groupings[this.formation];
 
         if (players.length !== formationLineup.length) {

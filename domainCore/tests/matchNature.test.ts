@@ -39,6 +39,36 @@ const getTotalBalance = (matchNature: { balance: ReadonlyMap<unknown, number> })
     return Array.from(matchNature.balance.values()).reduce((sum, value) => sum + value, 0);
 };
 
+describe("Match tactics lifecycle", () => {
+    it("allows tactics to be assigned before the match starts and rejects further changes after start", () => {
+        const { default: Match } = require("../Match") as {
+            default: typeof import("../Match").default;
+        };
+        const { default: Club } = require("../Club") as {
+            default: typeof import("../Club").default;
+        };
+        const { default: Tactics } = require("../Tactics") as {
+            default: typeof import("../Tactics").default;
+        };
+
+        const match = new Match(new Club("Home Test Club"), new Club("Away Test Club"), 1);
+        const homeTactics = new Tactics(1, "home", "4-4-2");
+        const awayTactics = new Tactics(1, "away", "4-3-3");
+
+        match.setTactics("home", homeTactics);
+        match.setTactics("away", awayTactics);
+
+        expect(match.homeTactics).toBe(homeTactics);
+        expect(match.awayTactics).toBe(awayTactics);
+
+        match.started = true;
+
+        expect(() => match.setTactics("home", new Tactics(1, "home", "3-5-2"))).toThrow(
+            "Cannot change tactics after match has started."
+        );
+    });
+});
+
 describe.each([10, 15, 20])("MatchNature with MATCH_GRANULARITY_MINUTES=%i", (matchGranularityMinutes) => {
     afterEach(() => {
         jest.resetModules();
