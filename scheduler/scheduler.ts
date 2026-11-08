@@ -9,6 +9,7 @@ import { TIME_SPEEDUP_FACTOR, TIME_USE_SCHEDULER } from "../domainCore/domainPro
 
 let recurringWeeklySchedule: WeeklyEvent[];
 let currentWeekEvents: WeeklyEvent[] = [];
+let tickInProgress = false;
 
 export const initializeScheduler = async () => {
     await initializeTime();
@@ -43,41 +44,51 @@ export const startScheduler = () => {
 }
 
 const tick = async () => {
-    const currentTime = await getCurrentTime();
+    if (tickInProgress) {
+        return;
+    }
 
-    if (!currentTime) return;
+    tickInProgress = true;
 
-    // Toistaiseksi oletus: kun klubeja on kerran riittävästi ensimmäisen liigan luomiseen, niitä ei enää katoa.
-    // Myöhemmin kehitettävä niin että klubeja voi myös passivoitua.
-    // Myös: ClubCreated-messaging pois käytöstä -> kun klubeja tarpeeksi, vaatii sovelluksen uudelleenkäynnistyksen
-    if (currentTime.isTheStartOfASeason()) {
-        try {
-            await startNewSeason(currentTime.season);
-        } catch (error: unknown) {
-            if (error instanceof NotEnoughClubsForSeasonStartError) {
-                console.log('Kausi ei voi alkaa, ei tarpeeksi joukkueita.');
-                return;
-            } else {
-                throw error;
+    try {
+        const currentTime = await getCurrentTime();
+
+        if (!currentTime) return;
+
+        // Toistaiseksi oletus: kun klubeja on kerran riittävästi ensimmäisen liigan luomiseen, niitä ei enää katoa.
+        // Myöhemmin kehitettävä niin että klubeja voi myös passivoitua.
+        // Myös: ClubCreated-messaging pois käytöstä -> kun klubeja tarpeeksi, vaatii sovelluksen uudelleenkäynnistyksen
+        if (currentTime.isTheStartOfASeason()) {
+            try {
+                await startNewSeason(currentTime.season);
+            } catch (error: unknown) {
+                if (error instanceof NotEnoughClubsForSeasonStartError) {
+                    console.log('Kausi ei voi alkaa, ei tarpeeksi joukkueita.');
+                    return;
+                } else {
+                    throw error;
+                }
             }
         }
+
+        if (currentTime.isTheStartOfAWeek()) {
+            currentWeekEvents = getWeekEventsForCurrentTime(currentTime);
+        }
+
+        currentWeekEvents = currentWeekEvents.filter((e) => !e.hasExpired(currentTime));
+
+        const expiringRightNow: WeeklyEvent | undefined = currentWeekEvents.find((e) => e.isExpiring(currentTime));
+
+        if (expiringRightNow) {
+            await expiringRightNow.finish(currentTime.season, currentTime.week);
+            currentWeekEvents = currentWeekEvents.filter((e) => e !== expiringRightNow);
+        }
+
+        currentTime.advanceByAnHour();
+        await updateTime(currentTime);
+    } finally {
+        tickInProgress = false;
     }
-
-    if (currentTime.isTheStartOfAWeek()) {
-        currentWeekEvents = getWeekEventsForCurrentTime(currentTime);
-    }
-
-    currentWeekEvents = currentWeekEvents.filter((e) => !e.hasExpired(currentTime));
-
-    const expiringRightNow: WeeklyEvent | undefined = currentWeekEvents.find((e) => e.isExpiring(currentTime));
-
-    if (expiringRightNow) {
-        await expiringRightNow.finish(currentTime.season, currentTime.week);
-        currentWeekEvents = currentWeekEvents.filter((e) => e !== expiringRightNow);
-    }
-
-    currentTime.advanceByAnHour();
-    await updateTime(currentTime);
 }
 
 const getWeekEventsForCurrentTime = (currentTime: Time): WeeklyEvent[] => {
