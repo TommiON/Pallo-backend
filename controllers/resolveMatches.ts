@@ -11,9 +11,11 @@ export const resolveMatches = async (season: number, week: number) => {
     // Get the upcoming Matches for resolving
     const matches = await findMatchesBySeasonAndWeek(season, week);
 
-    // 2. palastellaan batcheiksi täällä? Huom. concurrency?
-
     for (const match of matches) {
+        if (match.finished) {
+            continue;
+        }
+
         // mark the Match as started
         match.started = true;
 
