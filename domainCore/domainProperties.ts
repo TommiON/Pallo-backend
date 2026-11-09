@@ -15,6 +15,7 @@ export const MATCH_BALANCE_MIDFIELD_SHARE_OF_PLAY = 0.5;
 
 export const CLUB_NUMBER_OF_PLAYERS_AT_START = 15;
 
+// League properties: number of Clubs in a League, number of child Leagues per parent League, number of Clubs promoted from the top of a League
 export const LEAGUE_NUMBER_OF_TEAMS = 4;
 export const LEAGUE_SPAN_FACTOR = 2;
 export const LEAGUE_PROMOTED_FROM_TOP = 1;
@@ -23,6 +24,7 @@ export const LEAGUE_PROMOTED_FROM_TOP = 1;
 export const TIME_USE_SCHEDULER = true;
 export const TIME_SPEEDUP_FACTOR = 9000; // 60 = one real minute is one hour in game time; 1 = real time
 
+// schedule of WeeklyEvents
 export const WEEK_YOUTH_ACADEMY_DRAW_DEADLINE: WeeklyDeadline = { day: 0, hour: 21 };
 export const WEEK_FINANCES_SETUP_DEADLINE: WeeklyDeadline =     { day: 1, hour: 21 };
 export const WEEK_TRAINING_SETUP_DEADLINE: WeeklyDeadline =     { day: 2, hour: 21 }; 
