@@ -4,24 +4,25 @@ import Time from "./Time";
 WEEKLY EVENT: recurring event in game's weekly cycle. Differs from most other Domain Objects for being just conceptual, i.e. not persisted as an instance.
 */
 
-export interface WeeklyEventData {
-    type: WeeklyEventType;
-    deadline: WeeklyDeadline;
-}
+export type WeeklyEventType = 
+    'transfersDeadline' |
+    'matchSetupDeadline' | 
+    'match' | 
+    'trainingSetupDeadline' |
+    'training' | 
+    'financesSetupDeadline' |
+    'financesUpdate' | 
+    'youthAcademyDrawDeadline';
 
 export type WeeklyDeadline = {
     day: number;
     hour: number;
 }
 
-export type WeeklyEventType = 
-    'transfersDeadline' | 'matchSetupDeadline' | 'match' | 'trainingSetupDeadline' |
-    'training' | 'financesSetupDeadline' | 'financesUpdate' | 'youthAcademyDrawDeadline';
-
 export type WeeklyEventCallbackFunctions = {
     transfersDeadline: () => void;
-    matchSetupDeadline: () => void;
-    match: (season: number, week: number) => void | Promise<void>;
+    matchSetupDeadline: () => void;                                     // locks (disables) further Tactics updates
+    match: (season: number, week: number) => void | Promise<void>;      // sends Matches for resolution
     trainingSetupDeadline: () => void;
     training: () => void;
     financesSetupDeadline: () => void;
@@ -31,7 +32,12 @@ export type WeeklyEventCallbackFunctions = {
 
 export type WeeklyEventCallback = WeeklyEventCallbackFunctions[WeeklyEventType];
 
-export class WeeklyEvent {
+export interface WeeklyEventData {
+    type: WeeklyEventType;
+    deadline: WeeklyDeadline;
+}
+
+export class WeeklyEvent implements WeeklyEventData {
     type: WeeklyEventType;
     deadline: WeeklyDeadline;
     finishingCallback: WeeklyEventCallback;

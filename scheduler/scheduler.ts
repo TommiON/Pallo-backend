@@ -1,6 +1,7 @@
 import { WeeklyEvent, WeeklyEventType } from "../domainCore/WeeklyEvent";
 import Time from "../domainCore/Time";
-import { WeeklyEventCallbackFunctions, initializeWeeklyEvents } from "../domainEngine/initialization/DomainInitializer";
+//import { WeeklyEventCallbackFunctions, initializeWeeklyEvents } from "../domainEngine/initialization/DomainInitializer";
+import { initializeWeeklyEvents } from "../scheduler/weeklyEventsInitializer";
 import { initializeTime, getCurrentTime, updateTime } from "../dataAccess/timeService";
 import { startNewSeason, NotEnoughClubsForSeasonStartError } from "../controllers/startNewSeason";
 import { resolveMatches } from "../controllers/resolveMatches";
@@ -16,21 +17,9 @@ export const initializeScheduler = async () => {
     const currentTime = await getCurrentTime();
     if (!currentTime) { throw new Error("Time not initialized"); }
 
-    const weeklyEventCallbacks: WeeklyEventCallbackFunctions = {
-        transfersDeadline: () => {},
-        matchSetupDeadline: () => {},
-        match: async (season, week) => await resolveMatches(season, week),
-        trainingSetupDeadline: () => {},
-        training: () => {},
-        financesSetupDeadline: () => {},
-        financesUpdate: () => {},
-        youthAcademyDrawDeadline: () => {},
-    }
-    
-    recurringWeeklySchedule = initializeWeeklyEvents(weeklyEventCallbacks);
+    recurringWeeklySchedule = initializeWeeklyEvents();
 
     currentWeekEvents = [];
-
     currentWeekEvents = getWeekEventsForCurrentTime(currentTime);
 }
 
